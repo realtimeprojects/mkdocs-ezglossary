@@ -1,0 +1,33 @@
+[project]
+name = "mkdocs-glossary-plugin"
+version = "1.0.0"
+description="mkdocs plugin for glossaries"
+authors = [
+    { name="Claudio Klingler", email="ck@realtime-projects.com"}
+]
+readme = "README.md"
+requires-python = ">=3.7"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [ "requests" ]
+
+[build-system]
+requires = [
+  "mkdocs >= 1.1.0 ",
+  "setuptools >= 61.0.0",
+  "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+
+[project.urls]
+"Homepage" = "https://github.com"
+"Bug Tracker" = "https://github.com"
+
+[project.entry-points."mkdocs.plugins"]
+ezglossary = "mkdocs_glossary_plugin.plugin:GlossaryPlugin"
