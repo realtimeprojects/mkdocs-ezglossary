@@ -27,5 +27,5 @@ plugins:
 
 ## Further reading
 
--   Check the [usage](usage.md) documentation on how to use
+-   Check the [usage](usage/index.md) documentation on how to use
     your the plugin.
