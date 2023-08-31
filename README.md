@@ -9,6 +9,10 @@ This plugin adds glossary support for mkdocs. It supports
 -   Printing a summary of your glossary with definitions and
     references anywhere in your documentation.
 
+## Documentation
+
+-   Read the [full documentation](https://realtimeprojects.github.io/mkdocs-ezglossary)
+
 ## Prerequisites
 
 This plugin requires the
