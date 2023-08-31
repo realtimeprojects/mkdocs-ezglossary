@@ -9,8 +9,10 @@ extra_css:
   - stylesheets/extra.css
 
 nav:
-  - ezglossary: index.md
+  - home: index.md
   - getting started: getting_started.md
+  - usage: usage.md
+  - sections: sections.md
   - release notes: releases.md
 
 markdown_extensions:

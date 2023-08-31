@@ -9,14 +9,13 @@ This plugin adds glossary support for mkdocs. It supports
 -   Printing a summary of your glossary with definitions and
     references anywhere in your documentation.
 
-## Usage
+## Documentation
 
--   Check the [getting started](getting_started.md) instructions
-    for installation and basic configuration of ezglossary
+-   Read the [getting started](getting_started.md) instructions
+    for installation and basic configuration of ezglossary.
 
--   Check the [usage instructions](usage.md) to see how to
-    use the glosssary in your documentation
+-   Read the [usage](usage.md) documentation
+    to see how to use ezglossary in your documentation.
 
--   Check the [configuration](configuration.md) documentation
-    for advanced configuration options
-
+-   Read the [sections](sections) documentation to see
+    how to configure sections.
