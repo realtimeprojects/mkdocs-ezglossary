@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.1.0
+| ~2023-08-31~
+
+-   support whitespaces and dashes in terms.
+
 ## v1.0.4
 | ~2023-08-31~
 
