@@ -26,8 +26,8 @@ build-backend = "setuptools.build_meta"
 
 
 [project.urls]
-"Homepage" = "https://github.com"
-"Bug Tracker" = "https://github.com"
+"Homepage" = "https://github.com/realtimeprojects/mkdocs-ezglossary"
+"Bug Tracker" = "https://github.com/realtimeprojects/mkdocs-ezglossary/issues"
 
 [project.entry-points."mkdocs.plugins"]
-ezglossary = "mkdocs_glossary_plugin.plugin:GlossaryPlugin"
+ezglossary = "mkdocs_ezglossary_plugin.plugin:GlossaryPlugin"

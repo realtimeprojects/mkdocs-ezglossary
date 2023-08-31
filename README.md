@@ -1,4 +1,4 @@
-# mkdocs glossary plugin
+# mkdocs ezglossary plugin
 
 ## Features
 
