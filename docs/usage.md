@@ -45,7 +45,7 @@ syntax. This will produce a link to the definition in your documentation:
 
     -   See the <terms:glossary> for the definition of the term `glossary`
 
-## Printing a summery
+## Printing a summary
 
 Now you can place a summary of all definitions anywhere in your
 documentation:
