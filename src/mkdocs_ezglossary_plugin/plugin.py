@@ -86,9 +86,9 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             term = mo.group(2)
             text = mo.group(3) if mo.group(3) else term
             _id = self._glossary.add(section, term, 'refs', page)
-            return f"{self._uuid}:{section}:{term}:{text}:{_id}"
+            return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
-        regex = r"<(\w+):(\w+)\|?(\w+)?>"
+        regex = r"<(\w+):(\w+)\|?([^>]+)?>"
         return re.sub(regex, _replace, output)
 
     def _replace_glossary_links(self, output, page, root):
@@ -106,7 +106,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             target = f"{root}{target_page.url}#{target_id}"
             return f'<a name="{_id}" title="{_html2text(desc)}" href="{target}">{text}</a>'
 
-        regex = fr"{self._uuid}:(\w+):(\w+):(\w+):(\w+)"
+        regex = fr"{self._uuid}:(\w+):(\w+):<([^>]+)>:(\w+)"
         return re.sub(regex, _replace, output)
 
     def _update_glossary(self, content, page):

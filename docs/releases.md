@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.0.4
+| ~2023-08-31~
+
+-   Fix: individual link text only allowed single words.
+
 ## v1.0.3
 | ~2023-08-31~
 

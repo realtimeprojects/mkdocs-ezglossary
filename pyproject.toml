@@ -1,6 +1,6 @@
 [project]
 name = "mkdocs-ezglossary-plugin"
-version = "1.0.3"
+version = "1.0.4"
 description="mkdocs plugin for glossaries"
 authors = [
     { name="Claudio Klingler", email="ck@realtime-projects.com"}
