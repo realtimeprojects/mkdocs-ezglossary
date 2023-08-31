@@ -1,5 +1,5 @@
 [project]
-name = "mkdocs-glossary-plugin"
+name = "mkdocs-ezglossary-plugin"
 version = "1.0.0"
 description="mkdocs plugin for glossaries"
 authors = [

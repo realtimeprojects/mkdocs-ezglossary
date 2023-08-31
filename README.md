@@ -18,7 +18,7 @@ to be active or any other plugin which generates
 
 ## Installation
 
-<TBD>
+    pip install mkdocs-ezglossary-plugin
 
 ## Usage
 
