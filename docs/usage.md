@@ -7,23 +7,23 @@ just works by adding a definition list with section specifiers anywhere
 in your documentation:
 
 ``` markdown
-terms:glossary
+term:glossary
 :   A list of specialized words with their definitions
 ```
 
-`terms` herby referes to the <terms:section> `terms` in which this glossary
+`term` herby referes to the <termssection> `terms` in which this glossary
 entry will be added.
 
 !!! Example
 
-    Define the term `glossary` in the section `terms`:
+    Define the term `glossary` in the section `term`:
 
     ``` markdown
-    terms:glossary
+    term:glossary
     :   A list of specialized words with their definitions
     ```
 
-    terms:glossary
+    term:glossary
     :   A list of specialized words with their definitions
 
 ## Linking to a glossary entry
@@ -37,13 +37,13 @@ syntax. This will produce a link to the definition in your documentation:
 
 !!! Example
 
-    Link to the previously defined `glossary` term in the `terms` section:
+    Link to the previously defined `glossary` term in the `term` section:
 
     ``` markdown
-    -   See the <terms:glossary> for the definition of the term `glossary`
+    -   See the <term:glossary> for the definition of the term `glossary`
     ```
 
-    -   See the <terms:glossary> for the definition of the term `glossary`
+    -   See the <term:glossary> for the definition of the term `glossary`
 
 ## Printing a summary
 
@@ -58,19 +58,19 @@ documentation:
 
 !!! Example
 
-    Lets generate the summary for the section `terms`:
+    Lets generate the summary for the section `term`:
 
     ``` markdown
     # Terms and Definitions
 
-    <glossary::terms>
+    <glossary::term>
     ```
 
     This will produce the following summary. Note that the summary contains
     links to all definitions (`def`) and references (`ref`) to all terms
     in your documentation:
 
-    <glossary::terms>
+    <glossary::term>
 
 ## Further reading
 

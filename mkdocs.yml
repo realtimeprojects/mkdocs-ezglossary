@@ -13,6 +13,7 @@ nav:
   - getting started: getting_started.md
   - usage: usage.md
   - sections: sections.md
+  - definitions: definitions.md
   - release notes: releases.md
 
 markdown_extensions:
