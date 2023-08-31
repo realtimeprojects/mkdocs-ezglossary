@@ -8,7 +8,7 @@ anywhere in your documentation:
 ``` markdown
 # Terms and Definitions
 
-<glossary::section>
+<glossary::demo>
 ```
 
 !!! Example
@@ -16,9 +16,9 @@ anywhere in your documentation:
     Lets generate the summary for the section `term`:
 
     ``` markdown
-    # Terms and Definitions
+    # Demo terms
 
-    <glossary::term>
+    <glossary::demo>
     ```
 
     This will produce the following summary. Note that the summary contains
@@ -27,7 +27,7 @@ anywhere in your documentation:
 
     !!! Quote "Output"
 
-        <glossary::term>
+        <glossary::demo>
 
 ## Configuration
 

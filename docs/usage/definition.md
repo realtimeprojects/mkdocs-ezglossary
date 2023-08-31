@@ -17,11 +17,14 @@ entry will be added.
     Define the term `glossary` in the section `term`:
 
     ``` markdown
-    term:glossary
-    :   A list of specialized words with their definitions
+    demo:my_term1
+    :   Definition of my_term1
     ```
 
-    term:glossary
-    :   A list of specialized words with their definitions
+    demo:my_term1
+    :   Definition of my_term1
+
+    demo:my term 2
+    :   Definition of my term 2
 
 

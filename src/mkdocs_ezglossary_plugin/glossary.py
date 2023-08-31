@@ -4,7 +4,7 @@ class Glossary:
 
     def add(self, section, term, linktype, page, desc=None):
         links = self._links(section, term, linktype)
-        _id = f"{section}{term}{linktype}{len(links)}"
+        _id = f"{section}_{term}_{linktype}_{len(links)}".replace(" ", "_")
         links[_id] = (page, desc)
         return _id
 

@@ -14,10 +14,12 @@ syntax. This will produce a link to the definition in your documentation:
     Link to the previously defined `glossary` term in the `term` section:
 
     ``` markdown
-    -   See the <term:glossary> for the definition of the term `glossary`
+    -   See the <demo:my_term1> for definition of term 1
+    -   See the <demo:my term 2> for definition of term 2
     ```
 
-    -   See the <term:glossary> for the definition of the term `glossary`
+    -   See the <demo:my_term1> for definition of term 1
+    -   See the <demo:my term 2> for definition of term 1
 
 ## Individual reference texts
 

@@ -42,5 +42,6 @@ configuration:sections
             sections:
                 - terms
                 - configuration
+                - demo
     ```
 

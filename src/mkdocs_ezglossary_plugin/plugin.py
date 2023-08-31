@@ -12,6 +12,18 @@ from .glossary import Glossary
 log = logging.getLogger("mkdocs.plugins.ezglossary")
 
 
+class __re:
+    def __init__(self):
+        self.section = r"(\w+)"
+        self.term = r"([\w -]+)"
+        self.text = r"([^>]+)"
+        self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
+        self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
+
+
+_re = __re()
+
+
 class GlossaryConfig(config.base.Config):
     strict = config.config_options.Type(bool, default=False)
     tooltip = config.config_options.Choice(('none', 'heading', 'full'), default="none")
@@ -88,7 +100,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
-        regex = r"<(\w+):(\w+)\|?([^>]+)?>"
+        regex = rf"<{_re.section}:{_re.term}\|?{_re.text}?>"
         return re.sub(regex, _replace, output)
 
     def _replace_glossary_links(self, output, page, root):
@@ -106,16 +118,15 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             target = f"{root}{target_page.url}#{target_id}"
             return f'<a name="{_id}" title="{_html2text(desc)}" href="{target}">{text}</a>'
 
-        regex = fr"{self._uuid}:(\w+):(\w+):<([^>]+)>:(\w+)"
+        regex = fr"{self._uuid}:{_re.section}:{_re.term}:<{_re.text}>:(\w+)"
         return re.sub(regex, _replace, output)
 
     def _update_glossary(self, content, page):
         def _replace(mo):
             section = mo.group(1)
             term = mo.group(2)
-            text = mo.group(3) if mo.group(3) else term
             if self.tooltip != "none":
-                desc = mo.group(4)
+                desc = mo.group(3)
             else:
                 desc = ""
 
@@ -125,10 +136,11 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 return mo.group()
             _id = self._glossary.add(section, term, 'defs', page, _desc)
             if self.tooltip == "none":
-                return f'<dt><a name="{_id}">{text}</a></dt>'
-            return f'<dt><a name="{_id}">{text}</a></dt><dd>{desc}</dd>'
+                return f'<dt><a name="{_id}">{term}</a></dt>'
+            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}</dd>'
 
-        regex_full = re.compile(r"<dt>(\w+)\:(\w+)\|?(\w*)?<\/dt>\n*<dd>\n?((.|\n)+?)<\/dd>", re.MULTILINE)
+        regex_full = re.compile(rf"{_re.dt}\n*{_re.dd}", re.MULTILINE)
+        print(regex_full)
         regex_head = re.compile(r"<dt>(\w+)\:(\w+)\|?(\w*)?<\/dt>")
         regex = regex_head if self.tooltip == "none" else regex_full
         ret = re.sub(regex, _replace, content)
