@@ -19,6 +19,7 @@ class __re:
         self.text = r"([^>]+)"
         self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
+        self.options = r"([\w\+]+)"
 
 
 _re = __re()
@@ -42,7 +43,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self.strict = self.config['strict']
         self.list_references = self.config['list_references']
         self.list_definitions = self.config['list_definitions']
-        print(f"-- {self.list_definitions}/{self.list_references}")
         self.tooltip = self.config['tooltip']
 
         if self.strict and len(self.sections) == 0:
@@ -78,8 +78,17 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def _print_glossary(self, html, root):
         def _replace(mo):
             section = mo.group(1)
-            print(f"{self.list_definitions}/{self.list_references}")
-            if not self.list_definitions and not self.list_references:
+            options = mo.group(2) or ""
+
+            lr = "do_refs" in options
+            if "no_refs" not in options and "do_refs" not in options:
+                lr = self.list_references
+
+            ld = "do_defs" in options
+            if "no_defs" not in options and "do_defs" not in options:
+                ld = self.list_references
+
+            if not lr and not ld:
                 log.warning("list_definitons and list_references disabled, summary will be empty")
 
             html = '<dl class="mkdocs-glossary">'
@@ -88,17 +97,17 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             terms = self._glossary.terms(section)
             for term in terms:
                 html += f'<dt>{term}<dt><dd><ul>'
-                if self.list_definitions:
+                if ld:
                     entries = self._glossary.get(section, term, 'defs')
                     html = self._add_items(html, root, "defs", entries)
-                if self.list_references:
+                if lr:
                     entries = self._glossary.get(section, term, 'refs')
                     html = self._add_items(html, root, "refs", entries)
                 html += '</ul></dd>'
             html += "</dl>"
             return html
 
-        regex = r"<glossary::(\w+)>"
+        regex = rf"<glossary::{_re.section}\|?{_re.options}?>"
         return re.sub(regex, _replace, html)
 
     def _register_glossary_links(self, output, page):

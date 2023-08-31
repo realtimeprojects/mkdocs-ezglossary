@@ -6,6 +6,10 @@
 -   support whitespaces and dashes in terms.
 -   add <configuration:list_definitions> configuration to
     disable listing definitions in summary.
+-   Support overriding <configuration:list_definitions> and
+    <configuration:list_references> using `[no|do]_[refs|defs]`
+    as summary modifier. See 
+    [documentation](https://realtimeprojects.github.io/mkdocs-ezglossary/usage/summary#overriding-the-output-behaviour).
 
 ## v1.0.4
 | ~2023-08-31~

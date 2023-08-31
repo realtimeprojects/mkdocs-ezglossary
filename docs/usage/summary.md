@@ -29,6 +29,52 @@ anywhere in your documentation:
 
         <glossary::demo>
 
+## Overriding the output behaviour
+
+Override the default values for <configuration:list_definitions> and
+<configuration:list_references> by placing a modifier behind the glossary
+reference:
+
+```markdown
+    <glossary::demo|no_refs>
+```
+
+=== "no_refs"
+
+    Reference:
+
+    ```
+    <glossary::demo|no_refs>
+    ```
+
+    !!! Quote "output"
+
+        <glossary::demo|no_refs>
+
+=== "no_defs"
+
+    Reference:
+
+    ```
+    <glossary::demo|no_defs>
+    ```
+
+    !!! Quote "output"
+
+        <glossary::demo|no_defs>
+
+=== "do_defs and do_refs"
+
+    Reference:
+
+    ```
+    <glossary::demo|do_defs+do_refs>
+    ```
+
+    !!! Quote "output"
+
+        <glossary::demo|do_defs+do_refs>
+
 ## Configuration
 
 configuration:list_definitions
