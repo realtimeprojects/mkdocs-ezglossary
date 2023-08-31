@@ -49,9 +49,10 @@ markdown_extensions:
 plugins:
   - search
   - ezglossary:
-      strict: false
+      strict: true
       list_references: true
       tooltip: full
       sections:
         - setting
         - term
+        - demo
