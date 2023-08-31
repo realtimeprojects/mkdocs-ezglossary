@@ -132,7 +132,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         regex_head = re.compile(r"<dt>(\w+)\:(\w+)\|?(\w*)?<\/dt>")
         regex = regex_head if self.tooltip == "none" else regex_full
         ret = re.sub(regex, _replace, content)
-        print(ret)
         return ret
 
 
