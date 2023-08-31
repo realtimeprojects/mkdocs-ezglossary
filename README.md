@@ -20,7 +20,7 @@ to be active or any other plugin which generates
 
     pip install mkdocs-ezglossary-plugin
 
-## Usage
+## Quickstart
 
 ### Activation
 
@@ -29,7 +29,7 @@ Add the following lines to your mkdocs.yml plugins section:
 ``` yaml
 plugins:
   - search
-  - glossary
+  - ezglossary
 ```
 
 ### Defining glossary entries
