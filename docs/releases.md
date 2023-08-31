@@ -10,6 +10,10 @@
     <configuration:list_references> using `[no|do]_[refs|defs]`
     as summary modifier. See 
     [documentation](https://realtimeprojects.github.io/mkdocs-ezglossary/usage/summary#overriding-the-output-behaviour).
+-   Support per-section definition of <configuration:list_definitions> and
+    <configuration:list_references>
+-   Support inline references in term definitions
+
 
 ## v1.0.4
 | ~2023-08-31~

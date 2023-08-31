@@ -72,17 +72,21 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         ii = 0
         if len(entries) == 0:
             return html
+        if mode == "short":
+            html += "<p>"
         for (_id, data) in entries.items():
             ii += 1
             (page, desc) = data
             if mode == "short":
-                html += '<span><a href="{root}{page.url}#{_id}">[{ii}]</a></span>'
+                html += f'<span><a title="{page.title}" href="{root}{page.url}#{_id}">[{ii}]</a> </span>'
             else:
                 html += f'''
                 <li>
                     <a href="{root}{page.url}#{_id}">{page.title}</a>
                     <small>[{heading[:-1]}]</small>
                 </li>'''
+        if mode == "short":
+            html += "<p>"
         return html
 
     def _print_glossary(self, html, root):
@@ -92,11 +96,11 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
             lr = "do_refs" in options
             if "no_refs" not in options and "do_refs" not in options:
-                lr = self.list_references
+                lr = self._get_config(section, 'list_references')
 
             ld = "do_defs" in options
             if "no_defs" not in options and "do_defs" not in options:
-                ld = self.list_references
+                ld = self._get_config(section, 'list_definitions')
 
             if not lr and not ld:
                 log.warning("list_definitons and list_references disabled, summary will be empty")
@@ -133,20 +137,19 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     def _replace_inline_refs(self, output, page, root):
         def _replace(mo):
-            print(f"*** replacing")
             section = mo.group(1)
             term = mo.group(2)
 
-            mode = self._inline_refs(section)
+            mode = self._get_config(section, 'inline_refs')
 
             entries = self._glossary.get(section, term, 'refs')
             html = ""
-            if mode == "full":
-                html += '<div><p>References:</p>'
+            if mode == "list":
+                html += '<div>'
                 html += '\n<ul class="ezglossary-refs">'
             html += self._add_items(html, root, "refs", entries, mode)
-            if mode == "full":
-                html += '</ul>\n'
+            if mode == "list":
+                html += '</ul></div>\n'
             return html
 
         regex = fr"{self._reflink}:{_re.section}:{_re.term}"
@@ -171,9 +174,12 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         return re.sub(regex, _replace, output)
 
     def _update_glossary(self, content, page):
+        print(f"up: {page}")
+
         def _replace(mo):
             section = mo.group(1)
             term = mo.group(2)
+            print(f"up: {section}:{term}")
             if self.tooltip != "none":
                 desc = mo.group(3)
             else:
@@ -184,7 +190,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 log.warning(f"ignoring undefined section '{section}' [{mo.group()}] in glossary")
                 return mo.group()
             _id = self._glossary.add(section, term, 'defs', page, _desc)
-            reflink = f"{self._reflink}:{section}:{term}" if self._inline_refs(section) != 'off' else ""
+            reflink = f"{self._reflink}:{section}:{term}" if self._get_config(section, 'inline_refs') != "off" else ""
             print(f"reflink: {reflink}")
             if self.tooltip == "none":
                 return f'<dt><a name="{_id}">{term}</a></dt>'
@@ -197,18 +203,19 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         return ret
 
     def _get_section_config(self, section):
+        print(f"_get_section_config({section})")
         for entry in self.config.section_config:
             if entry['name'] == section:
                 return entry
         return None
 
-    def _inline_refs(self, section):
+    def _get_config(self, section, entry):
         cfg = self._get_section_config(section)
-        if not cfg or 'inline_refs' not in cfg:
-            ret = self.config.inline_refs
+        if not cfg or entry not in cfg:
+            ret = self.config[entry]
         else:
-            ret = cfg['inline_refs']
-        print(f"inline_refs({section}): {ret}")
+            ret = cfg[entry]
+        print(f"_get_config({section}, {entry}): {ret}")
         return ret
 
 

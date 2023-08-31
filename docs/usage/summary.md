@@ -81,23 +81,58 @@ configuration:list_definitions
 :   If set to `false`, definitions are not listed in the [summary](summary.md). Default
     is `true`.
 
-    ``` markdown
-    plugins:
-        - search
-        - ezglossary:
-            - list_references: false
-    ```
+    === "Global"
+
+        ``` markdown
+        plugins:
+            - search
+            - ezglossary:
+                - list_definitions: false
+        ```
+
+    === "Per section"
+
+        ``` markdown
+        plugins:
+            - search
+            - ezglossary:
+                sections:
+                    demo
+                section_config:
+                    - name: demo
+                      list_references = true
+
+                - list_definitions: false
+        ```
+        
 
 configuration:list_references
 :   If set to `false`, references are not listed in the [summary](summary.md). Default
     is `true`.
 
-    ``` markdown
-    plugins:
-        - search
-        - ezglossary:
-            - list_references: false
-    ```
+    === "Global"
+
+        ``` markdown
+        plugins:
+            - search
+            - ezglossary:
+                - list_references: false
+        ```
+
+    === "Per section"
+
+        ``` markdown
+        plugins:
+            - search
+            - ezglossary:
+                sections:
+                    demo
+                section_config:
+                    - name: demo
+                      list_references = true
+
+                - list_references: false
+        ```
 
 ## Further reading
 

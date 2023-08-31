@@ -62,5 +62,7 @@ plugins:
         - demo
         - configuration
       section_config:
-        - name: setting
-          inline-refs: list
+        - name: demo
+          inline_refs: "short"
+        - name: term
+          inline_refs: "short"
