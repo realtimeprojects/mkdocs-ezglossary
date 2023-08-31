@@ -7,7 +7,7 @@ theme:
     navigation.tabs
 
 extra_css:
-  - stylesheets/extra.css
+  - css/extra.css
 
 nav:
   - home: index.md
