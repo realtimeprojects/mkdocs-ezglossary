@@ -29,6 +29,7 @@ class GlossaryConfig(config.base.Config):
     tooltip = config.config_options.Choice(('none', 'heading', 'full'), default="none")
     sections = co.ListOfItems(co.Type(str), default=[])
     list_references = config.config_options.Type(bool, default=True)
+    list_definitions = config.config_options.Type(bool, default=True)
 
 
 class GlossaryPlugin(BasePlugin[GlossaryConfig]):
@@ -40,7 +41,10 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self.sections = self.config['sections']
         self.strict = self.config['strict']
         self.list_references = self.config['list_references']
+        self.list_definitions = self.config['list_definitions']
+        print(f"-- {self.list_definitions}/{self.list_references}")
         self.tooltip = self.config['tooltip']
+
         if self.strict and len(self.sections) == 0:
             log.error("ezglossary: no sections defined, but 'strict' is true, plugin disabled")
         self._glossary.clear()
@@ -74,14 +78,19 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def _print_glossary(self, html, root):
         def _replace(mo):
             section = mo.group(1)
+            print(f"{self.list_definitions}/{self.list_references}")
+            if not self.list_definitions and not self.list_references:
+                log.warning("list_definitons and list_references disabled, summary will be empty")
+
             html = '<dl class="mkdocs-glossary">'
             if not self._glossary.has(section=section):
                 log.warning(f"no section '{section}' found in glossary")
             terms = self._glossary.terms(section)
             for term in terms:
                 html += f'<dt>{term}<dt><dd><ul>'
-                entries = self._glossary.get(section, term, 'defs')
-                html = self._add_items(html, root, "defs", entries)
+                if self.list_definitions:
+                    entries = self._glossary.get(section, term, 'defs')
+                    html = self._add_items(html, root, "defs", entries)
                 if self.list_references:
                     entries = self._glossary.get(section, term, 'refs')
                     html = self._add_items(html, root, "refs", entries)
@@ -140,7 +149,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}</dd>'
 
         regex_full = re.compile(rf"{_re.dt}\n*{_re.dd}", re.MULTILINE)
-        print(regex_full)
         regex_head = re.compile(r"<dt>(\w+)\:(\w+)\|?(\w*)?<\/dt>")
         regex = regex_head if self.tooltip == "none" else regex_full
         ret = re.sub(regex, _replace, content)

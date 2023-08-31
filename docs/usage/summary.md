@@ -31,6 +31,17 @@ anywhere in your documentation:
 
 ## Configuration
 
+configuration:list_definitions
+:   If set to `false`, definitions are not listed in the [summary](summary.md). Default
+    is `true`.
+
+    ``` markdown
+    plugins:
+        - search
+        - ezglossary:
+            - list_references: false
+    ```
+
 configuration:list_references
 :   If set to `false`, references are not listed in the [summary](summary.md). Default
     is `true`.
@@ -41,6 +52,7 @@ configuration:list_references
         - ezglossary:
             - list_references: false
     ```
+
 ## Further reading
 
 -   Read the [sections](sections.md) documentation to see how to configure sections.

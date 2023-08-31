@@ -4,6 +4,8 @@
 | ~2023-08-31~
 
 -   support whitespaces and dashes in terms.
+-   add <configuration:list_definitions> configuration to
+    disable listing definitions in summary.
 
 ## v1.0.4
 | ~2023-08-31~

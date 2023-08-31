@@ -50,9 +50,11 @@ plugins:
   - search
   - ezglossary:
       strict: true
+      list_definitions: true
       list_references: true
       tooltip: full
       sections:
         - setting
         - term
         - demo
+        - configuration
