@@ -1,7 +1,9 @@
 # Printing a summary
 
-Now you can place a <term:summary> of all definitions anywhere in your
-documentation:
+## Basic
+
+Place a <term:summary> of all definitions for a <term:section>
+anywhere in your documentation:
 
 ``` markdown
 # Terms and Definitions
@@ -23,10 +25,22 @@ documentation:
     links to all definitions (`def`) and references (`ref`) to all terms
     in your documentation:
 
-    <glossary::term>
+    !!! Quote "Output"
 
+        <glossary::term>
+
+## Configuration
+
+configuration:list_references
+:   If set to `false`, references are not listed in the [summary](summary.md). Default
+    is `true`.
+
+    ``` markdown
+    plugins:
+        - search
+        - ezglossary:
+            - list_references: false
+    ```
 ## Further reading
 
 -   Read the [sections](sections.md) documentation to see how to configure sections.
-
-

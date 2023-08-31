@@ -15,7 +15,6 @@ However, in order to avoid spelling errors, you can enable the <configuration:st
 
 If strict mode is activated, you also need to configure <configuration:sections>.
 
-
 ## Configuration
 
 configuration:strict
@@ -30,7 +29,6 @@ configuration:strict
     ```
 
 configuration:sections
-
 :   Defines a list of sections that are recognized by ezglossary.
 
     If <configuration:strict> mode is enabled, only <term:definition|definitions>
@@ -45,3 +43,4 @@ configuration:sections
                 - terms
                 - configuration
     ```
+

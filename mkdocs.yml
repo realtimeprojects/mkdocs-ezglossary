@@ -18,8 +18,8 @@ nav:
     - usage/linking.md
     - usage/summary.md
     - usage/sections.md
-    - usage/configuration.md
   - definitions: definitions.md
+  - configuration: configuration.md
   - release notes: releases.md
 
 markdown_extensions:
