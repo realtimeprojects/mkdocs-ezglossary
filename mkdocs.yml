@@ -1,0 +1,43 @@
+site_name: ezglossary
+theme:
+  name: material
+  features:
+    navigation.path
+    navigation.indexes
+    navigation.tabs
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      separator: "-"
+  - attr_list
+  - def_list
+  - tables
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.snippets
+  - callouts
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - footnotes
+  - mdx_gh_links:
+      user: mkdocs
+      repo: mkdocs
+  - md_in_html
+  - mkdocs-click
+
+plugins:
+  - search
+  - ezglossary:
+      strict: false
+      list_references: true
+      tooltip: full
+      sections:
+        - setting
+        - term
