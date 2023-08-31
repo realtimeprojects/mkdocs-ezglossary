@@ -28,7 +28,9 @@ _re = __re()
 class GlossaryConfig(config.base.Config):
     strict = config.config_options.Type(bool, default=False)
     tooltip = config.config_options.Choice(('none', 'heading', 'full'), default="none")
-    sections = co.ListOfItems(co.Type(str), default=[])
+    inline_refs = config.config_options.Choice(('off', 'short', 'full'), default="off")
+    sections = co.ListOfItems(config.config_options.Type(str), default=[])
+    section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
 
@@ -37,9 +39,11 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def __init__(self):
         self._glossary = Glossary()
         self._uuid = "6251a85a-47d0-11ee-be56-0242ac120002"
+        self._reflink = "6251a85a-47d0-11ee-be56-0242ac120002"
 
     def on_pre_build(self, config, **kwargs):
-        self.sections = self.config['sections']
+        print(self.config.section_config)
+        self.sections = self.config.sections
         self.strict = self.config['strict']
         self.list_references = self.config['list_references']
         self.list_definitions = self.config['list_definitions']
@@ -60,19 +64,25 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         levels = len(_dir.split("/"))
         root = "../" * levels
         output = self._replace_glossary_links(output, page, root)
+        output = self._replace_inline_refs(output, page, root)
         output = self._print_glossary(output, root)
         return output
 
-    def _add_items(self, html, root, heading, entries):
+    def _add_items(self, html, root, heading, entries, mode=""):
+        ii = 0
         if len(entries) == 0:
             return html
         for (_id, data) in entries.items():
+            ii += 1
             (page, desc) = data
-            html += f'''
-            <li>
-                <a href="{root}{page.url}#{_id}">{page.title}</a>
-                <small>[{heading[:-1]}]</small>
-            </li>'''
+            if mode == "short":
+                html += '<span><a href="{root}{page.url}#{_id}">[{ii}]</a></span>'
+            else:
+                html += f'''
+                <li>
+                    <a href="{root}{page.url}#{_id}">{page.title}</a>
+                    <small>[{heading[:-1]}]</small>
+                </li>'''
         return html
 
     def _print_glossary(self, html, root):
@@ -121,6 +131,27 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         regex = rf"<{_re.section}:{_re.term}\|?{_re.text}?>"
         return re.sub(regex, _replace, output)
 
+    def _replace_inline_refs(self, output, page, root):
+        def _replace(mo):
+            print(f"*** replacing")
+            section = mo.group(1)
+            term = mo.group(2)
+
+            mode = self._inline_refs(section)
+
+            entries = self._glossary.get(section, term, 'refs')
+            html = ""
+            if mode == "full":
+                html += '<div><p>References:</p>'
+                html += '\n<ul class="ezglossary-refs">'
+            html += self._add_items(html, root, "refs", entries, mode)
+            if mode == "full":
+                html += '</ul>\n'
+            return html
+
+        regex = fr"{self._reflink}:{_re.section}:{_re.term}"
+        return re.sub(regex, _replace, output)
+
     def _replace_glossary_links(self, output, page, root):
         def _replace(mo):
             section = mo.group(1)
@@ -153,14 +184,31 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 log.warning(f"ignoring undefined section '{section}' [{mo.group()}] in glossary")
                 return mo.group()
             _id = self._glossary.add(section, term, 'defs', page, _desc)
+            reflink = f"{self._reflink}:{section}:{term}" if self._inline_refs(section) != 'off' else ""
+            print(f"reflink: {reflink}")
             if self.tooltip == "none":
                 return f'<dt><a name="{_id}">{term}</a></dt>'
-            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}</dd>'
+            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}\n{reflink}</dd>'
 
         regex_full = re.compile(rf"{_re.dt}\n*{_re.dd}", re.MULTILINE)
-        regex_head = re.compile(r"<dt>(\w+)\:(\w+)\|?(\w*)?<\/dt>")
+        regex_head = re.compile(rf"{_re.dt}")
         regex = regex_head if self.tooltip == "none" else regex_full
         ret = re.sub(regex, _replace, content)
+        return ret
+
+    def _get_section_config(self, section):
+        for entry in self.config.section_config:
+            if entry['name'] == section:
+                return entry
+        return None
+
+    def _inline_refs(self, section):
+        cfg = self._get_section_config(section)
+        if not cfg or 'inline_refs' not in cfg:
+            ret = self.config.inline_refs
+        else:
+            ret = cfg['inline_refs']
+        print(f"inline_refs({section}): {ret}")
         return ret
 
 

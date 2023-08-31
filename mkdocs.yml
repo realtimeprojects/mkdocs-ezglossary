@@ -54,9 +54,13 @@ plugins:
       strict: true
       list_definitions: true
       list_references: true
+      inline_refs: "off"
       tooltip: full
       sections:
         - setting
         - term
         - demo
         - configuration
+      section_config:
+        - name: setting
+          inline-refs: list
