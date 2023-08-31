@@ -60,5 +60,5 @@ documentation:
 ``` markdown
 # Terms and Definitions
 
-<glossary::term>
+<glossary::section>
 ```

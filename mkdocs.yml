@@ -4,10 +4,14 @@ theme:
   features:
     navigation.path
     navigation.indexes
-    navigation.tabs
 
 extra_css:
   - stylesheets/extra.css
+
+nav:
+  - ezglossary: index.md
+  - getting started: getting_started.md
+  - release notes: releases.md
 
 markdown_extensions:
   - toc:
