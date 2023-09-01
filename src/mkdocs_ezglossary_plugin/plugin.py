@@ -14,10 +14,12 @@ log = logging.getLogger("mkdocs.plugins.ezglossary")
 
 class __re:
     def __init__(self):
+        self.ws = r"[\n ]*"
         self.section = r"(\w+)"
         self.term = r"([\w -]+)"
         self.text = r"([^>]+)"
         self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
+        self.dt_default = rf"<dt>{self.term}<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
         self.options = r"([\w\+]+)"
 
@@ -26,9 +28,8 @@ _re = __re()
 
 
 class GlossaryConfig(config.base.Config):
-    strict = config.config_options.Type(bool, default=False)
     tooltip = config.config_options.Choice(('none', 'heading', 'full'), default="none")
-    inline_refs = config.config_options.Choice(('off', 'short', 'full'), default="off")
+    inline_refs = config.config_options.Choice(('none', 'short', 'full'), default="none")
     sections = co.ListOfItems(config.config_options.Type(str), default=[])
     section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
     list_references = config.config_options.Type(bool, default=True)
@@ -42,20 +43,13 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self._reflink = "6251a85a-47d0-11ee-be56-0242ac120002"
 
     def on_pre_build(self, config, **kwargs):
-        print(self.config.section_config)
-        self.sections = self.config.sections
-        self.strict = self.config['strict']
-        self.list_references = self.config['list_references']
-        self.list_definitions = self.config['list_definitions']
-        self.tooltip = self.config['tooltip']
-
-        if self.strict and len(self.sections) == 0:
+        if self.config.strict and len(self.config.sections) == 0:
             log.error("ezglossary: no sections defined, but 'strict' is true, plugin disabled")
         self._glossary.clear()
 
     @event_priority(5000)
     def on_page_content(self, content, page, config, files):
-        content = self._update_glossary(content, page)
+        content = self._find_definitions(content, page)
         content = self._register_glossary_links(content, page)
         return content
 
@@ -173,32 +167,44 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         regex = fr"{self._uuid}:{_re.section}:{_re.term}:<{_re.text}>:(\w+)"
         return re.sub(regex, _replace, output)
 
-    def _update_glossary(self, content, page):
-        print(f"up: {page}")
+    def _find_definitions(self, content, page):
+        log.debug(f"_find_definitions({page})")
+
+        def _add_entry(section, term, desc):
+            log.debug("found entry: {section}:{term}:{desc}")
+            _desc = desc.split("\n")[0] if self.config.tooltip == "heading" else desc
+            if section not in self.config.sections and self.config.strict:
+                log.warning(f"ignoring undefined section '{section}' in glossary")
+                return None
+            _id = self._glossary.add(section, term, 'defs', page, _desc)
+            reflink = f"{self._reflink}:{section}:{term}" if self._get_config(section, 'inline_refs') != "off" else ""
+            print(f"reflink: {reflink}")
+            if self.config.tooltip == "none":
+                return f'<dt><a name="{_id}">{term}</a></dt>'
+            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}\n{reflink}</dd>'
+
+#       def _replace_default(mo):
+#           section = "_"
+#           term = mo.group(2)
+#           _add_entry(section, term,
 
         def _replace(mo):
             section = mo.group(1)
             term = mo.group(2)
-            print(f"up: {section}:{term}")
-            if self.tooltip != "none":
+
+            if self.config.tooltip != "none":
                 desc = mo.group(3)
             else:
                 desc = ""
+            rendered = _add_entry(section, term, desc)
+            return rendered if rendered else mo.group()
 
-            _desc = desc.split("\n")[0] if self.tooltip == "heading" else desc
-            if section not in self.sections and self.strict:
-                log.warning(f"ignoring undefined section '{section}' [{mo.group()}] in glossary")
-                return mo.group()
-            _id = self._glossary.add(section, term, 'defs', page, _desc)
-            reflink = f"{self._reflink}:{section}:{term}" if self._get_config(section, 'inline_refs') != "off" else ""
-            print(f"reflink: {reflink}")
-            if self.tooltip == "none":
-                return f'<dt><a name="{_id}">{term}</a></dt>'
-            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}\n{reflink}</dd>'
+        regex_default = re.compile(rf"{_re.dt_default}")
+        ret = re.sub(regex_default, _replace, content)
 
-        regex_full = re.compile(rf"{_re.dt}\n*{_re.dd}", re.MULTILINE)
+        regex_full = re.compile(rf"{_re.dt}{_re.ws}{_re.dd}", re.MULTILINE)
         regex_head = re.compile(rf"{_re.dt}")
-        regex = regex_head if self.tooltip == "none" else regex_full
+        regex = regex_head if self.config.tooltip == "none" else regex_full
         ret = re.sub(regex, _replace, content)
         return ret
 
