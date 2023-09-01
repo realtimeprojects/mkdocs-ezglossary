@@ -32,6 +32,7 @@ class GlossaryConfig(config.base.Config):
     inline_refs = config.config_options.Choice(('none', 'short', 'full'), default="none")
     sections = co.ListOfItems(config.config_options.Type(str), default=[])
     section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
+    strict = config.config_options.Type(bool, default=False)
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
 
@@ -202,15 +203,14 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             rendered = _add_entry(section, term, desc)
             return rendered if rendered else mo.group()
 
-        regex_default = re.compile(rf"{_re.dt_default}")
-        ret = re.sub(regex_default, _replace, content)
+        # regex_default = re.compile(rf"{_re.dt_default}")
+        # ret = re.sub(regex_default, _replace, content)
 
         regex_dt = re.compile(rf"{_re.dt}{_re.ws}{_re.dd}", re.MULTILINE)
         ret = re.sub(regex_dt, _replace, content)
         return ret
 
     def _get_section_config(self, section):
-        print(f"_get_section_config({section})")
         for entry in self.config.section_config:
             if entry['name'] == section:
                 return entry
