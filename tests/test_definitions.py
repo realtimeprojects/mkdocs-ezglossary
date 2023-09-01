@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 def test_default_config(simple, config):
-    html = mock.render(simple, config)
+    html = mock.render_single(simple, config)
     tree = etree.fromstring(html)
     log.debug(html)
     dl = xpath.dl()
@@ -33,7 +33,7 @@ def test_default_config(simple, config):
 
 def test_inline_refs(simple, config):
     config['inline_refs'] = "short"
-    html = mock.render(simple, config)
+    html = mock.render_single(simple, config)
     log.debug(html)
     tree = etree.fromstring(html)
 

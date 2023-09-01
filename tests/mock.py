@@ -24,10 +24,22 @@ class Page:
         return f"Page({self.title}, {self.file})"
 
 
-def render(page, config):
+def render_single(page, config):
+    return render([page], config)[page.url]
+
+
+def render(pages, config):
     files = []
+    results = {}
     plugin = GlossaryPlugin()
     plugin.config = config
     plugin.on_pre_build(config)
-    html = plugin.on_page_content(page.html, page, config, files)
-    return plugin.on_post_page(html, page, config)
+    for page in pages:
+        results[page.url] = plugin.on_page_content(page.html, page, config, files)
+    for page in pages:
+        results[page.url] = plugin.on_post_page(results[page.url], page, config)
+    for page in pages:
+        fp = open(page.url + ".html", "w")
+        fp.write(results[page.url])
+        fp.close()
+    return results
