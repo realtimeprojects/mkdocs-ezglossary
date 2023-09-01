@@ -3,6 +3,8 @@ import yaml
 
 import mock
 
+import logging
+
 
 @pytest.fixture
 def config():
@@ -14,6 +16,7 @@ def config():
         tooltip: "none"
         sections: []
         section_config: []
+        templates:
     """
     config = yaml.safe_load(_default)
     return mock.Config(**config)

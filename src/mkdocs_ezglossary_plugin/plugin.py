@@ -37,6 +37,7 @@ class GlossaryConfig(config.base.Config):
     strict = config.config_options.Type(bool, default=False)
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
+    templates = config.config_options.Type(str, default=None)
 
 
 class GlossaryPlugin(BasePlugin[GlossaryConfig]):
@@ -110,7 +111,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 log.warning(f"no section '{section}' found in glossary")
 
             terms = self._glossary.terms(section)
-            glossary = template.load("glossary.html")
+            glossary = template.load("glossary.html", self.config)
             html = glossary.render(glossary=self._glossary,
                                    types=types,
                                    section=section,

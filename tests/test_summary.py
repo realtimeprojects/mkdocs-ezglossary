@@ -98,3 +98,17 @@ def test_summary_nodef(simple, summary, config):
     dl = dl.has(xp.dt(text="third"))
     dl = dl.has(dd)
     assert len(tree.xpath(str(dl))) == 1
+
+
+def test_custom_summaryf(simple, summary, config):
+    config['templates'] = "tests/custom"
+    pages = mock.render([simple, summary], config)
+    summary = pages["summary.md"]
+    tree = etree.fromstring(summary)
+
+    dd = xp.dd().ul().li().a(href="../simple.md#test_third_refs_0",
+                             text="Hello")
+    dl = xp.dl(_class="custom-glossary", _id="test")
+    dl = dl.has(xp.dt(text="third"))
+    dl = dl.has(dd)
+    assert len(tree.xpath(str(dl))) == 1
