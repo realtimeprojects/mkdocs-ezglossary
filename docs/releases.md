@@ -1,5 +1,12 @@
 # Release Notes
 
+## v1.1.1
+| ~2023-09-01~
+
+-   reduce log noise
+-   fix html output for inline refs
+-   rename <configuration:inline_refs> value "off" to "none"
+
 ## v1.1.0
 | ~2023-08-31~
 
