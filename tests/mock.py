@@ -1,4 +1,3 @@
-import yaml
 from mkdocs_ezglossary_plugin.plugin import GlossaryPlugin
 
 
@@ -28,9 +27,7 @@ class Page:
 def render(page, config):
     files = []
     plugin = GlossaryPlugin()
-    config = yaml.safe_load(config)
-    print(config)
-    plugin.config = Config(**config)
+    plugin.config = config
     plugin.on_pre_build(config)
     html = plugin.on_page_content(page.html, page, config, files)
     return plugin.on_post_page(html, page, config)
