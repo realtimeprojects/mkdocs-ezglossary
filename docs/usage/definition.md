@@ -40,7 +40,7 @@ This can either be done in the global definition:
 ```markdown
 plugins:
     ezglossary:
-        inline_refs: "off"
+        inline_refs: none
 ```
 
 or in the section configuration:
@@ -60,7 +60,7 @@ configuration:inline_refs
 
     Options:
 
-    off [default]
+    none [default]
     :   No inline references are linked in the term definition
 
     short:
@@ -69,7 +69,3 @@ configuration:inline_refs
     list:
     :   A full list of references including the page name are added to the
         term definition.
-
-
-
-
