@@ -1,7 +1,7 @@
 import logging
 import re
 import os
-import html
+from html import parser
 
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
@@ -72,7 +72,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             ii += 1
             (page, desc) = data
             if mode == "short":
-                html += f'<span><a title="{page.title}" href="{root}{page.url}#{_id}">[{ii}]</a> </span>'
+                html += f'<span><a title="{page.title}" href="{root}{page.url}#{_id}">[{ii}]</a></span>'
             else:
                 html += f'''
                 <li>
@@ -80,7 +80,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                     <small>[{heading[:-1]}]</small>
                 </li>'''
         if mode == "short":
-            html += "<p>"
+            html += "</p>"
         return html
 
     def _print_glossary(self, html, root):
@@ -171,17 +171,24 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         log.debug(f"_find_definitions({page})")
 
         def _add_entry(section, term, desc):
-            log.debug("found entry: {section}:{term}:{desc}")
-            _desc = desc.split("\n")[0] if self.config.tooltip == "heading" else desc
+            log.debug(f"found entry: {section}:{term}:{desc}")
+
+            if self.config.tooltip == "none":
+                _tooltip = ""
+            if self.config.tooltip == "short":
+                _tooltip = desc.split("\n")[0]
+            if self.config.tooltip == "full":
+                _tooltip = desc
+
             if section not in self.config.sections and self.config.strict:
                 log.warning(f"ignoring undefined section '{section}' in glossary")
                 return None
-            _id = self._glossary.add(section, term, 'defs', page, _desc)
-            reflink = f"{self._reflink}:{section}:{term}" if self._get_config(section, 'inline_refs') != "off" else ""
-            print(f"reflink: {reflink}")
-            if self.config.tooltip == "none":
-                return f'<dt><a name="{_id}">{term}</a></dt>'
-            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}\n{reflink}</dd>'
+
+            _id = self._glossary.add(section, term, 'defs', page, _tooltip)
+
+            inline_refs = self._get_config(section, 'inline_refs')
+            reflink = f"\n{self._reflink}:{section}:{term}" if inline_refs != "none" else ""
+            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}{reflink}</dd>'
 
 #       def _replace_default(mo):
 #           section = "_"
@@ -191,21 +198,15 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         def _replace(mo):
             section = mo.group(1)
             term = mo.group(2)
-
-            if self.config.tooltip != "none":
-                desc = mo.group(3)
-            else:
-                desc = ""
+            desc = mo.group(3)
             rendered = _add_entry(section, term, desc)
             return rendered if rendered else mo.group()
 
         regex_default = re.compile(rf"{_re.dt_default}")
         ret = re.sub(regex_default, _replace, content)
 
-        regex_full = re.compile(rf"{_re.dt}{_re.ws}{_re.dd}", re.MULTILINE)
-        regex_head = re.compile(rf"{_re.dt}")
-        regex = regex_head if self.config.tooltip == "none" else regex_full
-        ret = re.sub(regex, _replace, content)
+        regex_dt = re.compile(rf"{_re.dt}{_re.ws}{_re.dd}", re.MULTILINE)
+        ret = re.sub(regex_dt, _replace, content)
         return ret
 
     def _get_section_config(self, section):
@@ -221,17 +222,20 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             ret = self.config[entry]
         else:
             ret = cfg[entry]
-        print(f"_get_config({section}, {entry}): {ret}")
+        log.debug(f"_get_config({section}, {entry}): {ret}")
         return ret
 
 
 def _html2text(content):
-    class HTMLFilter(html.parser.HTMLParser):
-        text = ""
+    class HTMLFilter(parser.HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.text = ""
 
         def handle_data(self, data):
             self.text += data
 
     f = HTMLFilter()
+    log.debug(f"adding {content}")
     f.feed(content)
     return f.text

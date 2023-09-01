@@ -25,10 +25,26 @@ def simple():
         file="simple.md",
         title="Hello",
         html="""
-            <dl>
-                <dt>test:first</dt>
-                <dd>first term</dd>
-            </dl>
+            <body>
+                <dl>
+                    <dt>test:first</dt>
+                    <dd>first term</dd>
+                    <dt>test:second</dt>
+                    <dd>second term</dd>
+                    <dt>test:third</dt>
+                    <dd>third term</dd>
+                </dl>
+                <dl>
+                    <dt>demo:first</dt>
+                    <dd>demo 1</dd>
+                    <dt>demo:second</dt>
+                    <dd>demo 2</dd>
+                    <dt>demo:third</dt>
+                    <dd>demo 3</dd>
+                </dl>
+
+                <p>See <test:third> for details.</p>
+            </body>
         """
     )
     return mock.Page.fromdict(_simple)
