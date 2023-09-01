@@ -9,6 +9,8 @@ from mkdocs.config import config_options as co
 
 from .glossary import Glossary
 
+from . import template
+
 log = logging.getLogger("mkdocs.plugins.ezglossary")
 
 
@@ -69,15 +71,14 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             return html
         if mode == "short":
             html += "<p>"
-        for (_id, data) in entries.items():
+        for entry in entries:
             ii += 1
-            (page, desc) = data
             if mode == "short":
-                html += f'<span><a title="{page.title}" href="{root}{page.url}#{_id}">[{ii}]</a></span>'
+                html += f'<span><a title="{entry.page.title}" href="{root}{entry.page.url}#{entry.target}">[{ii}]</a></span>'
             else:
                 html += f'''
                 <li>
-                    <a href="{root}{page.url}#{_id}">{page.title}</a>
+                    <a href="{root}{entry.page.url}#{entry.target}">{entry.page.title}</a>
                     <small>[{heading[:-1]}]</small>
                 </li>'''
         if mode == "short":
@@ -86,34 +87,35 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     def _print_glossary(self, html, root):
         def _replace(mo):
+            types = []
             section = mo.group(1)
             options = mo.group(2) or ""
 
             lr = "do_refs" in options
             if "no_refs" not in options and "do_refs" not in options:
                 lr = self._get_config(section, 'list_references')
+            if lr:
+                types.append('refs')
 
             ld = "do_defs" in options
             if "no_defs" not in options and "do_defs" not in options:
                 ld = self._get_config(section, 'list_definitions')
+            if ld:
+                types.append('defs')
 
             if not lr and not ld:
                 log.warning("list_definitons and list_references disabled, summary will be empty")
 
-            html = f'<dl class="mkdocs-glossary" id="{section}">'
             if not self._glossary.has(section=section):
                 log.warning(f"no section '{section}' found in glossary")
+
             terms = self._glossary.terms(section)
-            for term in terms:
-                html += f'<dt>{term}</dt><dd><ul>'
-                if ld:
-                    entries = self._glossary.get(section, term, 'defs')
-                    html = self._add_items(html, root, "defs", entries)
-                if lr:
-                    entries = self._glossary.get(section, term, 'refs')
-                    html = self._add_items(html, root, "refs", entries)
-                html += '</ul></dd>'
-            html += "</dl>"
+            glossary = template.load("glossary.html")
+            html = glossary.render(glossary=self._glossary,
+                                   types=types,
+                                   section=section,
+                                   terms=terms,
+                                   root=root)
             return html
 
         regex = rf"<glossary::{_re.section}\|?{_re.options}?>"
@@ -157,13 +159,13 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             text = mo.group(3)
             _id = mo.group(4)
             defs = self._glossary.get(section, term, 'defs')
+            print(defs)
             if len(defs) == 0:
                 log.warning(f"page '{page.url}' referenes to undefined glossary entry {section}:{term}")
                 return f'<a name="{_id}">{text}</a>'
-            target_id = list(defs.keys())[0]
-            (target_page, desc) = defs[target_id]
-            target = f"{root}{target_page.url}#{target_id}"
-            return f'<a name="{_id}" title="{_html2text(desc)}" href="{target}">{text}</a>'
+            entry = defs[0]
+            target = f"{root}{entry.page.url}#{entry.target}"
+            return f'<a name="{_id}" title="{_html2text(entry.desc)}" href="{target}">{text}</a>'
 
         regex = fr"{self._uuid}:{_re.section}:{_re.term}:<{_re.text}>:(\w+)"
         return re.sub(regex, _replace, output)
