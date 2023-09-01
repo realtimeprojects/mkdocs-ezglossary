@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.1.2
+| ~2023-09-01~
+
+-   fix html syntax for summary
+-   add section id to summary data list
+
 ## v1.1.1
 | ~2023-09-01~
 

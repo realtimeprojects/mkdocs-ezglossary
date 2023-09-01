@@ -100,12 +100,12 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             if not lr and not ld:
                 log.warning("list_definitons and list_references disabled, summary will be empty")
 
-            html = '<dl class="mkdocs-glossary">'
+            html = f'<dl class="mkdocs-glossary" id="{section}">'
             if not self._glossary.has(section=section):
                 log.warning(f"no section '{section}' found in glossary")
             terms = self._glossary.terms(section)
             for term in terms:
-                html += f'<dt>{term}<dt><dd><ul>'
+                html += f'<dt>{term}</dt><dd><ul>'
                 if ld:
                     entries = self._glossary.get(section, term, 'defs')
                     html = self._add_items(html, root, "defs", entries)
