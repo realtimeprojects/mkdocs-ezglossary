@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.2.1
+| ~2023-09-02~
+
+-   Optimize reference list output for definition.
+
 ## v1.2.0
 | ~2023-09-02~
 
