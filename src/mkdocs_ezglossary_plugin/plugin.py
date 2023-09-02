@@ -178,12 +178,12 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
             inline_refs = self._get_config(section, 'inline_refs')
             reflink = f"\n{self._reflink}:{section}:{term}" if inline_refs != "none" else ""
-            return f'<dt><a name="{_id}">{term}</a></dt><dd>{definition}{reflink}</dd>'
-
-#       def _replace_default(mo):
-#           section = "_"
-#           term = mo.group(2)
-#           _add_entry(section, term,
+            return template.render("definition.html",
+                                   self.config,
+                                   target=_id,
+                                   term=term,
+                                   definition=definition,
+                                   reflink=reflink)
 
         def _replace(mo):
             section = mo.group(1)

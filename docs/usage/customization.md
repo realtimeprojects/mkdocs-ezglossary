@@ -19,6 +19,7 @@ The content of the templates dicrectoy should look like this:
 doc/
     templates/
         links.html          # template for the reference links
+        definition.html     # template for definition
         refs-short.html     # template for the references in 'short' mode
         refs-long.html      # template for the references in 'long' mode
         summary.html        # template for the summary
@@ -64,6 +65,27 @@ The default template for the short mode looks like this:
     {% endfor %}
 </div>
 ```
+
+## Term definition
+
+The `definition.html` is used for the replacement of the original
+term definition.
+
+``` jinja
+<dt>
+    <a name="{{ target }}">{{ term }}</a>
+</dt>
+<dd>
+    {{ definition|safe }}
+    <br>
+    {{ reflink }}
+</dd>
+```
+
+!!! Note
+
+    Use the "safe" filter to avoid HTML escaping for the
+    definition content.
 
 ## Summary
 
@@ -126,6 +148,10 @@ section
 types
 :   A list of types which should be displace in this summary.
     Contains one or more of this values: `refs`, `defs`.
+
+reflink
+:   A internal reference link which is used for the post-processing
+    and injection of the reference links.
 
 ## Configuration
 
