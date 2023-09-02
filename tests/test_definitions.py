@@ -16,7 +16,7 @@ def test_default_config(simple, config):
     dl = dl.has(xpath.dt().has(xpath.a(name="test_first_defs_0", text="first")))
     dl = dl.has(xpath.dd(text="first term"))
     dl = dl.has(xpath.dt().has(xpath.a(name="test_second_defs_0", text="second")))
-    dl = dl.has(xpath.dd(text="second term"))
+    dl = dl.has(xpath.dd(text="*second term"))
     assert len(tree.xpath(str(dl)))
 
     dl = xpath.dl()

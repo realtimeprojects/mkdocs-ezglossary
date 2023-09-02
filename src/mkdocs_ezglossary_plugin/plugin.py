@@ -137,13 +137,20 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             text = mo.group(3)
             _id = mo.group(4)
             defs = self._glossary.get(section, term, 'defs')
-            print(defs)
+
             if len(defs) == 0:
                 log.warning(f"page '{page.url}' referenes to undefined glossary entry {section}:{term}")
                 return f'<a name="{_id}">{text}</a>'
+            if len(defs) >= 0:
+                log.warning(f"multiple definitions found for <{section}:{term}>, linking to first")
             entry = defs[0]
-            target = f"{root}{entry.page.url}#{entry.target}"
-            return f'<a name="{_id}" title="{_html2text(entry.desc)}" href="{target}">{text}</a>'
+            entry.desc = _html2text(entry.desc)
+            return template.render("link.html",
+                                   root=root,
+                                   config=self.config,
+                                   entry=entry,
+                                   text=text,
+                                   target=_id)
 
         regex = fr"{self._uuid}:{_re.section}:{_re.term}:<{_re.text}>:(\w+)"
         return re.sub(regex, _replace, output)
@@ -218,4 +225,4 @@ def _html2text(content):
     f = HTMLFilter()
     log.debug(f"adding {content}")
     f.feed(content)
-    return f.text
+    return f.text.strip()

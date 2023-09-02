@@ -34,9 +34,15 @@ def simple():
                     <dt>test:first</dt>
                     <dd>first term</dd>
                     <dt>test:second</dt>
-                    <dd>second term</dd>
+                    <dd>second term
+                        this <em>text</em> is formatted
+                    </dd>
                     <dt>test:third</dt>
-                    <dd>third term</dd>
+                    <dd>
+                        third term
+
+                        detailed description of third term
+                    </dd>
                 </dl>
                 </div>
                 <div id="demo">
@@ -51,6 +57,7 @@ def simple():
                 </div>
 
                 <p>See <test:third> for details.</p>
+                <p>See <test:second> for details.</p>
             </body>
         """
     )
@@ -71,6 +78,8 @@ def summary():
                 <div id="demo">
                     <glossary::demo>
                 </div>
+
+                <p>See <test:third> for details</p>
             </body>
         """
     )
