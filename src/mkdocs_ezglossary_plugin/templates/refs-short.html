@@ -1,0 +1,12 @@
+<div class="ezglossary-refs">
+    {% set counter = 0 %}
+    {% for entry in entries %}
+        {% set counter = counter + 1 %}
+        <span>
+            <a title="{{ entry.page.title }}"
+               href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">
+                [{{ counter }}]
+            </a>
+        </span>    
+    {% endfor %}
+</div>

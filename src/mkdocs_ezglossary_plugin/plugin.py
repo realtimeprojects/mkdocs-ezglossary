@@ -37,7 +37,7 @@ class GlossaryConfig(config.base.Config):
     strict = config.config_options.Type(bool, default=False)
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
-    templates = config.config_options.Type(str, default=None)
+    templates = config.config_options.Type(str, default="")
 
 
 class GlossaryPlugin(BasePlugin[GlossaryConfig]):
@@ -66,26 +66,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         output = self._print_glossary(output, root)
         return output
 
-    def _add_items(self, html, root, heading, entries, mode=""):
-        ii = 0
-        if len(entries) == 0:
-            return html
-        if mode == "short":
-            html += "<p>"
-        for entry in entries:
-            ii += 1
-            if mode == "short":
-                html += f'<span><a title="{entry.page.title}" href="{root}{entry.page.url}#{entry.target}">[{ii}]</a></span>'
-            else:
-                html += f'''
-                <li>
-                    <a href="{root}{entry.page.url}#{entry.target}">{entry.page.title}</a>
-                    <small>[{heading[:-1]}]</small>
-                </li>'''
-        if mode == "short":
-            html += "</p>"
-        return html
-
     def _print_glossary(self, html, root):
         def _replace(mo):
             types = []
@@ -104,15 +84,16 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             if ld:
                 types.append('defs')
 
-            if not lr and not ld:
+            if len(types) == 0:
                 log.warning("list_definitons and list_references disabled, summary will be empty")
 
             if not self._glossary.has(section=section):
                 log.warning(f"no section '{section}' found in glossary")
 
             terms = self._glossary.terms(section)
-            glossary = template.load("glossary.html", self.config)
-            html = glossary.render(glossary=self._glossary,
+            return template.render("glossary.html",
+                                   self.config,
+                                   glossary=self._glossary,
                                    types=types,
                                    section=section,
                                    terms=terms,
@@ -141,14 +122,10 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             mode = self._get_config(section, 'inline_refs')
 
             entries = self._glossary.get(section, term, 'refs')
-            html = ""
-            if mode == "list":
-                html += '<div>'
-                html += '\n<ul class="ezglossary-refs">'
-            html += self._add_items(html, root, "refs", entries, mode)
-            if mode == "list":
-                html += '</ul></div>\n'
-            return html
+            return template.render(f"refs-{mode}.html",
+                                   self.config,
+                                   entries=entries,
+                                   root=root)
 
         regex = fr"{self._reflink}:{_re.section}:{_re.term}"
         return re.sub(regex, _replace, output)

@@ -46,5 +46,5 @@ def test_inline_refs(simple, config):
     dl = dl.has(xpath.dt().has(xpath.a(name="test_third_defs_0", text="third")))
     dl = dl.has(xpath.dd(text="*third term").has(xpath.a(title="Hello",
                                                          href="../simple.md#test_third_refs_0",
-                                                         text="[1]")))
+                                                         text="*[1]")))
     assert len(tree.xpath(str(dl))) == 1

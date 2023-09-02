@@ -10,6 +10,11 @@ env = Environment(
 )
 
 
+def render(file, config, **kwargs):
+    tpl = load(file, config)
+    return tpl.render(**kwargs)
+
+
 def load(file, config):
     logging.error(f"--* {config}")
     if not config.templates:
