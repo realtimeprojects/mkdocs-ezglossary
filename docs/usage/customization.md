@@ -34,7 +34,7 @@ The default template looks like this:
 ``` jinja
 <a class="mkdocs-ezglossary-link"
     name="{{ target }}"
-    title="{{ entry.desc }}"
+    title="{{ entry.definition }}"
     href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ text }}</a>
 ```
 

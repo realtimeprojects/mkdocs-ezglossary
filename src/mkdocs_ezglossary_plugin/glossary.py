@@ -6,14 +6,14 @@ log = logging.getLogger(__name__)
 class Entry:
     """ An entry in the glossary. """
 
-    def __init__(self, target, page, desc):
+    def __init__(self, target, page, definition):
         self.target = target
         """ The anchor to directly point to this specific link. """
 
         self.page = page
         """ The url of the page to which this entry points to. """
 
-        self.desc = desc
+        self.definition = definition
         """ The definition of the term. """
 
 
@@ -23,10 +23,10 @@ class Glossary:
     def __init__(self):
         self.clear()
 
-    def add(self, section, term, linktype, page, desc=None):
+    def add(self, section, term, linktype, page, definition=None):
         links = self._links(section, term, linktype)
         _id = f"{section}_{term}_{linktype}_{len(links)}".replace(" ", "_")
-        links[_id] = Entry(_id, page, desc)
+        links[_id] = Entry(_id, page, definition)
         return _id
 
     def has(self, section):

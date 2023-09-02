@@ -144,7 +144,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             if len(defs) >= 0:
                 log.warning(f"multiple definitions found for <{section}:{term}>, linking to first")
             entry = defs[0]
-            entry.desc = _html2text(entry.desc)
+            entry.definition = _html2text(entry.definition)
             return template.render("link.html",
                                    root=root,
                                    config=self.config,
@@ -158,15 +158,15 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def _find_definitions(self, content, page):
         log.debug(f"_find_definitions({page})")
 
-        def _add_entry(section, term, desc):
-            log.debug(f"found entry: {section}:{term}:{desc}")
+        def _add_entry(section, term, definition):
+            log.debug(f"found entry: {section}:{term}:{definition}")
 
             if self.config.tooltip == "none":
                 _tooltip = ""
             if self.config.tooltip == "short":
-                _tooltip = desc.split("\n")[0]
+                _tooltip = definition.split("\n")[0]
             if self.config.tooltip == "full":
-                _tooltip = desc
+                _tooltip = definition
 
             if section not in self.config.sections and self.config.strict:
                 log.warning(f"ignoring undefined section '{section}' in glossary")
@@ -176,7 +176,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
             inline_refs = self._get_config(section, 'inline_refs')
             reflink = f"\n{self._reflink}:{section}:{term}" if inline_refs != "none" else ""
-            return f'<dt><a name="{_id}">{term}</a></dt><dd>{desc}{reflink}</dd>'
+            return f'<dt><a name="{_id}">{term}</a></dt><dd>{definition}{reflink}</dd>'
 
 #       def _replace_default(mo):
 #           section = "_"
@@ -186,8 +186,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         def _replace(mo):
             section = mo.group(1)
             term = mo.group(2)
-            desc = mo.group(3)
-            rendered = _add_entry(section, term, desc)
+            definition = mo.group(3)
+            rendered = _add_entry(section, term, definition)
             return rendered if rendered else mo.group()
 
         # regex_default = re.compile(rf"{_re.dt_default}")
