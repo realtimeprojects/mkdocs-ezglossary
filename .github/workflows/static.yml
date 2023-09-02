@@ -36,6 +36,7 @@ jobs:
       - name: Build pages
         run: |
           pip3 install -r etc/requirements.txt
+          pip3 install .
           mkdocs build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
