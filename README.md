@@ -8,6 +8,7 @@ This plugin adds glossary support for mkdocs. It supports
 -   Linking to glossary entries in text
 -   Printing a summary of your glossary with definitions and
     references anywhere in your documentation.
+-   Customizable output
 
 ## Documentation
 
