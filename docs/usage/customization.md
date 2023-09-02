@@ -52,7 +52,7 @@ enable the reference list in link definitions.
 The default template for the short mode looks like this:
 
 ``` jinja
-<div class="mkdocs-ezglossary-refs-short">
+<div class="mkdocs-ezglossary-refs short">
     {% set counter = 0 %}
     {% for entry in entries %}
         {% set counter = counter + 1 %}
