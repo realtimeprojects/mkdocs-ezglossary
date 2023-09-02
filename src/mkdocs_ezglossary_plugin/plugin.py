@@ -141,8 +141,10 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             if len(defs) == 0:
                 log.warning(f"page '{page.url}' referenes to undefined glossary entry {section}:{term}")
                 return f'<a name="{_id}">{text}</a>'
-            if len(defs) >= 0:
-                log.warning(f"multiple definitions found for <{section}:{term}>, linking to first")
+            if len(defs) > 1:
+                log.warning(f"multiple definitions found for <{section}:{term}>, linking to first:")
+                for _def in defs:
+                    log.warning(f"\t{_def}")
             entry = defs[0]
             entry.definition = _html2text(entry.definition)
             return template.render("link.html",

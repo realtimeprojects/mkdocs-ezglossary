@@ -27,7 +27,7 @@ doc/
 ## Reference links
 
 The `links.html` allows customization of the
-[reference links](linking.html) (`<section:term>`).
+[reference links](linking.md) (`<section:term>`).
 
 The default template looks like this:
 
@@ -99,11 +99,11 @@ target
     [summary](summary.md) or in the [definition](definition.md).
 
 entries
-:   A list of [mkdocs_ezglossary_plugin.entry] classes
+:   A list of [Entry][mkdocs_ezglossary_plugin.glossary.Entry] classes
     for each reference to this term. 
 
 entry
-:   A instance of the [mkdocs_ezglossary_plugin.glossary.entry] class
+:   A instance of the [Entry][mkdocs_ezglossary_plugin.glossary.Entry] class
     describing the definition of this term.
 
 root
@@ -111,7 +111,7 @@ root
     to the root directory.
 
 glossary
-:   The instance of the [mkdocs_ezglossary_plugin.glossary.Glossary]
+:   The instance of the [Glossary][mkdocs_ezglossary_plugin.glossary.Glossary]
     instance holding the complete glossary.
 
 terms

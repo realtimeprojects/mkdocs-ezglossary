@@ -3,7 +3,7 @@
 term:term
 :   A term is a definition of a word in your glossary.
 
-    The same term can be defined in multiple <term:sections>
+    The same term can be defined in multiple <term:section|sections>
 
 term:section
 :   ezglossary supports adding terms to different sections. This
@@ -24,7 +24,7 @@ term:definition
 
 term:reference
 :   The reference is a place in your documentation where you
-    refer to a term by placing a [link](usage.md#linking-to-a-glossary-entry).
+    refer to a term by placing a [link](usage/index.md#linking-to-a-glossary-entry).
 
 ## Summary
 

@@ -16,6 +16,9 @@ class Entry:
         self.definition = definition
         """ The definition of the term. """
 
+    def __repr__(self):
+        return self.page.url
+
 
 class Glossary:
     """ The complete glossary for all sections """
@@ -29,29 +32,28 @@ class Glossary:
         links[_id] = Entry(_id, page, definition)
         return _id
 
-    def has(self, section):
+    def has(self, section: str) -> bool:
         """ Check if the glossary has a section named **section**.
 
             Args:
-                section (str):
+                section:
                     The name of the section to check
 
             Returns:
-                bool:
                     True, if a section with the given name exists.
         """
         return section in self._glossary
 
-    def get(self, section, term, linktype) -> list[Entry]:
-        """ xGet a list of [Entry][mkdocs_ezglossary_plugin.glossary.Entry] instances
+    def get(self, section: str, term: str, linktype: str) -> list[Entry]:
+        """ Get a list of [Entry][mkdocs_ezglossary_plugin.glossary.Entry] instances
             for a specific **term** in a **section**.
 
             Args:
-                section (str):
+                section:
                     The name of the section
-                term (str):
+                term:
                     The term for which the [Entry] instances should be retreived.
-                linktype (str):
+                linktype:
                     Defines which type of links should be returned.
 
                     `refs`
