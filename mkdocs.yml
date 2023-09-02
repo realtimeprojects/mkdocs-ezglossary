@@ -18,8 +18,10 @@ nav:
     - usage/linking.md
     - usage/summary.md
     - usage/sections.md
-  - definitions: definitions.md
+    - usage/customization.md
+    - usage/api.md
   - configuration: configuration.md
+  - definitions: definitions.md
   - release notes: releases.md
 
 markdown_extensions:
@@ -66,3 +68,13 @@ plugins:
           inline_refs: short
         - name: term
           inline_refs: short
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            heading_level: 4
+            show_source: false
+            show_root_heading: true
+            show_symbol_type_toc: true
+            show_category_heading: true
+            summary: true

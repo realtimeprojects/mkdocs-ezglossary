@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.2.0
+| ~2023-09-02~
+
+-   Support [customizable output](usage/customization.md)
+
+~
 ## v1.1.2
 | ~2023-09-01~
 

@@ -4,4 +4,5 @@ markdown-callouts
 mdx_gh_links
 mkdocs-click
 mkdocs-ezglossary-plugin
+mkdocstrings[python]
 

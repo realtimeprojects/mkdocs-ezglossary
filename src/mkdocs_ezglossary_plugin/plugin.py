@@ -91,7 +91,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 log.warning(f"no section '{section}' found in glossary")
 
             terms = self._glossary.terms(section)
-            return template.render("glossary.html",
+            return template.render("summary.html",
                                    self.config,
                                    glossary=self._glossary,
                                    types=types,
