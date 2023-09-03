@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.3.1
+| ~2023-09-03~
+
+-   Fix reference counter for short list
+
 ## v1.3.0
 | ~2023-09-03~
 

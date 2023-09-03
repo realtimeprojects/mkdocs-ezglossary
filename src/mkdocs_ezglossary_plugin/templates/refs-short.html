@@ -1,12 +1,10 @@
 <p>
 <div class="mkdocs-ezglossary-refs list">
-    {% set counter = 0 %}
     {% for entry in entries %}
-        {% set counter = counter + 1 %}
         <span>
             <a title="{{ entry.page.title }}"
                href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">
-                [{{ counter }}]
+                [{{ loop.index }}]
             </a>
         </span>    
     {% endfor %}
