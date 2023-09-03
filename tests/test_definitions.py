@@ -48,3 +48,24 @@ def test_inline_refs(simple, config):
                                                          href="../simple.md#test_third_refs_0",
                                                          text="*[1]")))
     assert len(tree.xpath(str(dl))) == 1
+
+
+def test_default_section(simple, config):
+    html = mock.render_single(simple, config)
+    tree = etree.fromstring(html)
+    log.debug(html)
+    dl = xpath.dl()
+    dl = dl.has(xpath.dt().has(xpath.a(name="__default_defs_0", text="default")))
+    dl = dl.has(xpath.dd(text="default term"))
+    assert len(tree.xpath(str(dl)))
+
+    dl = xpath.dl()
+    dl = dl.has(xpath.dt().has(xpath.a(name="demo_first_defs_0", text="first")))
+    dl = dl.has(xpath.dd(text="demo 1"))
+    dl = dl.has(xpath.dt().has(xpath.a(name="demo_second_defs_0", text="second")))
+    dl = dl.has(xpath.dd(text="demo 2"))
+    assert len(tree.xpath(str(dl)))
+
+    dl = xpath.dl()
+    dl = dl.has(xpath.dd(text="*demo 2").has(xpath.a()))
+    assert len(tree.xpath(str(dl))) == 0

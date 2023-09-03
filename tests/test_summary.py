@@ -100,7 +100,7 @@ def test_summary_nodef(simple, summary, config):
     assert len(tree.xpath(str(dl))) == 1
 
 
-def test_custom_summaryf(simple, summary, config):
+def test_custom_summary(simple, summary, config):
     config['templates'] = "tests/custom"
     pages = mock.render([simple, summary], config)
     summary = pages["summary.md"]
@@ -110,5 +110,19 @@ def test_custom_summaryf(simple, summary, config):
                              text="Hello")
     dl = xp.dl(_class="custom-summary", _id="test")
     dl = dl.has(xp.dt(text="third"))
+    dl = dl.has(dd)
+    assert len(tree.xpath(str(dl))) == 1
+
+
+def test_default_summary(simple, summary, config):
+    pages = mock.render([simple, summary], config)
+    summary = pages["summary.md"]
+    log.debug(summary)
+    tree = etree.fromstring(summary)
+
+    dd = xp.dd().ul().li().a(href="../simple.md#__default_defs_0",
+                             text="Hello")
+    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
+    dl = dl.has(xp.dt(text="default"))
     dl = dl.has(dd)
     assert len(tree.xpath(str(dl))) == 1

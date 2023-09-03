@@ -69,3 +69,15 @@ def test_link_second_ref(simple, summary, config):
                             href="../simple.md#test_third_defs_0",
                             text="third")
     assert len(tree.xpath(str(dl))) == 1
+
+
+def test_link_default_ref(simple, summary, config):
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+    tree = etree.fromstring(summary)
+
+    dl = xpath.body().p().a(name="__default_refs_0",
+                            title="",
+                            href="../simple.md#__default_defs_0",
+                            text="default")
+    assert len(tree.xpath(str(dl))) == 1

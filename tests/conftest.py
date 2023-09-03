@@ -3,8 +3,6 @@ import yaml
 
 import mock
 
-import logging
-
 
 @pytest.fixture
 def config():
@@ -44,6 +42,10 @@ def simple():
                         detailed description of third term
                     </dd>
                 </dl>
+                <dl>
+                    <dt>default</dt>
+                    <dd>default term</dd>
+                </dl>
                 </div>
                 <div id="demo">
                 <dl>
@@ -79,7 +81,12 @@ def summary():
                     <glossary::demo>
                 </div>
 
+                <div id="demo">
+                    <glossary::_>
+                </div>
+
                 <p>See <test:third> for details</p>
+                <p>See <:default> for details</p>
             </body>
         """
     )

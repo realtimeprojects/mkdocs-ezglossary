@@ -20,7 +20,7 @@ class __re:
         self.section = r"(\w+)"
         self.term = r"([\w -]+)"
         self.text = r"([^>]+)"
-        self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
+        self.dt = rf"<dt>{self.section}?:?{self.term}<\/dt>"
         self.dt_default = rf"<dt>{self.term}<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
         self.options = r"([\w\+]+)"
@@ -105,13 +105,14 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     def _register_glossary_links(self, output, page):
         def _replace(mo):
-            section = mo.group(1)
+            section = mo.group(1) if mo.group(1) else "_"
             term = mo.group(2)
             text = mo.group(3) if mo.group(3) else term
+            log.error(f"--* {section}, {term}, {text}")
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
-        regex = rf"<{_re.section}:{_re.term}\|?{_re.text}?>"
+        regex = rf"<{_re.section}?:{_re.term}\|?{_re.text}?>"
         return re.sub(regex, _replace, output)
 
     def _replace_inline_refs(self, output, page, root):
@@ -192,8 +193,18 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             rendered = _add_entry(section, term, definition)
             return rendered if rendered else mo.group()
 
+        def _replace_default(mo):
+            section = "_"
+            term = mo.group(1)
+            definition = mo.group(2)
+            rendered = _add_entry(section, term, definition)
+            return rendered if rendered else mo.group()
+
         # regex_default = re.compile(rf"{_re.dt_default}")
         # ret = re.sub(regex_default, _replace, content)
+
+        regex_dt = re.compile(rf"{_re.dt_default}{_re.ws}{_re.dd}", re.MULTILINE)
+        content = re.sub(regex_dt, _replace_default, content)
 
         regex_dt = re.compile(rf"{_re.dt}{_re.ws}{_re.dd}", re.MULTILINE)
         ret = re.sub(regex_dt, _replace, content)
