@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.3.0
+| ~2023-09-03~
+
+-   Support [default sections](usage/default.md)
+
 ## v1.2.2
 | ~2023-09-02~
 
