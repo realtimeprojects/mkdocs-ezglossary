@@ -1,4 +1,9 @@
+from lxml import etree
+import logging
+
 from mkdocs_ezglossary_plugin.plugin import GlossaryPlugin
+
+log = logging.getLogger()
 
 
 class Config(dict):
@@ -29,6 +34,7 @@ def render_single(page, config):
 
 
 def render(pages, config):
+    parser = etree.XMLParser(recover=True)
     files = []
     results = {}
     plugin = GlossaryPlugin()
@@ -42,4 +48,8 @@ def render(pages, config):
         fp = open(page.url + ".html", "w")
         fp.write(results[page.url])
         fp.close()
+        log.debug(f"--- {page.url}")
+        log.debug(results[page.url])
+        log.debug("---")
+        results[page.url] = etree.fromstring(results[page.url], parser=parser)
     return results

@@ -18,6 +18,7 @@ nav:
     - usage/linking.md
     - usage/summary.md
     - usage/sections.md
+    - usage/default.md
     - usage/customization.md
     - usage/api.md
   - configuration: configuration.md
@@ -58,6 +59,7 @@ plugins:
       list_references: true
       inline_refs: none
       tooltip: full
+      use_default: true
       sections:
         - setting
         - term

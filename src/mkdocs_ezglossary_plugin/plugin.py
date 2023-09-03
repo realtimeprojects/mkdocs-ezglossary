@@ -20,7 +20,7 @@ class __re:
         self.section = r"(\w+)"
         self.term = r"([\w -]+)"
         self.text = r"([^>]+)"
-        self.dt = rf"<dt>{self.section}?:?{self.term}<\/dt>"
+        self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
         self.dt_default = rf"<dt>{self.term}<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
         self.options = r"([\w\+]+)"
@@ -37,6 +37,7 @@ class GlossaryConfig(config.base.Config):
     strict = config.config_options.Type(bool, default=False)
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
+    use_default = config.config_options.Type(bool, default=False)
     templates = config.config_options.Type(str, default="")
 
 
@@ -47,6 +48,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self._reflink = "6251a85a-47d0-11ee-be56-0242ac120002"
 
     def on_pre_build(self, config, **kwargs):
+        if self.config.strict and "_" not in self.config.sections:
+            self.config.sections.append("_")
         if self.config.strict and len(self.config.sections) == 0:
             log.error("ezglossary: no sections defined, but 'strict' is true, plugin disabled")
         self._glossary.clear()
@@ -108,11 +111,10 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             section = mo.group(1) if mo.group(1) else "_"
             term = mo.group(2)
             text = mo.group(3) if mo.group(3) else term
-            log.error(f"--* {section}, {term}, {text}")
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
-        regex = rf"<{_re.section}?:{_re.term}\|?{_re.text}?>"
+        regex = rf"<{_re.section}?\:{_re.term}\|?{_re.text}?>"
         return re.sub(regex, _replace, output)
 
     def _replace_inline_refs(self, output, page, root):
@@ -200,11 +202,9 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             rendered = _add_entry(section, term, definition)
             return rendered if rendered else mo.group()
 
-        # regex_default = re.compile(rf"{_re.dt_default}")
-        # ret = re.sub(regex_default, _replace, content)
-
-        regex_dt = re.compile(rf"{_re.dt_default}{_re.ws}{_re.dd}", re.MULTILINE)
-        content = re.sub(regex_dt, _replace_default, content)
+        if self.config.use_default:
+            regex_dt = re.compile(rf"{_re.dt_default}{_re.ws}{_re.dd}", re.MULTILINE)
+            content = re.sub(regex_dt, _replace_default, content)
 
         regex_dt = re.compile(rf"{_re.dt}{_re.ws}{_re.dd}", re.MULTILINE)
         ret = re.sub(regex_dt, _replace, content)

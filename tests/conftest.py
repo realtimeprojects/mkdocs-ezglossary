@@ -15,6 +15,7 @@ def config():
         sections: []
         section_config: []
         templates:
+        use_default: false
     """
     config = yaml.safe_load(_default)
     return mock.Config(**config)

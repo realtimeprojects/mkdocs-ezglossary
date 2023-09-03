@@ -9,3 +9,5 @@
 ## Advanced
 
 -   [Configuring sections](sections.md)
+-   [Activating the default section](default.md)
+-   [Customization](customization.md)
