@@ -25,7 +25,7 @@ class __re:
         self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
         self.dt_default = rf"<dt>{self.term}<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
-        self.options = r"([\w\+]+)"
+        self.options = r"([\|\w\+]+)"
 
 
 _re = __re()
@@ -147,7 +147,11 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 log.warning(f"no section '{section}' found in glossary")
 
             terms = self._glossary.terms(section)
-            return template.render("summary.html",
+            theme = ""
+            for option in options.split("|"):
+                if "theme" in option:
+                    theme = "-" + option.split("=")[1]
+            return template.render(f"summary{theme}.html",
                                    self.config,
                                    glossary=self._glossary,
                                    types=types,

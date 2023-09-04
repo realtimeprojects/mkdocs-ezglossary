@@ -1,0 +1,20 @@
+<dl class="mkdocs-ezglossary-summary detailed" id="{{ section }}">
+    {% for term in terms %}
+    <dt>{{term}}</dt>
+    <dd>
+        <p>
+            {{ glossary.definition(section, term) }}
+        </p>
+        <ul>
+            {% for type in types %}
+                {% for entry in glossary.get(section, term, type) %}
+                    <li>
+                        <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
+                        <small>[{{ type[:-1] }}]</small>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </dd>
+    {% endfor %}
+</dl>
