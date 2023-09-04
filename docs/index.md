@@ -5,9 +5,10 @@
 This plugin adds glossary support for mkdocs. It supports
 
 -   Defining multiple glossaries via [sections](usage/sections.md)
--   Linking to glossary entries in text
--   Printing a summary of your glossary with definitions and
+-   [Linking](usage/linking.md) to glossary entries in text
+-   Printing a [summary](usage/summary.md) of your glossary with definitions and
     references anywhere in your documentation.
+-   [Page references](usage/pagerefs.md)
 
 ## Documentation
 

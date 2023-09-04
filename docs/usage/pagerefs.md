@@ -11,8 +11,10 @@ In case your page itself is a term definition,
 It is possible to put term definition in the page's metadata:
 
 ``` markdown
+---
 terms:
   - <section>: <term>
+---
 ```
 
 If a term definition is placed in the page`s meta data, the
@@ -35,8 +37,10 @@ It is possible to refer to an title (or any other anchor in the page)
 in the definition:
 
 ``` markdown
+---
 terms:
   - <section>: "<term>#anchor"
+---
 ```
 
 ## Multiple terms
@@ -44,21 +48,25 @@ terms:
 It is possible to define multiple terms for sections as well:
 
 ```markdown
+---
 terms:
   - <section>:
     - <term>
     - <term>: <anchor>
+---
 ```
 
 !!! Example
 
     ```markdown
+    ---
     terms:
       - demo:
         - term1
         - term2: help
       - configuration:
         - term3
+    ---
     ```
 
 ## Default section
@@ -66,17 +74,21 @@ terms:
 Adding page references to default the [default section](default.md):
 
 ```markdown
+---
 terms:
   - <term>
   - "<term>#<anchor>"
+---
 ```
 
 !!! Example
 
     ```markdown
+    ---
     terms:
       - term1
       - "term2#help"
+    ---
     ```
 
 ## Definitions
@@ -95,13 +107,19 @@ The anchor definitions allow to specify the definition for a term
 for page references:
 
 ```markdown
+---
+terms:
+  ...
 anchors:
     - <name>: <definition>
+---
 ```
 
 !!! Example
 
     ```markdown
+    ---
     anchors:
         help: Definition of help
+    ---
     ```
