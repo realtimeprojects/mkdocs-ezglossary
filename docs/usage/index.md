@@ -8,6 +8,7 @@
 
 ## Advanced
 
+-   [Page references](pagerefs.md)
 -   [Configuring sections](sections.md)
 -   [Activating the default section](default.md)
 -   [Customization](customization.md)

@@ -134,6 +134,28 @@ configuration:list_references
                 - list_references: false
         ```
 
+## Themes
+
+Passing a `theme` option to the `<glossary::section>` statement will
+load a customized jinja template for that theme named `summary-<theme>.html`.
+
+``` markdown
+<glossary::demo|theme=detailed>
+```
+
+!!! Example
+
+    This theme shows the term definitions in the glossary:
+
+    !!! Quote
+
+        <glossary::demo|theme=detailed>
+
+Available themes are:
+
+detailed:
+:    Shows the definition of the term in the summary.
+
 ## Further reading
 
 -   Read the [sections](sections.md) documentation to see how to configure sections.

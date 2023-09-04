@@ -1,5 +1,12 @@
 # Release Notes
 
+## v1.4.0
+| ~2023-09-04~
+
+-   Support [page references](usage/pagerefs.md)
+-   Support [themes for summary](usage/summary.md#themes)
+-   Add [Glossary.definition()][mkdocs_ezglossary_plugin.glossary.Glossary.definition]
+
 ## v1.3.1
 | ~2023-09-03~
 
