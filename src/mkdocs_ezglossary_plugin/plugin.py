@@ -64,7 +64,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                     return anchors[anchor]
             if 'subtitle' in attributes:
                 return attributes['subtitle']
-            return ""
+            return page.title
 
         def _add2section(section, term, anchor=None):
             if not anchor:
