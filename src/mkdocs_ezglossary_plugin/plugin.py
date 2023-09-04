@@ -3,7 +3,7 @@ import re
 import os
 from html import parser
 
-from frontmatter import Frontmatter
+import yaml
 
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
@@ -25,7 +25,7 @@ class __re:
         self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
         self.dt_default = rf"<dt>{self.term}<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
-        self.options = r"([\|\w\+]+)"
+        self.options = r"([\|\=\w\+]+)"
 
 
 _re = __re()
@@ -56,9 +56,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             log.error("ezglossary: no sections defined, but 'strict' is true, plugin disabled")
         self._glossary.clear()
 
-    def on_pre_page(self, content, page, config, files):
-        pg = Frontmatter.read(content)
-        attributes = pg['attributes']
+    def on_page_markdown(self, content, page, config, files):
+        attributes = _get_metadata(content)
 
         def _get_definition(anchor):
             anchors = attributes.get('anchors')
@@ -296,3 +295,16 @@ def _html2text(content):
     log.debug(f"adding {content}")
     f.feed(content)
     return f.text.strip()
+
+
+def _get_metadata(content):
+    metadata = ""
+    lines = content.split("\n")
+    if lines[0] != "---":
+        return {}
+    for line in lines[1:]:
+        if line == "---":
+            return yaml.safe_load(metadata)
+
+        metadata += line + "\n"
+    return {}

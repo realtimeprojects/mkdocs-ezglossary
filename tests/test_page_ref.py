@@ -6,8 +6,7 @@ mycommand = mock.Page(
     title="My Command",
     file="mycommand.md",
     ctype="markdown",
-    content="""
----
+    content="""---
 subtitle: page subtitle
 terms:
   - cmd4

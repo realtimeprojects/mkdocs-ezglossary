@@ -43,7 +43,7 @@ def render(pages, config):
     plugin.on_pre_build(config)
     for page in pages:
         if page.ctype == "markdown":
-            results[page.url] = plugin.on_pre_page(page.content, page, config, files)
+            results[page.url] = plugin.on_page_markdown(page.content, page, config, files)
     for page in pages:
         if page.ctype == "html":
             results[page.url] = plugin.on_page_content(page.content, page, config, files)
