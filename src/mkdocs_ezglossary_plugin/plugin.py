@@ -73,7 +73,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 else:
                     (term, anchor) = (term, "")
             definition = _get_definition(anchor)
-            log.debug(f"--* def: {definition}")
             self._glossary.add(section,
                                term,
                                'defs',
@@ -81,8 +80,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                                definition,
                                anchor)
 
-        log.warning(f"on_page_markdown: {page}: {attributes}")
-        log.warning(f"on_page_markdown: {content}")
         ez = attributes.get('terms')
         log.debug(ez)
         if not ez:
