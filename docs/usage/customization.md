@@ -112,6 +112,9 @@ reference links in the [term definition](definition.md).
 </dl>
 ```
 
+!!! Note
+    Summaries support [custom themes](summary.md#themes)
+
 
 ## Variables:
 
