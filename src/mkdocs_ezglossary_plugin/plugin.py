@@ -57,15 +57,35 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self._glossary.clear()
 
     def on_pre_page(self, content, page, config, files):
-        def _add2section(section, term):
-            if "#" in term:
-                (term, anchor) = term.split("#")
-            else:
-                (term, anchor) = (term, "")
-            self._glossary.add(section, term, 'defs', page, anchor=anchor)
-
         pg = Frontmatter.read(content)
-        ez = pg['attributes'].get('ezglossary')
+        attributes = pg['attributes']
+
+        def _get_definition(anchor):
+            anchors = attributes.get('anchors')
+            if anchors:
+                if anchor in anchors:
+                    return anchors[anchor]
+            if 'subtitle' in attributes:
+                return attributes['subtitle']
+            return ""
+
+        def _add2section(section, term, anchor=None):
+            if not anchor:
+                if "#" in term:
+                    (term, anchor) = term.split("#")
+                else:
+                    (term, anchor) = (term, "")
+            definition = _get_definition(anchor)
+            log.debug(f"--* def: {definition}")
+            self._glossary.add(section,
+                               term,
+                               'defs',
+                               page,
+                               definition,
+                               anchor)
+
+        ez = attributes.get('terms')
+        log.debug(ez)
         if not ez:
             return content
 
@@ -81,10 +101,10 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
                 for term in data:
                     if isinstance(term, str):
-                        self._glossary.add(section, term, 'defs', page, anchor="")
+                        _add2section(section, term)
                     if isinstance(term, dict):
                         for term, anchor in term.items():
-                            self._glossary.add(section, term, 'defs', page, anchor=anchor)
+                            _add2section(section, term, anchor)
         return content
 
     @event_priority(5000)
