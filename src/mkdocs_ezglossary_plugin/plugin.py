@@ -3,6 +3,8 @@ import re
 import os
 from html import parser
 
+from frontmatter import Frontmatter
+
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
 from mkdocs.config import config_options as co
@@ -53,6 +55,37 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         if self.config.strict and len(self.config.sections) == 0:
             log.error("ezglossary: no sections defined, but 'strict' is true, plugin disabled")
         self._glossary.clear()
+
+    def on_pre_page(self, content, page, config, files):
+        def _add2section(section, term):
+            if "#" in term:
+                (term, anchor) = term.split("#")
+            else:
+                (term, anchor) = (term, "")
+            self._glossary.add(section, term, 'defs', page, anchor=anchor)
+
+        pg = Frontmatter.read(content)
+        ez = pg['attributes'].get('ezglossary')
+        if not ez:
+            return content
+
+        for entry in ez:
+            if isinstance(entry, str):
+                _add2section("_", entry)
+                continue
+
+            for (section, data) in entry.items():
+                if isinstance(data, str):
+                    _add2section(section, data)
+                    continue
+
+                for term in data:
+                    if isinstance(term, str):
+                        self._glossary.add(section, term, 'defs', page, anchor="")
+                    if isinstance(term, dict):
+                        for term, anchor in term.items():
+                            self._glossary.add(section, term, 'defs', page, anchor=anchor)
+        return content
 
     @event_priority(5000)
     def on_page_content(self, content, page, config, files):

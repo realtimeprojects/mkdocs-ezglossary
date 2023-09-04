@@ -26,10 +26,12 @@ class Glossary:
     def __init__(self):
         self.clear()
 
-    def add(self, section, term, linktype, page, definition=None):
+    def add(self, section, term, linktype, page, definition=None, anchor=None):
+        log.debug(f"glossary.add({section}, {term}, {linktype}")
         links = self._links(section, term, linktype)
         _id = f"{section}_{term}_{linktype}_{len(links)}".replace(" ", "_")
-        links[_id] = Entry(_id, page, definition)
+        anchor = _id if anchor is None else anchor
+        links[_id] = Entry(anchor, page, definition)
         return _id
 
     def has(self, section: str) -> bool:

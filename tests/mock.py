@@ -12,10 +12,11 @@ class Config(dict):
 
 
 class Page:
-    def __init__(self, title: str, file: str, html: str):
+    def __init__(self, title: str, file: str, content: str, ctype="html"):
         self.file = file
         self.title = title
-        self.html = html
+        self.content = content
+        self.ctype = ctype
 
     @property
     def url(self):
@@ -41,15 +42,21 @@ def render(pages, config):
     plugin.config = config
     plugin.on_pre_build(config)
     for page in pages:
-        results[page.url] = plugin.on_page_content(page.html, page, config, files)
+        if page.ctype == "markdown":
+            results[page.url] = plugin.on_pre_page(page.content, page, config, files)
     for page in pages:
-        results[page.url] = plugin.on_post_page(results[page.url], page, config)
+        if page.ctype == "html":
+            results[page.url] = plugin.on_page_content(page.content, page, config, files)
     for page in pages:
-        fp = open(page.url + ".html", "w")
+        if page.ctype == "html":
+            results[page.url] = plugin.on_post_page(results[page.url], page, config)
+    for page in pages:
+        fp = open(page.url + "." + page.ctype, "w")
         fp.write(results[page.url])
         fp.close()
-        log.debug(f"--- {page.url}")
+        log.debug(f"--- >>> {page.url}")
         log.debug(results[page.url])
-        log.debug("---")
-        results[page.url] = etree.fromstring(results[page.url], parser=parser)
+        log.debug(f"--- <<< {page.url}")
+        if page.ctype == "html":
+            results[page.url] = etree.fromstring(results[page.url], parser=parser)
     return results
