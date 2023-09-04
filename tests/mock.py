@@ -12,11 +12,12 @@ class Config(dict):
 
 
 class Page:
-    def __init__(self, title: str, file: str, content: str, ctype="html"):
+    def __init__(self, title: str, file: str, content: str, ctype="html", meta={}):
         self.file = file
         self.title = title
         self.content = content
         self.ctype = ctype
+        self.meta = meta
 
     @property
     def url(self):

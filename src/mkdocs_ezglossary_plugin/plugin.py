@@ -3,8 +3,6 @@ import re
 import os
 from html import parser
 
-import yaml
-
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
 from mkdocs.config import config_options as co
@@ -57,7 +55,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self._glossary.clear()
 
     def on_page_markdown(self, content, page, config, files):
-        attributes = _get_metadata(content)
+        attributes = page.meta
 
         def _get_definition(anchor):
             anchors = attributes.get('anchors')
@@ -83,6 +81,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                                definition,
                                anchor)
 
+        log.warning(f"on_page_markdown: {page}: {attributes}")
+        log.warning(f"on_page_markdown: {content}")
         ez = attributes.get('terms')
         log.debug(ez)
         if not ez:
@@ -295,16 +295,3 @@ def _html2text(content):
     log.debug(f"adding {content}")
     f.feed(content)
     return f.text.strip()
-
-
-def _get_metadata(content):
-    metadata = ""
-    lines = content.split("\n")
-    if lines[0] != "---":
-        return {}
-    for line in lines[1:]:
-        if line == "---":
-            return yaml.safe_load(metadata)
-
-        metadata += line + "\n"
-    return {}

@@ -1,12 +1,24 @@
 import mock
 
+import yaml
 from yaxp import xpath as xp
 
 mycommand = mock.Page(
     title="My Command",
     file="mycommand.md",
     ctype="markdown",
-    content="""---
+    content="""
+# Help page
+
+## Overview
+
+- See <cmd:help2>
+
+## Help
+
+## Details
+""",
+    meta=yaml.safe_load("""
 subtitle: page subtitle
 terms:
   - cmd4
@@ -22,21 +34,16 @@ terms:
     - help3: help
 anchors:
   world: Description of world
----
-# Help page
-
-## Overview
-
-## Help
-
-## Details
-""")
+    """))
 
 commands = mock.Page(
     title="Commands",
     file="commands.md",
     content="""
 <body>
+
+    <p>See <cmd:help2>
+
     <glossary::page|theme=detailed>
 
     <glossary::cmd>
@@ -122,4 +129,15 @@ def test_page_ref_default_section_anchor(config):
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
     dl = dl.has(xp.dt(text="cmd5"))
     dl = dl.has(dd)
+    assert len(pages['commands.md'].xpath(str(dl))) == 1
+
+
+def test_page_ref_link(config):
+    pages = mock.render([mycommand, commands], config)
+
+    dl = xp.body().p().a(_class="mkdocs-ezglossary-link",
+                         name="cmd_help2_refs_0",
+                         title="page subtitle",
+                         href="../mycommand.md#",
+                         text="help2")
     assert len(pages['commands.md'].xpath(str(dl))) == 1
