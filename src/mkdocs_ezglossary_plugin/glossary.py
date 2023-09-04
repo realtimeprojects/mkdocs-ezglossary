@@ -82,7 +82,10 @@ class Glossary:
             Returns:
                 The definition of the term
         """
-        return self.get(section, term, 'defs')[0].definition
+        defs = self.get(section, term, 'defs')
+        if not defs:
+            return ""
+        return defs[0].definition
 
     def terms(self, section: str) -> list[str]:
         """ Return a list of entries for a specific section.
