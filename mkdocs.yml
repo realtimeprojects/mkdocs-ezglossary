@@ -15,6 +15,7 @@ nav:
   - usage:
     - usage/index.md
     - usage/definition.md
+    - usage/pagerefs.md
     - usage/linking.md
     - usage/summary.md
     - usage/sections.md
