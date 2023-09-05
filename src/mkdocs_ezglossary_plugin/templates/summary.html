@@ -1,15 +1,20 @@
 <dl class="mkdocs-ezglossary-summary" id="{{ section }}">
     {% for term in terms %}
-    <dt>{{term}}</dt>
+    {% set refs = glossary.get(section, term, 'refs') %}
+    <dt>{% if refs|length > 0 %}
+        {% set ref = refs[0] %}
+        <a href="{{ root }}{{ ref.page.url }}#{{ ref.target }}"
+           title="{{ ref.definition }}">{{term}}</a>
+        {% else %}
+        {{ term }}
+        {% endif %}
+    </dt>
     <dd>
         <ul>
-            {% for type in types %}
-                {% for entry in glossary.get(section, term, type) %}
-                    <li>
-                        <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
-                        <small>[{{ type[:-1] }}]</small>
-                    </li>
-                {% endfor %}
+            {% for entry in glossary.get(section, term, 'refs') %}
+                <li>
+                    <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
+                </li>
             {% endfor %}
         </ul>
     </dd>
