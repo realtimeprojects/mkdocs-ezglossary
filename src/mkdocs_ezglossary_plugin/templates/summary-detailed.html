@@ -3,7 +3,7 @@
     <dt>{{term}}</dt>
     <dd>
         <p>
-            {{ glossary.definition(section, term) }}
+            {{ glossary.definition(section, term) | safe }}
         </p>
         <ul>
             {% for type in types %}

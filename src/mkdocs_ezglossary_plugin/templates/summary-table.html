@@ -13,7 +13,7 @@
         {% for term in terms %}
         <tr>
             <td>{{term}}</td>
-            <td>{{ glossary.definition(section, term) }}</td>
+            <td>{{ glossary.definition(section, term) | safe }}</td>
             {% if types|length > 0 %}
             <td>
                 <ul>
