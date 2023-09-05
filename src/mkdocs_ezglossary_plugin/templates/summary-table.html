@@ -1,0 +1,35 @@
+<div class="mkdocs-ezglossary-summary table">
+<table  id="{{ section }}">
+    <thead>
+        <tr>
+            <th>Term</th>
+            <th>Definition</th>
+            {% if types|length > 0 %}
+            <th>References</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for term in terms %}
+        <tr>
+            <td>{{term}}</td>
+            <td>{{ glossary.definition(section, term) }}</td>
+            {% if types|length > 0 %}
+            <td>
+                <ul>
+                {% for type in types %}
+                    {% for entry in glossary.get(section, term, type) %}
+                        <li>
+                            <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
+                            <small>[{{ type[:-1] }}]</small>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

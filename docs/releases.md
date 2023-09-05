@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.5.0
+| ~2023-09-05~
+
+-   Add "[table](usage/summary.md#themes)" summary theme
+
 ## v1.4.0
 | ~2023-09-04~
 

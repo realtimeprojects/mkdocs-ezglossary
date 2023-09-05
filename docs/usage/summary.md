@@ -39,7 +39,7 @@ reference:
     <glossary::demo|no_refs>
 ```
 
-=== "no_refs"
+=== `no_refs`
 
     Reference:
 
@@ -51,7 +51,7 @@ reference:
 
         <glossary::demo|no_refs>
 
-=== "no_defs"
+=== `no_defs`
 
     Reference:
 
@@ -63,7 +63,7 @@ reference:
 
         <glossary::demo|no_defs>
 
-=== "do_defs and do_refs"
+=== `do_defs` and `do_refs`
 
     Reference:
 
@@ -155,6 +155,9 @@ Available themes are:
 
 detailed:
 :    Shows the definition of the term in the summary.
+
+table:
+:    Uses tables to display the summary
 
 ## Further reading
 

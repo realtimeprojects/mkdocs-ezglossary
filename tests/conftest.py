@@ -92,3 +92,18 @@ def summary():
         """
     )
     return mock.Page.fromdict(_simple)
+
+
+@pytest.fixture
+def tablesummary():
+    return mock.Page(
+        file="tablesummary.md",
+        title="Summary",
+        ctype="html",
+        content="""
+            <body>
+                <div id="demo">
+                    <glossary::demo|theme=table>
+                </div>
+            </body>
+        """)

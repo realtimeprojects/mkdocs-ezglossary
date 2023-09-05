@@ -121,3 +121,20 @@ def test_default_summary(simple, summary, config):
     dl = dl.has(xp.dt(text="default"))
     dl = dl.has(dd)
     assert len(summary.xpath(str(dl))) == 1
+
+
+def test_summary_table(simple, tablesummary, config):
+    pages = mock.render([simple, tablesummary], config)
+    summary = pages["tablesummary.md"]
+    log.debug(summary)
+
+    table = xp.div().table()
+    table.has(xp.th().has(xp.td(text="Term"))
+                .has(xp.td(text="Definition"))
+                .has(xp.td(text="References")))
+    tr = xp.div().table(_class="mkdocs-ezglossary-summary", _id="demo").tr()
+    tr = tr.has(xp.td(text="default"))
+    tr = tr.has(xp.ul().li().a(href="../simple.md#__default_defs_0",
+                               text="Hello"))
+    table.has(tr)
+    assert len(summary.xpath(str(table))) == 1
