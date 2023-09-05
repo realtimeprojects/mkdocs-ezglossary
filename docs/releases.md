@@ -1,5 +1,13 @@
 # Release Notes
 
+## v1.5.1
+| ~2023-09-05~
+
+-   Directly link definition to term in summary
+-   summary theme "detailed": Safe output for definition
+-   summary theme "table": Safe output for definition
+
+-   Add "[table](usage/summary.md#themes)" summary theme
 ## v1.5.0
 | ~2023-09-05~
 
