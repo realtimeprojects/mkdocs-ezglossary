@@ -1,10 +1,10 @@
 <dl class="mkdocs-ezglossary-summary" id="{{ section }}">
     {% for term in terms %}
-    {% set refs = glossary.get(section, term, 'refs') %}
-    <dt>{% if refs|length > 0 %}
-        {% set ref = refs[0] %}
-        <a href="{{ root }}{{ ref.page.url }}#{{ ref.target }}"
-           title="{{ ref.definition }}">{{term}}</a>
+    {% set defs = glossary.get(section, term, 'defs') %}
+    <dt>{% if defs|length > 0 %}
+        {% set def = defs[0] %}
+        <a href="{{ root }}{{ def.page.url }}#{{ def.target }}"
+           title="{{ def.definition }}">{{term}}</a>
         {% else %}
         {{ term }}
         {% endif %}

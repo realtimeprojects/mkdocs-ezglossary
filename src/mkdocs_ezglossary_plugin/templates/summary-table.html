@@ -12,18 +12,23 @@
     <tbody>
         {% for term in terms %}
         <tr>
+            <td>{% if defs|length > 0 %}
+                {% set def = defs[0] %}
+                <a href="{{ root }}{{ def.page.url }}#{{ def.target }}"
+                   title="{{ def.definition }}">{{term}}</a>
+                {% else %}
+                {{ term }}
+                {% endif %}
+            </td>
             <td>{{term}}</td>
             <td>{{ glossary.definition(section, term) | safe }}</td>
             {% if types|length > 0 %}
             <td>
                 <ul>
-                {% for type in types %}
-                    {% for entry in glossary.get(section, term, type) %}
-                        <li>
-                            <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
-                            <small>[{{ type[:-1] }}]</small>
-                        </li>
-                    {% endfor %}
+                {% for entry in glossary.get(section, term, 'refs') %}
+                    <li>
+                        <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
+                    </li>
                 {% endfor %}
                 </ul>
             </td>
