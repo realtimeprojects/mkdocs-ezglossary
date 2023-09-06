@@ -17,7 +17,6 @@
             {% for entry in glossary.get(section, term, 'refs') %}
                 <li>
                     <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
-                    <small>[{{ type[:-1] }}]</small>
                 </li>
             {% endfor %}
         </ul>

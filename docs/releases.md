@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.5.3
+| ~2023-09-06~
+
+-   Fix error in summary-detailed template.
+
 ## v1.5.2
 | ~2023-09-06~
 
