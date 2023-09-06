@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.5.2
+| ~2023-09-06~
+
+-   Fix project description and keywords
+
 ## v1.5.1
 | ~2023-09-05~
 
