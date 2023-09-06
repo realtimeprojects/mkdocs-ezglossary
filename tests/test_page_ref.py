@@ -59,15 +59,15 @@ def test_page_ref_simple(config):
     pages = mock.render([mycommand, commands], config)
 
     dl = xp.dl(_class="#mkdocs-ezglossary-summary", _id="page")
-    dl = dl.has(xp.dt().a(href="../mycommand.md#",
-                          text="help1"))
+    dl = dl.has(xp.dt.a(href="../mycommand.md#",
+                        text="help1"))
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
-    dd = xp.dd().ul().li().a(href="../commands.md#cmd_help2_refs_0",
-                             text="Commands")
+    dd = xp.dd.ul.li.a(href="../commands.md#cmd_help2_refs_0",
+                       text="Commands")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="cmd")
     dl = dl.has(dd)
-    dl = dl.has(xp.dt().a(text="help2"))
+    dl = dl.has(xp.dt.a(text="help2"))
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
 
@@ -77,19 +77,19 @@ def test_page_ref_anchor(config):
     a = xp.a(href="../mycommand.md#hello",
              text="term2")
     dl = xp.dl(_class="#mkdocs-ezglossary-summary", _id="page")
-    dl = dl.has(xp.dt().has(a))
+    dl = dl.has(xp.dt.has(a))
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
 
 def test_page_ref_direct(config):
     pages = mock.render([mycommand, commands], config)
 
-    dd = xp.dd()
+    dd = xp.dd
     a = xp.a(href="../mycommand.md#",
              text="cmd2")
     dd = dd.has(xp.p(text="*page subtitle"))
     dl = xp.dl(_class="#mkdocs-ezglossary-summary", _id="page")
-    dl = dl.has(xp.dt().has(a))
+    dl = dl.has(xp.dt.has(a))
     dl = dl.has(dd)
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
@@ -102,7 +102,7 @@ def test_page_ref_direct_anchor(config):
     dd = xp.dd()
     dd = dd.has(xp.p(text="*Description of world"))
     dl = xp.dl(_class="#mkdocs-ezglossary-summary", _id="page")
-    dl = dl.has(xp.dt().has(a))
+    dl = dl.has(xp.dt.has(a))
     dl = dl.has(dd)
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
@@ -113,7 +113,7 @@ def test_page_ref_default_section(config):
     a = xp.a(href="../mycommand.md#",
              text="cmd4")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
-    dl = dl.has(xp.dt().has(a))
+    dl = dl.has(xp.dt.has(a))
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
 
@@ -123,16 +123,16 @@ def test_page_ref_default_section_anchor(config):
     a = xp.a(href="../mycommand.md#world2",
              text="cmd5")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
-    dl = dl.has(xp.dt().has(a))
+    dl = dl.has(xp.dt.has(a))
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
 
 def test_page_ref_link(config):
     pages = mock.render([mycommand, commands], config)
 
-    dl = xp.body().p().a(_class="mkdocs-ezglossary-link",
-                         name="cmd_help2_refs_0",
-                         title="page subtitle",
-                         href="../mycommand.md#",
-                         text="help2")
+    dl = xp.body.p.a(_class="mkdocs-ezglossary-link",
+                     name="cmd_help2_refs_0",
+                     title="page subtitle",
+                     href="../mycommand.md#",
+                     text="help2")
     assert len(pages['commands.md'].xpath(str(dl))) == 1
