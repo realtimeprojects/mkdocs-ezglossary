@@ -33,7 +33,7 @@ terms:
     - help2
     - help3: help
 anchors:
-  world: Description of world
+  - world: Description of world
     """))
 
 commands = mock.Page(

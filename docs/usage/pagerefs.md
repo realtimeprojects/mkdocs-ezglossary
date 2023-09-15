@@ -120,6 +120,6 @@ anchors:
     ```markdown
     ---
     anchors:
-        help: Definition of help
+      - help: Definition of help
     ---
     ```

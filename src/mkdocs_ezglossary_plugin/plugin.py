@@ -60,8 +60,9 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         def _get_definition(anchor):
             anchors = attributes.get('anchors')
             if anchors:
-                if anchor in anchors:
-                    return anchors[anchor]
+                for anchor_def in anchors:
+                    if anchor in anchor_def:
+                        return anchor_def[anchor]
             if 'subtitle' in attributes:
                 return attributes['subtitle']
             return page.title
@@ -73,6 +74,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 else:
                     (term, anchor) = (term, "")
             definition = _get_definition(anchor)
+            log.debug(f"add2section: {section}:{term}:{anchor} -> '{definition}'")
             self._glossary.add(section,
                                term,
                                'defs',

@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.5.4
+| ~2023-09-06~
+
+-   Fix anchor lookup for page references
+
 ## v1.5.3
 | ~2023-09-06~
 
