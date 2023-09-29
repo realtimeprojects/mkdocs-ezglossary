@@ -44,7 +44,7 @@ just works by adding a definition list with section specifiers anywhere
 in your documentation:
 
 ``` markdown
-term:glossary
+section:term
 :   A list of specialized words with their definitions
 ```
 
@@ -54,7 +54,7 @@ You can now link to this glossary definition using the following
 syntax. This will produce a link to the definition in your documentation:
 
 ``` markdown
--   See the <term:glossary> for details
+-   See the <section:term> for details
 ```
 
 ### Printing a summery

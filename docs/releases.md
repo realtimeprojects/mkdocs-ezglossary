@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.5.5
+| ~2023-09-29~
+
+-   Fix doc errors in README.md
+
 ## v1.5.4
 | ~2023-09-06~
 
