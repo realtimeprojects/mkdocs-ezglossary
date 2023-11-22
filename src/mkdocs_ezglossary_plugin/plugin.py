@@ -163,14 +163,24 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     def _register_glossary_links(self, output, page):
         def _replace(mo):
-            section = mo.group(1) if mo.group(1) else "_"
+            section = mo.group(1)
+            section = "_" if section == "default" else section
             term = mo.group(2)
-            text = mo.group(3) if mo.group(3) else term
+            text = mo.group(3)[1:] if mo.group(3) else term
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
-        regex = rf"<{_re.section}?\:{_re.term}\|?{_re.text}?>"
-        return re.sub(regex, _replace, output)
+        def _replace_default(mo):
+            section = "_"
+            term = mo.group(1)
+            text = mo.group(2)[1:] if mo.group(2) else term
+            _id = self._glossary.add(section, term, 'refs', page)
+            return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
+
+        regex = rf"<{_re.section}\:{_re.term}(\|{_re.text})?>"
+        output = re.sub(regex, _replace, output)
+        regex = rf"<{_re.term}\:(\|{_re.text})?>"
+        return re.sub(regex, _replace_default, output)
 
     def _replace_inline_refs(self, output, page, root):
         def _replace(mo):

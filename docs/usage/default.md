@@ -32,11 +32,12 @@ term
 
 Links to terms in the default section can be specified with the syntax:
 
-    <:term>
+    <term2:>
+    <default:term2>
 
 !!! Example
 
-    - See the <:term1> or <:term2>
+    - See the <term1:> or <default:root>
 
 ## Summary
 

@@ -33,7 +33,8 @@ def test_link_full_title(simple, config):
     html = mock.render_single(simple, config)
     log.debug(html)
 
-    dl = xpath.body.p.a(name="test_third_refs_0",
+    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
+                        name="test_third_refs_0",
                         title="*detailed description of third term",
                         href="../simple.md#test_third_defs_0",
                         text="third")
@@ -65,10 +66,15 @@ def test_link_second_ref(simple, summary, config):
 
 
 def test_link_default_ref_disabled(simple, summary, config):
+    """ Ensure definitions for the default sections are
+        ignored when the configuration `use_default` is set
+        to `False`.
+    """
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(name="__default_refs_0",
+    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
+                        name="__default_refs_0",
                         title="",
                         href="../simple.md#__default_defs_0",
                         text="default")
@@ -76,11 +82,16 @@ def test_link_default_ref_disabled(simple, summary, config):
 
 
 def test_link_default_ref_enabled(simple, summary, config):
+    """ Ensure definitions for the default sections are
+        replaced when the configuration `use_default` is set
+        to `True`.
+    """
     config['use_default'] = True
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(name="__default_refs_0",
+    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
+                        name="__default_refs_0",
                         title="",
                         href="../simple.md#__default_defs_0",
                         text="default")

@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.5.6
+| ~2023-11-22~
+
+-   Fixed: [#4](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/4)
+    (Links to default section not working)
+
 ## v1.5.5
 | ~2023-09-29~
 

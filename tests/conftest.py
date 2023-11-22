@@ -87,7 +87,7 @@ def summary():
                 </div>
 
                 <p>See <test:third> for details</p>
-                <p>See <:default> for details</p>
+                <p>See <default:> for details</p>
             </body>
         """
     )
