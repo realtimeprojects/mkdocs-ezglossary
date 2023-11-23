@@ -1,5 +1,5 @@
 <dt>
-    <a name="{{ target }}">{{ term }}</a>
+	{{ fmt_pre|safe }}<a name="{{ target }}">{{ term }}</a> {{ fmt_post|safe }}
 </dt>
 <dd>{{ definition|safe }}{{ reflink }}</dd>
 

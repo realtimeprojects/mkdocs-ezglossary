@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.5.7
+| ~v1.5.7a1~
+
+-   Fixed: [#3](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/3)
+    (Support formatting of definitions)
+
 ## v1.5.6
 | ~2023-11-22~
 

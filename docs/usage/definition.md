@@ -19,16 +19,24 @@ entry will be added.
     Define the term `glossary` in the section `term`:
 
     ``` markdown
-    demo:my_term1
-    :   Definition of my_term1
+    *demo:my_term1*
+    :   Definition of my_term 1
+
+    demo:my_term2
+    :   Definition of my_term 2 
+
+    *`demo:my_term2`*
+    :   Definition of my_term 2 
     ```
 
-    demo:my_term1
-    :   Definition of my_term1
+    *demo:my_term1*
+    :   Definition of my_term 1
 
     demo:my term 2
     :   Definition of my term 2
 
+    *`demo:my term 3`*
+    :   Definition of my term 3
 
 ## List references
 

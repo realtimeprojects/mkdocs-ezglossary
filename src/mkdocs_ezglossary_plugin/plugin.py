@@ -20,8 +20,8 @@ class __re:
         self.section = r"(\w+)"
         self.term = r"([\w -]+)"
         self.text = r"([^>]+)"
-        self.dt = rf"<dt>{self.section}:{self.term}<\/dt>"
-        self.dt_default = rf"<dt>{self.term}<\/dt>"
+        self.dt = rf"<dt>(<.*>)?{self.section}:{self.term}(<.*>)?<\/dt>"
+        self.dt_default = rf"<dt>(<.*>)?{self.term}(<.*>)?<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
         self.options = r"([\|\=\w\+]+)"
 
@@ -228,8 +228,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def _find_definitions(self, content, page):
         log.debug(f"_find_definitions({page})")
 
-        def _add_entry(section, term, definition):
-            log.debug(f"found entry: {section}:{term}:{definition}")
+        def _add_entry(section, term, definition, fmt_pre, fmt_post):
+            log.debug(f"found entry: {section}:{term}:{definition} {fmt_pre}:{fmt_post}")
 
             if self.config.tooltip == "none":
                 _tooltip = ""
@@ -251,20 +251,26 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                                    target=_id,
                                    term=term,
                                    definition=definition,
-                                   reflink=reflink)
+                                   reflink=reflink,
+                                   fmt_pre=fmt_pre if fmt_pre else "",
+                                   fmt_post=fmt_post if fmt_post else "")
 
         def _replace(mo):
-            section = mo.group(1)
-            term = mo.group(2)
-            definition = mo.group(3)
-            rendered = _add_entry(section, term, definition)
+            fmt_pre = mo.group(1)
+            section = mo.group(2)
+            term = mo.group(3)
+            fmt_post = mo.group(4)
+            definition = mo.group(5)
+            rendered = _add_entry(section, term, definition, fmt_pre, fmt_post)
             return rendered if rendered else mo.group()
 
         def _replace_default(mo):
             section = "_"
-            term = mo.group(1)
-            definition = mo.group(2)
-            rendered = _add_entry(section, term, definition)
+            fmt_pre = mo.group(1)
+            term = mo.group(2)
+            fmt_post = mo.group(3)
+            definition = mo.group(4)
+            rendered = _add_entry(section, term, definition, fmt_pre, fmt_post)
             return rendered if rendered else mo.group()
 
         if self.config.use_default:
