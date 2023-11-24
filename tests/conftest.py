@@ -56,6 +56,8 @@ def simple():
                     <dd>demo 2</dd>
                     <dt>demo:third</dt>
                     <dd>demo 3</dd>
+                    <dt><bold><em><code>demo:formatted</code></em></bold></dt>
+                    <dd>formatted dd</dd>
                 </dl>
                 </div>
 

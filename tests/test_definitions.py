@@ -65,3 +65,12 @@ def test_default_section(simple, config):
     dl = xpath.dl
     dl = dl.has(xpath.dd(text="*demo 2").has(xpath.a()))
     assert len(html.xpath(str(dl))) == 0
+
+
+def test_formatted_dt(simple, config):
+    html = mock.render_single(simple, config)
+    log.debug(html)
+    dl = xpath.dl
+    dl = dl.has(xpath.dt.bold.em.code.has(xpath.a(name="demo_formatted_defs_0", text="formatted")))
+    dl = dl.has(xpath.dd(text="formatted dd"))
+    assert len(html.xpath(str(dl)))
