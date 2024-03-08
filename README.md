@@ -57,7 +57,7 @@ syntax. This will produce a link to the definition in your documentation:
 -   See the <section:term> for details
 ```
 
-### Printing a summery
+### Printing a summary
 
 Now you can place a summary of all definitions anywhere in your
 documentation:

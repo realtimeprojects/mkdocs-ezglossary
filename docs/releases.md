@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.5.8
+| ~2024-03-08~
+
+-   Fixed typo in README.md
+
 ## v1.5.7
 | ~2023-11-27~
 
