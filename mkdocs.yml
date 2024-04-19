@@ -39,7 +39,6 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.snippets
-  - callouts
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true   
@@ -54,6 +53,7 @@ markdown_extensions:
 
 plugins:
   - search
+  - callouts
   - ezglossary:
       strict: true
       list_definitions: true
