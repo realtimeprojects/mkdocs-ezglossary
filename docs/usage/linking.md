@@ -64,7 +64,7 @@ full
     plugins:
         search
         ezglossary:
-            - tooltips: full
+            - tooltip: full
     ```
 
     !!! Quote "Active tooltips"
