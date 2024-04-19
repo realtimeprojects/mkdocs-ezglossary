@@ -4,7 +4,7 @@
 | ~2024-04-15~
 
 -   Fixed: [#9](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/9):
-    Support markdown links for linking of unicode characters and support for emojis.
+    Support [markdown links](usage/linking.md) for linking of unicode characters and support for emojis.
 
 ## v1.5.9
 | ~2024-04-15~
