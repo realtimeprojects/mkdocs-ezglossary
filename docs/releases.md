@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.5.9
+| ~2024-04-15~
+
+-   Fixed: [#8](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/8):
+    type on documentation for <configuration:tooltip> configuration.
+
 ## v1.5.8
 | ~2024-03-08~
 

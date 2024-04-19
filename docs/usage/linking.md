@@ -43,7 +43,7 @@ tooltips should be desplayed with a preview on the definition:
 plugins:
     search
     ezglossary:
-        - tooltips: [none, heading, full]
+        - tooltip: [none, heading, full]
 ```
 
 Options:
