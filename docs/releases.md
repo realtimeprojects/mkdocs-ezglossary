@@ -4,7 +4,12 @@
 | ~2024-04-15~
 
 -   Fixed: [#8](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/8):
-    type on documentation for <configuration:tooltip> configuration.
+    typo on documentation for <configuration:tooltip> configuration.
+-   Fixed: [#9](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/9):
+    Handling linking with individual text in tables 
+-   Fixed: [#9](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/9):
+    Handling summaries with options in tables 
+-   Fixed `no_defs`/`no_refs`/`do_defs`/`do_refs` handling in default summary theme
 
 ## v1.5.8
 | ~2024-03-08~
