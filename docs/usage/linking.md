@@ -45,16 +45,69 @@ you can override the term using the `|` modifier:
     | <term:section\|glossary sections> | ...  |
     ```
     
+## Using markdown links
+> starting from version `1.6.0`
+
+When setting the <configuration:markdown_links> to `true`, 
+ezglossary will also search for markdown links. If it identifies that
+a link points to a glossary entry, it will link it as well:
+
+!!! Note
+
+    When using unicode characters in term definitions, linking them
+    using the `<section:term>` syntax might not work. In this case
+    you have to use markdown links in order to link to those terms.
+
+!!! Note
+
+    In case your definition contains emojis, linking them using
+    the `<section:term>` syntax will not work as well. In this case
+    you have to use markdown links.
+
+    !!! Example
+
+        ``` markdown
+        my happy term :smile:
+        :   I am so happy
+
+        -   See [](my happy term)
+        ```
+
+``` yaml
+plugins:
+    search
+    ezglossary:
+      markdown_links: true
+```
+
+!!! Example
+
+    ``` markdown
+    -   See [](configuration:tooltip) for details
+    -   See [tooltips](configuration:tooltip) for details
+    ```
+
+    !!! Output
+
+        -   See [](configuration:tooltip) for details
+        -   See [tooltips](configuration:tooltip) for details
+
+
+configuration:markdown_links
+:   Defines wether ezglossary should also link markdown links to
+    glossary entries.
+
+
 ## Tooltips
 
 The <configuration:tooltip> configuration allows you to control wether
 tooltips should be desplayed with a preview on the definition:
 
-```markdown
+``` yaml
 plugins:
     search
     ezglossary:
-        - tooltip: [none, heading, full]
+      tooltip: [none, heading, full]
 ```
 
 Options:
@@ -75,7 +128,7 @@ full
     plugins:
         search
         ezglossary:
-            - tooltip: full
+          tooltip: full
     ```
 
     !!! Quote "Active tooltips"

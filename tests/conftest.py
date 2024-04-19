@@ -92,11 +92,14 @@ def summary():
                     <glossary::_>
                 </div>
 
+
                 <p>See <test:third> for details</p>
                 <p>See <test:third\\|mythird> for details.</p>
                 <p>See <default:> for details</p>
                 <p>See <default2:|mydef2> for details.</p>
                 <p>See <default3:\\|mydef3> for details.</p>
+                <p><a href="test:third">mythird</a></p>
+                <p><a href="test:third"></a></p>
             </body>
         """
     )

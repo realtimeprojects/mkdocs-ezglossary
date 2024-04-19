@@ -58,6 +58,7 @@ plugins:
       strict: true
       list_definitions: true
       list_references: true
+      markdown_links: true
       inline_refs: none
       tooltip: full
       use_default: true

@@ -35,6 +35,7 @@ class GlossaryConfig(config.base.Config):
     sections = co.ListOfItems(config.config_options.Type(str), default=[])
     section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
     strict = config.config_options.Type(bool, default=False)
+    markdown_links = config.config_options.Type(bool, default=False)
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
     use_default = config.config_options.Type(bool, default=False)
@@ -107,6 +108,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     @event_priority(5000)
     def on_page_content(self, content, page, config, files):
+        log.warning(content)
         content = self._find_definitions(content, page)
         content = self._register_glossary_links(content, page)
         return content
@@ -162,25 +164,36 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         return re.sub(regex, _replace, html)
 
     def _register_glossary_links(self, output, page):
-        def _replace(mo):
-            section = mo.group(1)
-            section = "_" if section == "default" else section
-            term = mo.group(2)
-            text = mo.group(3).lstrip("\\|") if mo.group(3) else term
+
+        def _add_link(section, term, text):
+            section = "_" if (section == "default" or section is None) else section
+            term = term if term else "__None__"
+            text = text if text else "__None__"
+            log.warning(f"glossary: found {section}/{term}/{text}")
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
+
+        def _replace(mo):
+            log.warning(mo.groups())
+            return _add_link(mo.group(1), mo.group(2), mo.group(4))
 
         def _replace_default(mo):
-            section = "_"
-            term = mo.group(1)
-            text = mo.group(2).lstrip("\\|") if mo.group(2) else term
-            _id = self._glossary.add(section, term, 'refs', page)
-            return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
+            log.warning(mo.groups())
+            return _add_link(None, mo.group(1), mo.group(3))
 
-        regex = rf"<{_re.section}\:{_re.term}(\\?\|{_re.text})?>"
+        def _replace_href(mo):
+            return _add_link(mo.group(2), mo.group(3), mo.group(4))
+
+        regex = rf"<{_re.section}\:{_re.term}(\\?\|({_re.text}))?>"
         output = re.sub(regex, _replace, output)
-        regex = rf"<{_re.term}\:(\\?\|{_re.text})?>"
-        return re.sub(regex, _replace_default, output)
+        regex = rf"<{_re.term}:(\\?\|({_re.text}))?>"
+        output = re.sub(regex, _replace_default, output)
+
+        if self.config.markdown_links:
+            regex = rf'<a href="({_re.section}\:)?{_re.term}">({_re.text})?</a>'
+            output = re.sub(regex, _replace_href, output)
+
+        return output
 
     def _replace_inline_refs(self, output, page, root):
         def _replace(mo):
@@ -207,8 +220,14 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             defs = self._glossary.get(section, term, 'defs')
 
             if len(defs) == 0:
-                log.warning(f"page '{page.url}' referenes to undefined glossary entry {section}:{term}")
-                return f'<a name="{_id}">{text}</a>'
+                log.warning(f"page '{page.url}' refers to undefined glossary entry {section}:{term}")
+                term = "" if term == "__None__" else term
+                text = "" if text == "__None__" else text
+                sec = f"{section}:" if section != "_" else ""
+                return f'<a href="{sec}{term}">{text}</a>'
+
+            text = term if text == "__None__" else text
+
             if len(defs) > 1:
                 log.warning(f"multiple definitions found for <{section}:{term}>, linking to first:")
                 for _def in defs:

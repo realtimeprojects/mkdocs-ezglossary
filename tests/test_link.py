@@ -113,3 +113,33 @@ def test_link_default_ref_enabled(simple, summary, config):
                         href="../simple.md#__default3_defs_0",
                         text="mydef3")
     assert len(summary.xpath(str(dl))) == 1
+
+
+def test_markdown_links_disabled(simple, summary, config):
+    """ Ensure that markdown links are ignored when `markdown_links` is set to false.
+    """
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    dl = xpath.body.p.a(href="test:third",
+                        text="mythird")
+    assert len(summary.xpath(str(dl))) == 1
+
+
+def test_markdown_links_enabled(simple, summary, config):
+    """ Ensure markdown links are resolved when `markdown_links` is set to true.
+    """
+    config['markdown_links'] = True
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    dl = xpath.body.p.a(name="test_third_refs_1",
+                        title="",
+                        href="../simple.md#test_third_defs_0",
+                        text="third")
+    assert len(summary.xpath(str(dl))) == 1
+    dl = xpath.body.p.a(name="test_third_refs_2",
+                        title="",
+                        href="../simple.md#test_third_defs_0",
+                        text="mythird")
+    assert len(summary.xpath(str(dl))) == 1

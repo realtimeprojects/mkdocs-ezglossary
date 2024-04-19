@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.6.0
+| ~2024-04-15~
+
+-   Fixed: [#9](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/9):
+    Support markdown links for linking of unicode characters and support for emojis.
+
 ## v1.5.9
 | ~2024-04-15~
 

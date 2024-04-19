@@ -27,6 +27,7 @@ class Glossary:
         self.clear()
 
     def add(self, section, term, linktype, page, definition=None, anchor=None):
+        term = term.strip()
         log.debug(f"glossary.add({section}, {term}, {linktype}, '{definition}', {anchor})")
         links = self._links(section, term, linktype)
         _id = f"{section}_{term}_{linktype}_{len(links)}".replace(" ", "_")
