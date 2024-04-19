@@ -101,7 +101,7 @@ configuration:markdown_links
 ## Tooltips
 
 The <configuration:tooltip> configuration allows you to control wether
-tooltips should be desplayed with a preview on the definition:
+tooltips should be displayed with a preview on the definition:
 
 ``` yaml
 plugins:
