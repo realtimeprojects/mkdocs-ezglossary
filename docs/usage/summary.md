@@ -36,103 +36,110 @@ Override the default values for <configuration:list_definitions> and
 reference:
 
 ```markdown
-    <glossary::demo|no_refs>
+<glossary::demo|no_refs>
 ```
 
-=== `no_refs`
+!!! Note
 
-    Reference:
+    When overriding the output behaviour in summaries printed in a table,
+    you need to quote the `|`:
 
+    ``` markdown
+    | row1                     | row2 |
+    |--------------------------|------|
+    | <glossary:demo\|no_refs> | ...  |
     ```
+
+### `no_refs`
+>   Dont add reference links to the summary.
+
+```
+<glossary::demo|no_refs>
+```
+
+!!! Quote "output"
+
     <glossary::demo|no_refs>
-    ```
 
-    !!! Quote "output"
+### `no_defs`
+>   Don't add definitions to the summary:
 
-        <glossary::demo|no_refs>
+```
+<glossary::demo|no_defs>
+```
 
-=== `no_defs`
+!!! Quote "output"
 
-    Reference:
-
-    ```
     <glossary::demo|no_defs>
-    ```
 
-    !!! Quote "output"
+### `do_defs` and `do_refs`
 
-        <glossary::demo|no_defs>
+```
+<glossary::demo|do_defs+do_refs>
+```
 
-=== `do_defs` and `do_refs`
+!!! Quote "output"
 
-    Reference:
-
-    ```
     <glossary::demo|do_defs+do_refs>
-    ```
-
-    !!! Quote "output"
-
-        <glossary::demo|do_defs+do_refs>
 
 ## Configuration
 
 configuration:list_definitions
 :   If set to `false`, definitions are not listed in the [summary](summary.md). Default
-    is `true`.
+is `true`.
 
-    === "Global"
+=== "Global"
 
-        ``` markdown
-        plugins:
-            - search
-            - ezglossary:
-                - list_definitions: false
-        ```
+    ``` markdown
+    plugins:
+        - search
+        - ezglossary:
+            - list_definitions: false
+    ```
 
-    === "Per section"
+=== "Per section"
 
-        ``` markdown
-        plugins:
-            - search
-            - ezglossary:
-                sections:
-                    demo
-                section_config:
-                    - name: demo
-                      list_references = true
+    ``` markdown
+    plugins:
+        - search
+        - ezglossary:
+            sections:
+                demo
+            section_config:
+                - name: demo
+                  list_references = true
 
-                - list_definitions: false
-        ```
-        
+            - list_definitions: false
+    ```
+    
 
 configuration:list_references
 :   If set to `false`, references are not listed in the [summary](summary.md). Default
-    is `true`.
+is `true`.
 
-    === "Global"
+=== "Global"
 
-        ``` markdown
-        plugins:
-            - search
-            - ezglossary:
-                - list_references: false
-        ```
+    ``` markdown
+    plugins:
+        - search
+        - ezglossary:
+            - list_references: false
+    ```
 
-    === "Per section"
+=== "Per section"
 
-        ``` markdown
-        plugins:
-            - search
-            - ezglossary:
-                sections:
-                    demo
-                section_config:
-                    - name: demo
-                      list_references = true
+    ``` markdown
+    plugins:
+        - search
+        - ezglossary:
+            sections:
+                demo
+            section_config:
+                - name: demo
+                  list_references = true
 
-                - list_references: false
-        ```
+            - list_references: false
+    ```
 
 ## Themes
 
