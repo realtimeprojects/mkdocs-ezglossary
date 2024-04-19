@@ -34,6 +34,17 @@ you can override the term using the `|` modifier:
 
     -   You can define multiple <term:section|glossary sections>
 
+!!! Note
+
+    When using a link with individual reference texts in a table,
+    you need to quote the `|`.
+
+    ``` markdown
+    | row1                              | row2 |
+    |-----------------------------------|------|
+    | <term:section\|glossary sections> | ...  |
+    ```
+    
 ## Tooltips
 
 The <configuration:tooltip> configuration allows you to control wether

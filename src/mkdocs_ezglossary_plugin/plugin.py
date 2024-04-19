@@ -23,7 +23,7 @@ class __re:
         self.dt = rf"<dt>(<.*>)?{self.section}:{self.term}(<.*>)?<\/dt>"
         self.dt_default = rf"<dt>(<.*>)?{self.term}(<.*>)?<\/dt>"
         self.dd = r"<dd>\n?((.|\n)+?)<\/dd>"
-        self.options = r"([\|\=\w\+]+)"
+        self.options = r"([\\\|\=\w\+]+)"
 
 
 _re = __re()
@@ -146,7 +146,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
             terms = self._glossary.terms(section)
             theme = ""
-            for option in options.split("|"):
+            for option in options.replace("\\|", "|").split("|"):
                 if "theme" in option:
                     theme = "-" + option.split("=")[1]
             return template.render(f"summary{theme}.html",
@@ -158,7 +158,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                                    root=root)
             return html
 
-        regex = rf"<glossary::{_re.section}\|?{_re.options}?>"
+        regex = rf"<glossary::{_re.section}\\?\|?{_re.options}?>"
         return re.sub(regex, _replace, html)
 
     def _register_glossary_links(self, output, page):
@@ -166,20 +166,20 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             section = mo.group(1)
             section = "_" if section == "default" else section
             term = mo.group(2)
-            text = mo.group(3)[1:] if mo.group(3) else term
+            text = mo.group(3).lstrip("\\|") if mo.group(3) else term
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
         def _replace_default(mo):
             section = "_"
             term = mo.group(1)
-            text = mo.group(2)[1:] if mo.group(2) else term
+            text = mo.group(2).lstrip("\\|") if mo.group(2) else term
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
-        regex = rf"<{_re.section}\:{_re.term}(\|{_re.text})?>"
+        regex = rf"<{_re.section}\:{_re.term}(\\?\|{_re.text})?>"
         output = re.sub(regex, _replace, output)
-        regex = rf"<{_re.term}\:(\|{_re.text})?>"
+        regex = rf"<{_re.term}\:(\\?\|{_re.text})?>"
         return re.sub(regex, _replace_default, output)
 
     def _replace_inline_refs(self, output, page, root):

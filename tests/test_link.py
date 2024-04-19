@@ -49,7 +49,7 @@ def test_link_replace_html(simple, config):
     dl = xpath.body.p.a(name="test_second_refs_0",
                         title="*this text is formatted",
                         href="../simple.md#test_second_defs_0",
-                        text="second")
+                        text="mysecond")
     assert len(html.xpath(str(dl))) == 1
 
 
@@ -63,9 +63,14 @@ def test_link_second_ref(simple, summary, config):
                         href="../simple.md#test_third_defs_0",
                         text="third")
     assert len(summary.xpath(str(dl))) == 1
+    dl = xpath.body.p.a(name="test_third_refs_2",
+                        title="*third term",
+                        href="../simple.md#test_third_defs_0",
+                        text="mythird")
+    assert len(summary.xpath(str(dl))) == 1
 
 
-def test_link_default_ref_disabled(simple, summary, config):
+def test_link_default_ref_dis(simple, summary, config):
     """ Ensure definitions for the default sections are
         ignored when the configuration `use_default` is set
         to `False`.
@@ -95,4 +100,16 @@ def test_link_default_ref_enabled(simple, summary, config):
                         title="",
                         href="../simple.md#__default_defs_0",
                         text="default")
+    assert len(summary.xpath(str(dl))) == 1
+    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
+                        name="__default2_refs_0",
+                        title="",
+                        href="../simple.md#__default2_defs_0",
+                        text="mydef2")
+    assert len(summary.xpath(str(dl))) == 1
+    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
+                        name="__default3_refs_0",
+                        title="",
+                        href="../simple.md#__default3_defs_0",
+                        text="mydef3")
     assert len(summary.xpath(str(dl))) == 1

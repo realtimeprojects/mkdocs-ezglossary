@@ -46,6 +46,10 @@ def simple():
                 <dl>
                     <dt>default</dt>
                     <dd>default term</dd>
+                    <dt>default2</dt>
+                    <dd>default2 term</dd>
+                    <dt>default3</dt>
+                    <dd>default3 term</dd>
                 </dl>
                 </div>
                 <div id="demo">
@@ -62,7 +66,7 @@ def simple():
                 </div>
 
                 <p>See <test:third> for details.</p>
-                <p>See <test:second> for details.</p>
+                <p>See <test:second|mysecond> for details.</p>
             </body>
         """
     )
@@ -89,7 +93,10 @@ def summary():
                 </div>
 
                 <p>See <test:third> for details</p>
+                <p>See <test:third\\|mythird> for details.</p>
                 <p>See <default:> for details</p>
+                <p>See <default2:|mydef2> for details.</p>
+                <p>See <default3:\\|mydef3> for details.</p>
             </body>
         """
     )
