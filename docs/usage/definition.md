@@ -11,7 +11,7 @@ term:glossary
 :   A list of specialized words with their definitions
 ```
 
-`term` herby referes to the <termssection> `terms` in which this glossary
+`term` herby referes to the <term:section> `terms` in which this glossary
 entry will be added.
 
 !!! Example

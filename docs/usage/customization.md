@@ -89,7 +89,7 @@ term definition.
 
 ## Summary
 
-The `summary.html` renders the [summary](summary) output.
+The `summary.html` renders the [summary](summary.md) output.
 reference links in the [term definition](definition.md).
 
 ``` jinja
