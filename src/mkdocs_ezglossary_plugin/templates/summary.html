@@ -11,11 +11,13 @@
     </dt>
     <dd>
         <ul>
-            {% for entry in glossary.get(section, term, 'refs') %}
+	    {% for type in types %}
+            {% for entry in glossary.get(section, term, type) %}
                 <li>
                     <a href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ entry.page.title }}</a>
                 </li>
             {% endfor %}
+	    {% endfor %}
         </ul>
     </dd>
     {% endfor %}
