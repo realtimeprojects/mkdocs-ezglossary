@@ -108,7 +108,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     @event_priority(5000)
     def on_page_content(self, content, page, config, files):
-        log.warning(content)
         content = self._find_definitions(content, page)
         content = self._register_glossary_links(content, page)
         return content
@@ -174,11 +173,9 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
         def _replace(mo):
-            log.warning(mo.groups())
             return _add_link(mo.group(1), mo.group(2), mo.group(4))
 
         def _replace_default(mo):
-            log.warning(mo.groups())
             return _add_link(None, mo.group(1), mo.group(3))
 
         def _replace_href(mo):

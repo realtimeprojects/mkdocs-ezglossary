@@ -5,6 +5,7 @@
 
 -   Fixed: [#10](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/10):
     Links in PDF exports are not working
+-   Removed debug warnings in logging
 
 ## v1.6.0
 | ~2024-04-15~
