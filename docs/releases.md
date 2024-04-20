@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.6.1
+| ~2024-04-16~
+
+-   Fixed: [#10](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/10):
+    Links in PDF exports are not working
+
 ## v1.6.0
 | ~2024-04-15~
 

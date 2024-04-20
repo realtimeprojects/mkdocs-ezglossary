@@ -131,7 +131,7 @@ def test_page_ref_link(config):
     pages = mock.render([mycommand, commands], config)
 
     dl = xp.body.p.a(_class="mkdocs-ezglossary-link",
-                     name="cmd_help2_refs_0",
+                     id="cmd_help2_refs_0",
                      title="page subtitle",
                      href="../mycommand.md#",
                      text="help2")

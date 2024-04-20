@@ -34,7 +34,7 @@ The default template looks like this:
 
 ``` jinja
 <a class="mkdocs-ezglossary-link"
-    name="{{ target }}"
+    id="{{ target }}"
     title="{{ entry.definition }}"
     href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ text }}</a>
 ```
@@ -73,7 +73,7 @@ term definition.
 
 ``` jinja
 <dt>
-    <a name="{{ target }}">{{ term }}</a>
+    <a id="{{ target }}">{{ term }}</a>
 </dt>
 <dd>
     {{ definition|safe }}
