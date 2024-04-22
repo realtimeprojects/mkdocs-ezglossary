@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.6.2
+| ~2024-04-22~
+
+-   Removed debug warnings in logging
+
 ## v1.6.1
 | ~2024-04-16~
 

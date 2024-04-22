@@ -168,7 +168,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             section = "_" if (section == "default" or section is None) else section
             term = term if term else "__None__"
             text = text if text else "__None__"
-            log.warning(f"glossary: found {section}/{term}/{text}")
+            log.debug(f"glossary: found {section}/{term}/{text}")
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
