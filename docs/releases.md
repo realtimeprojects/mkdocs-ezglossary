@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.6.3
+| ~2024-04-22~
+
+-   Fixed: [#11](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/11):
+    Glossary entries with hyphens lead to errors.
+
 ## v1.6.2
 | ~2024-04-22~
 

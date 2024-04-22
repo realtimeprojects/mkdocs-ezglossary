@@ -30,7 +30,7 @@ class Glossary:
         term = term.strip()
         log.debug(f"glossary.add({section}, {term}, {linktype}, '{definition}', {anchor})")
         links = self._links(section, term, linktype)
-        _id = f"{section}_{term}_{linktype}_{len(links)}".replace(" ", "_")
+        _id = f"{section}_{term}_{linktype}_{len(links)}".replace(" ", "_").replace("-", "_")
         anchor = _id if anchor is None else anchor
         links[_id] = Entry(anchor, page, definition)
         return _id
