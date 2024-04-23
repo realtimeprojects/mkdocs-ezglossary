@@ -42,6 +42,10 @@ def simple():
 
                         detailed description of third term
                     </dd>
+                    <dt>test:hyphens-abc def</dt>
+                    <dd> hyphen abc def </dd>
+                    <dt>test:hyphens-abc xyz</dt>
+                    <dd> hyphen abc xyz </dd>
                 </dl>
                 <dl>
                     <dt>default</dt>
@@ -106,6 +110,8 @@ def summary():
                 <p><a href="test:third"></a></p>
                 <p>See <demo:🚧> for details.</p>
                 <p>See <a href="🚧🚧">refers to 🚧</a> for details.</p>
+                <p>See <test:hyphens-abc xyz> for details.</p>
+                <p><a href="test:hyphens-abc def"></a></p>
             </body>
         """
     )

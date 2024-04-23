@@ -151,7 +151,7 @@ def test_markdown_links_enabled(simple, summary, config):
     assert len(summary.xpath(str(dl))) == 1
 
 
-def test_unicode_link(simple, summary, config):
+def test_unicode(simple, summary, config):
     """ Unicode links are processed.
     """
     config['markdown_links'] = True
@@ -169,4 +169,21 @@ def test_unicode_link(simple, summary, config):
                         title="default 🚧🚧🚧",
                         href="../simple.md#" + get_id("_", "🚧🚧", "defs", 0),
                         text="refers to 🚧")
+    assert len(summary.xpath(str(dl))) == 1
+
+
+def test_hyphens(simple, summary, config):
+    """ Hyphens in terms are supported
+    """
+    config['markdown_links'] = True
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    dl = xpath.body.p.a(id=get_id("test", "hyphens-abc def", "refs", 0),
+                        href="../simple.md#" + get_id("test", "hyphens-abc def", "defs", 0),
+                        text="hyphens-abc def")
+    assert len(summary.xpath(str(dl))) == 1
+    dl = xpath.body.p.a(id=get_id("test", "hyphens-abc xyz", "refs", 0),
+                        href="../simple.md#" + get_id("test", "hyphens-abc xyz", "defs", 0),
+                        text="hyphens-abc xyz")
     assert len(summary.xpath(str(dl))) == 1
