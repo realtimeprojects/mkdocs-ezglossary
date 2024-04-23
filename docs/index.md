@@ -12,7 +12,7 @@
     -   Unicode support
     -   PDF support
 
-- ## Documentation
+- ## Usage
     -   Read the [getting started](getting_started.md) instructions
         for installation and basic configuration of ezglossary.
     -   Read the [usage](usage/index.md) documentation
