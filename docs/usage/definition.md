@@ -75,6 +75,7 @@ to use them anyway:
 | Character | Replacement |
 |--------------------------------|-------------|
 | `#` (as first character)       | `&#35;`     |
+| `&` (as first character)       | `&amp;`     |
 | `/`                            | `&#47;`     | 
 | `|`                            | `&#166;`    | 
 | `"`                            | `&#34;`     | 

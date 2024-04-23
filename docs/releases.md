@@ -1,5 +1,12 @@
 # Release Notes
 
+## v1.6.7
+| ~2024-04-23~
+
+-   Fixed: [#14](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/14):
+    Add `&` to [list of unsupported characters for terms and section](usage/definition.md#limitations)
+    to handle html-entity-encoded mailto links.
+
 ## v1.6.6
 | ~2024-04-23~
 
