@@ -21,6 +21,3 @@
         how to configure sections.
 
 </div>
-
-test:hello&#35;
-: hello hello
