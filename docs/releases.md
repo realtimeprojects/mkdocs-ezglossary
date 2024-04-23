@@ -4,13 +4,13 @@
 | ~2024-04-23~
 
 -   Fixed: [#13](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/13):
-    Support html entities in sections and terms.
+    Support [html entities](usage/definition.md#limitations) in sections and terms.
 
 ## v1.6.4
 | ~2024-04-23~
 
 -   Fixed: [#12](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/12):
-    Support unicode characters for terms.
+    Support [unicode characters](usage/linking.md#using-markdown-links) for terms.
 
 ## v1.6.3
 | ~2024-04-22~
