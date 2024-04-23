@@ -1,31 +1,35 @@
 # Getting started
 
-## Prerequisites
+<div class="grid cards" markdown>
 
-This plugin requires the
-[material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
-to be active or any other plugin which generates
-[html description lists](https://www.w3schools.com/HTML/html_lists.asp).
+-   ## 1. Prerequisites
 
-## Installation
+    This plugin requires the
+    [material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
+    to be active or any other plugin which generates
+    [html description lists](https://www.w3schools.com/HTML/html_lists.asp).
 
-Install the ezglossary plugin whereever you installed mkdocs using
-the python package manager:
+-   ## 2. Installation
 
-    pip3 install mkdocs-ezglossary-plugin
+    Install the ezglossary plugin whereever you installed mkdocs using
+    the python package manager:
 
-## Activation
+        pip3 install mkdocs-ezglossary-plugin
 
-Add the following lines to your `mkdocs.yml` plugins-section to activate
-the plugin:
+-   ## 3. Activation
 
-``` yaml
-plugins:
-  - search
-  - ezglossary
-```
+    Add the following lines to your `mkdocs.yml` plugins-section to activate
+    the plugin:
 
-## Further reading
+    ``` yaml
+    plugins:
+      - search
+      - ezglossary
+    ```
 
--   Check the [usage](usage/index.md) documentation on how to use
+-   ## 4. Further reading
+
+    Check the [usage](usage/index.md) documentation on how to use
     your the plugin.
+
+</div>

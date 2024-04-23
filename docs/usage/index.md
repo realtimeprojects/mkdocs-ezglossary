@@ -1,14 +1,18 @@
 # Usage
 
-## Basic steps
+<div class="grid cards" markdown>
 
-1. [Define glossary entries](definition.md)
-2. [Refer to glossary entries](definition.md)
-3. [Print the summary](definition.md)
+-   ## Basic steps
 
-## Advanced
+    1. [Define glossary entries](definition.md)
+    2. [Refer to glossary entries](definition.md)
+    3. [Print the summary](definition.md)
 
--   [Page references](pagerefs.md)
--   [Configuring sections](sections.md)
--   [Activating the default section](default.md)
--   [Customization](customization.md)
+-   ## Advanced
+
+    -   [Page references](pagerefs.md)
+    -   [Configuring sections](sections.md)
+    -   [Activating the default section](default.md)
+    -   [Customization](customization.md)
+
+</div>
