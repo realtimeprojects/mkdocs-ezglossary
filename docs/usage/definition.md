@@ -69,7 +69,7 @@ plugins:
 
 The following characters are not allowed to be used in <term:section|sections>
 and <term:term|terms>, however, you can replace them with
-[html entities](https://www.freeformatter.com/html-entities.html) if you need want
+[html entities](https://www.freeformatter.com/html-entities.html) if you want
 to use them anyway:
 
 | Character | Replacement |
