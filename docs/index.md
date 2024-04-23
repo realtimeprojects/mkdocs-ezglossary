@@ -9,6 +9,8 @@ This plugin adds glossary support for mkdocs. It supports
 -   Printing a [summary](usage/summary.md) of your glossary with definitions and
     references anywhere in your documentation.
 -   [Page references](usage/pagerefs.md)
+-   Unicode support
+-   PDF support
 
 ## Documentation
 
