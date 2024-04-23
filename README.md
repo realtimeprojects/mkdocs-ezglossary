@@ -1,8 +1,7 @@
 # mkdocs ezglossary plugin
+> Glossary support for mkdocs.
 
 ## Features
-
-This plugin adds glossary support for mkdocs. It supports
 
 -   Defining multiple glossaries
 -   Linking to glossary entries in text
