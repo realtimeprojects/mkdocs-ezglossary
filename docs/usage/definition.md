@@ -2,7 +2,7 @@
 
 ## Basic
 
-Provided &amp; you use the [material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
+Provided you use the [material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
 adding a glossary entry just works by adding a definition list with section specifiers anywhere
 in your documentation.
 
@@ -68,7 +68,7 @@ plugins:
 ## Limitations
 
 The following characters are not allowed to be used in <term:section|sections>
-and <term:term|terms>, however, you can use
+and <term:term|terms>, however, you can replace them with
 [html entities](https://www.freeformatter.com/html-entities.html) if you need want
 to use them anyway:
 
