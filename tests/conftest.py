@@ -50,6 +50,8 @@ def simple():
                     <dd>default2 term</dd>
                     <dt>default3</dt>
                     <dd>default3 term</dd>
+                    <dt>🚧🚧</dt>
+                    <dd>default 🚧🚧🚧</dd>
                 </dl>
                 </div>
                 <div id="demo">
@@ -62,6 +64,8 @@ def simple():
                     <dd>demo 3</dd>
                     <dt><bold><em><code>demo:formatted</code></em></bold></dt>
                     <dd>formatted dd</dd>
+                    <dt>demo:🚧</dt>
+                    <dd>demo 🚧🚧🚧</dd>
                 </dl>
                 </div>
 
@@ -94,12 +98,14 @@ def summary():
 
 
                 <p>See <test:third> for details</p>
-                <p>See <test:third\\|mythird> for details.</p>
+                <p>See <test:third|mythird> for details.</p>
                 <p>See <default:> for details</p>
                 <p>See <default2:|mydef2> for details.</p>
-                <p>See <default3:\\|mydef3> for details.</p>
+                <p>See <default3:|mydef3> for details.</p>
                 <p><a href="test:third">mythird</a></p>
                 <p><a href="test:third"></a></p>
+                <p>See <demo:🚧> for details.</p>
+                <p>See <a href="🚧🚧">refers to 🚧</a> for details.</p>
             </body>
         """
     )

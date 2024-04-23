@@ -3,15 +3,21 @@ import mock
 
 from yaxp import xpath
 
+from mkdocs_ezglossary_plugin.glossary import get_id
+
 log = logging.getLogger(__name__)
+
+
+def _hash(s):
+    return str(hash(s))
 
 
 def test_link_no_title(simple, config):
     html = mock.render_single(simple, config)
 
-    dl = xpath.body.p.a(id="test_third_refs_0",
+    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 0),
                         title="",
-                        href="../simple.md#test_third_defs_0",
+                        href="../simple.md#" + get_id("test", "third", "defs", 0),
                         text="third")
     assert len(html.xpath(str(dl))) == 1
 
@@ -21,9 +27,9 @@ def test_link_short_title(simple, config):
     html = mock.render_single(simple, config)
     log.debug(html)
 
-    dl = xpath.body.p.a(id="test_third_refs_0",
+    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 0),
                         title="third term",
-                        href="../simple.md#test_third_defs_0",
+                        href="../simple.md#" + get_id("test", "third", "defs", 0),
                         text="third")
     assert len(html.xpath(str(dl))) == 1
 
@@ -34,9 +40,9 @@ def test_link_full_title(simple, config):
     log.debug(html)
 
     dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id="test_third_refs_0",
+                        id=get_id("test", "third", "refs", 0),
                         title="*detailed description of third term",
-                        href="../simple.md#test_third_defs_0",
+                        href="../simple.md#" + get_id("test", "third", "defs", 0),
                         text="third")
     assert len(html.xpath(str(dl))) == 1
 
@@ -46,9 +52,9 @@ def test_link_replace_html(simple, config):
     html = mock.render_single(simple, config)
     log.debug(html)
 
-    dl = xpath.body.p.a(id="test_second_refs_0",
+    dl = xpath.body.p.a(id=get_id("test", "second", "refs", 0),
                         title="*this text is formatted",
-                        href="../simple.md#test_second_defs_0",
+                        href="../simple.md#" + get_id("test", "second", "defs", 0),
                         text="mysecond")
     assert len(html.xpath(str(dl))) == 1
 
@@ -58,14 +64,14 @@ def test_link_second_ref(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(id="test_third_refs_1",
+    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 1),
                         title="*third term",
-                        href="../simple.md#test_third_defs_0",
+                        href="../simple.md#" + get_id("test", "third", "defs", 0),
                         text="third")
     assert len(summary.xpath(str(dl))) == 1
-    dl = xpath.body.p.a(id="test_third_refs_2",
+    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 2),
                         title="*third term",
-                        href="../simple.md#test_third_defs_0",
+                        href="../simple.md#" + get_id("test", "third", "defs", 0),
                         text="mythird")
     assert len(summary.xpath(str(dl))) == 1
 
@@ -79,9 +85,9 @@ def test_link_default_ref_dis(simple, summary, config):
     log.debug(summary)
 
     dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id="__default_refs_0",
+                        id=get_id("_", "default", "refs", 0),
                         title="",
-                        href="../simple.md#__default_defs_0",
+                        href="../simple.md#" + get_id("_", "default", "defs", 0),
                         text="default")
     assert len(summary.xpath(str(dl))) == 0
 
@@ -96,21 +102,21 @@ def test_link_default_ref_enabled(simple, summary, config):
     log.debug(summary)
 
     dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id="__default_refs_0",
+                        id=get_id("_", "default", "refs", 0),
                         title="",
-                        href="../simple.md#__default_defs_0",
+                        href="../simple.md#" + get_id("_", "default", "defs", 0),
                         text="default")
     assert len(summary.xpath(str(dl))) == 1
     dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id="__default2_refs_0",
+                        id=get_id("_", "default2", "refs", 0),
                         title="",
-                        href="../simple.md#__default2_defs_0",
+                        href="../simple.md#" + get_id("_", "default2", "defs", 0),
                         text="mydef2")
     assert len(summary.xpath(str(dl))) == 1
     dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id="__default3_refs_0",
+                        id=get_id("_", "default3", "refs", 0),
                         title="",
-                        href="../simple.md#__default3_defs_0",
+                        href="../simple.md#" + get_id("_", "default3", "defs", 0),
                         text="mydef3")
     assert len(summary.xpath(str(dl))) == 1
 
@@ -133,13 +139,34 @@ def test_markdown_links_enabled(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(id="test_third_refs_1",
+    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 1),
                         title="",
-                        href="../simple.md#test_third_defs_0",
+                        href="../simple.md#" + get_id("test", "third", "defs", 0),
                         text="third")
     assert len(summary.xpath(str(dl))) == 1
-    dl = xpath.body.p.a(id="test_third_refs_2",
+    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 2),
                         title="",
-                        href="../simple.md#test_third_defs_0",
+                        href="../simple.md#" + get_id("test", "third", "defs", 0),
                         text="mythird")
+    assert len(summary.xpath(str(dl))) == 1
+
+
+def test_unicode_link(simple, summary, config):
+    """ Unicode links are processed.
+    """
+    config['markdown_links'] = True
+    config['use_default'] = True
+    config['tooltip'] = "short"
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    dl = xpath.body.p.a(id=get_id("demo", "🚧", "refs", 0),
+                        title="demo 🚧🚧🚧",
+                        href="../simple.md#" + get_id("demo", "🚧", "defs", 0),
+                        text="🚧")
+    assert len(summary.xpath(str(dl))) == 1
+    dl = xpath.body.p.a(id=get_id("_", "🚧🚧", "refs", 0),
+                        title="default 🚧🚧🚧",
+                        href="../simple.md#" + get_id("_", "🚧🚧", "defs", 0),
+                        text="refers to 🚧")
     assert len(summary.xpath(str(dl))) == 1

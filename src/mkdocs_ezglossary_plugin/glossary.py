@@ -1,6 +1,11 @@
+import hashlib
 import logging
 
 log = logging.getLogger(__name__)
+
+
+def get_id(section: str, term: str, linktype: str, n: str):
+    return str(hashlib.md5(f"{section}_{term}_{linktype}_{n}".encode()).hexdigest())
 
 
 class Entry:
@@ -30,7 +35,7 @@ class Glossary:
         term = term.strip()
         log.debug(f"glossary.add({section}, {term}, {linktype}, '{definition}', {anchor})")
         links = self._links(section, term, linktype)
-        _id = f"{section}_{term}_{linktype}_{len(links)}".replace(" ", "_").replace("-", "_")
+        _id = get_id(section, term, linktype, len(links))
         anchor = _id if anchor is None else anchor
         links[_id] = Entry(anchor, page, definition)
         return _id

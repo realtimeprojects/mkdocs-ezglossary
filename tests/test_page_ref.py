@@ -3,6 +3,8 @@ import mock
 import yaml
 from yaxp import xpath as xp
 
+from mkdocs_ezglossary_plugin.glossary import get_id
+
 mycommand = mock.Page(
     title="My Command",
     file="mycommand.md",
@@ -63,7 +65,7 @@ def test_page_ref_simple(config):
                         text="help1"))
     assert len(pages['commands.md'].xpath(str(dl))) == 1
 
-    dd = xp.dd.ul.li.a(href="../commands.md#cmd_help2_refs_0",
+    dd = xp.dd.ul.li.a(href="../commands.md#" + get_id("cmd", "help2", "refs", 0),
                        text="Commands")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="cmd")
     dl = dl.has(dd)
@@ -131,7 +133,7 @@ def test_page_ref_link(config):
     pages = mock.render([mycommand, commands], config)
 
     dl = xp.body.p.a(_class="mkdocs-ezglossary-link",
-                     id="cmd_help2_refs_0",
+                     id=get_id("cmd", "help2", "refs", 0),
                      title="page subtitle",
                      href="../mycommand.md#",
                      text="help2")

@@ -17,8 +17,8 @@ log = logging.getLogger("mkdocs.plugins.ezglossary")
 class __re:
     def __init__(self):
         self.ws = r"[\n ]*"
-        self.section = r"(\w+)"
-        self.term = r"([\w -]+)"
+        self.section = r"([^:<>\"\|]+)"
+        self.term = r"([^:<>\"\|]+)"
         self.text = r"([^>]+)"
         self.dt = rf"<dt>(<.*>)?{self.section}:{self.term}(<.*>)?<\/dt>"
         self.dt_default = rf"<dt>(<.*>)?{self.term}(<.*>)?<\/dt>"
@@ -46,7 +46,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def __init__(self):
         self._glossary = Glossary()
         self._uuid = "6251a85a-47d0-11ee-be56-0242ac120002"
-        self._reflink = "6251a85a-47d0-11ee-be56-0242ac120002"
+        self._reflink = "886d7696-137e-4a59-a39d-6f7d311d5bd1"
 
     def on_pre_build(self, config, **kwargs):
         if self.config.strict and "_" not in self.config.sections:
@@ -168,7 +168,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             section = "_" if (section == "default" or section is None) else section
             term = term if term else "__None__"
             text = text if text else "__None__"
-            log.debug(f"glossary: found {section}/{term}/{text}")
+            log.debug(f"glossary: found link: {section}/{term}/{text}")
             _id = self._glossary.add(section, term, 'refs', page)
             return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
 
@@ -196,6 +196,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         def _replace(mo):
             section = mo.group(1)
             term = mo.group(2)
+            log.debug(f"inline_refs: looking up: '{section}/{term}'")
 
             mode = self._get_config(section, 'inline_refs')
 
@@ -245,7 +246,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         log.debug(f"_find_definitions({page})")
 
         def _add_entry(section, term, definition, fmt_pre, fmt_post):
-            log.debug(f"found entry: {section}:{term}:{definition} {fmt_pre}:{fmt_post}")
+            log.debug(f"glossary: found definition: {section}:{term}:{definition} {fmt_pre}:{fmt_post}")
 
             if self.config.tooltip == "none":
                 _tooltip = ""

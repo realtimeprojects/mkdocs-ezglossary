@@ -44,7 +44,7 @@ you can override the term using the `|` modifier:
     |-----------------------------------|------|
     | <term:section\|glossary sections> | ...  |
     ```
-    
+
 ## Using markdown links
 > starting from version `1.6.0`
 

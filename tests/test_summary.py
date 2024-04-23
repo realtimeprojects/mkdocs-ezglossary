@@ -2,6 +2,8 @@ import logging
 
 from yaxp import xpath as xp
 
+from mkdocs_ezglossary_plugin.glossary import get_id
+
 import mock
 
 log = logging.getLogger(__name__)
@@ -14,23 +16,23 @@ def test_summary(simple, summary, config):
     log.debug(summary)
 
     # first in test glossary
-    a = xp.a(href="../simple.md#test_first_defs_0",
+    a = xp.a(href="../simple.md#" + get_id("test", "first", "defs", 0),
              text="first")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
     dl = dl.has(xp.dt.has(a))
     assert len(summary.xpath(str(dl))) == 1
 
-    l1 = xp.a(href="../simple.md#test_first_refs_0")
+    l1 = xp.a(href="../simple.md#" + get_id("test", "first", "refs", 0))
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
     dl = dl.has(xp.dl.has(a))
     assert len(summary.xpath(str(dl))) == 0
 
-    a = xp.a(href="../simple.md#test_third_defs_0",
+    a = xp.a(href="../simple.md#" + get_id("test", "third", "defs", 0),
              text="third")
     dd = xp.dd
-    l1 = xp.ul.li.a(href="../simple.md#test_third_refs_0",
+    l1 = xp.ul.li.a(href="../simple.md#" + get_id("test", "third", "refs", 0),
                     text="Hello")
-    l2 = xp.ul.li.a(href="../summary.md#test_third_refs_1",
+    l2 = xp.ul.li.a(href="../summary.md#" + get_id("test", "third", "refs", 1),
                     text="Summary")
     dd = dd.has(l1)
     dd = dd.has(l2)
@@ -39,19 +41,19 @@ def test_summary(simple, summary, config):
     dl = dl.has(dd)
     assert len(summary.xpath(str(dl))) == 1
 
-    a = xp.a(href="../simple.md#demo_first_defs_0",
+    a = xp.a(href="../simple.md#" + get_id("demo", "first", "defs", 0),
              text="first")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="demo")
     dl = dl.has(xp.dt.has(a))
     assert len(summary.xpath(str(dl))) == 1
 
-    a = xp.a(href="../simple.md#demo_third_defs_0",
+    a = xp.a(href="../simple.md#" + get_id("demo", "third", "defs", 0),
              text="third")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="demo")
     dl = dl.has(xp.dt.has(a))
     assert len(summary.xpath(str(dl))) == 1
 
-    a = xp.a(href="../simple.md#demo_third_refs_0",
+    a = xp.a(href="../simple.md#" + get_id("demo", "third", "refs", 0),
              text="third")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="demo")
     dl = dl.has(xp.dd.has(a))
@@ -63,13 +65,13 @@ def test_summary_noref(simple, summary, config):
     pages = mock.render([simple, summary], config)
     summary = pages["summary.md"]
 
-    a = xp.a(href="../simple.md#test_first_defs_0",
+    a = xp.a(href="../simple.md#" + get_id("test", "first", "defs", 0),
              text="first")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
     dl = dl.has(xp.dt.has(a))
     assert len(summary.xpath(str(dl))) == 1
 
-    a = xp.a(href="../simple.md#test_third_refs_0",
+    a = xp.a(href="../simple.md#" + get_id("test", "third", "refs", 0),
              text="Hello")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
     dl = dl.has(xp.dt(text="third"))
@@ -82,7 +84,7 @@ def test_custom_summary(simple, summary, config):
     pages = mock.render([simple, summary], config)
     summary = pages["summary.md"]
 
-    dd = xp.dd.ul.li.a(href="../simple.md#test_third_refs_0",
+    dd = xp.dd.ul.li.a(href="../simple.md#" + get_id("test", "third", "refs", 0),
                        text="Hello")
     dl = xp.dl(_class="custom-summary", _id="test")
     dl = dl.has(xp.dt(text="third"))
@@ -96,8 +98,14 @@ def test_default_summary(simple, summary, config):
     summary = pages["summary.md"]
     log.debug(summary)
 
-    a = xp.a(href="../simple.md#__default_defs_0",
+    a = xp.a(href="../simple.md#" + get_id("_", "default", "defs", 0),
              text="default")
+    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
+    dl = dl.has(xp.dt.has(a))
+    assert len(summary.xpath(str(dl))) == 1
+
+    a = xp.a(href="../simple.md#" + get_id("_", "🚧🚧", "defs", 0),
+             text="🚧🚧")
     dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
     dl = dl.has(xp.dt.has(a))
     assert len(summary.xpath(str(dl))) == 1

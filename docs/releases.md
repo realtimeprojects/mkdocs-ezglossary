@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.6.4
+| ~2024-04-23~
+
+-   Fixed: [#12](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/12):
+    Support unicode characters for terms.
+
 ## v1.6.3
 | ~2024-04-22~
 
