@@ -17,7 +17,7 @@ log = logging.getLogger("mkdocs.plugins.ezglossary")
 class __re:
     def __init__(self):
         self.ws = r"[\n ]*"
-        self.section = r"([^:<>\"\|/#][^:<>\"\|/]*)"
+        self.section = r"([^:<>\"\|/\@#][^:<>\"\|/\@]*)"
         self.term = self.section
         self.text = r"([^>]+)"
         self.dt = rf"<dt>(<.*>)?{self.section}:{self.term}(<.*>)?<\/dt>"

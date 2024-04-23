@@ -24,7 +24,7 @@ term:definition
 
 term:reference
 :   The reference is a place in your documentation where you
-    refer to a term by placing a [link](usage/index.md#linking-to-a-glossary-entry).
+    refer to a term by placing a [link](usage/linking.md).
 
 ## Summary
 
