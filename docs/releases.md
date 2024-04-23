@@ -2,6 +2,7 @@
 
 ## v1.6.5
 | ~2024-04-23~
+
 -   Fixed: [#13](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/13):
     Support html entities in sections and terms.
 
