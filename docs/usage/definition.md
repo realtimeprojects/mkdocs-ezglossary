@@ -2,9 +2,13 @@
 
 ## Basic
 
-Provided you use the material definition list, adding a glossary entry
-just works by adding a definition list with section specifiers anywhere
-in your documentation:
+Provided &amp; you use the [material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
+adding a glossary entry just works by adding a definition list with section specifiers anywhere
+in your documentation.
+
+!!! Note
+    Alternatively, you can directly use [html description lists](https://www.w3schools.com/HTML/html_lists.asp)
+    in your page as well.
 
 ``` markdown
 term:glossary
@@ -60,6 +64,39 @@ plugins:
             - name: demo
               inline_refs: short
 ```
+
+## Limitations
+
+The following characters are not allowed to be used in <term:section|sections>
+and <term:term|terms>, however, you can use
+[html entities](https://www.freeformatter.com/html-entities.html) if you need want
+to use them anyway:
+
+| Character | Replacement |
+|--------------------------------|-------------|
+| `#` (as first character)       | `&#35;`     |
+| `/`                            | `&#47;`     | 
+| `|`                            | `&#166;`    | 
+| `"`                            | `&#34;`     | 
+| `<`                            | `&#lt;`     | 
+| `>`                            | `&#gt;`     | 
+| `:`                            | `&#58;`     | 
+
+!!! Example
+
+    ``` markdown
+    demo:fancy&#35;definition
+    :   a term using the # character
+
+    - See <demo:fancy&#35;definition>
+    ```
+
+    !!! Output
+
+        demo:fency&#35;definition
+        :   a term using the # character
+
+        - See <demo:fency&#35;definition>
 
 ## Configuration
 

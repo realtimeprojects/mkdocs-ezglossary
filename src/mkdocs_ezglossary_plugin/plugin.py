@@ -1,7 +1,7 @@
 import logging
 import re
 import os
-from html import parser
+from html import parser, unescape
 
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
@@ -17,8 +17,8 @@ log = logging.getLogger("mkdocs.plugins.ezglossary")
 class __re:
     def __init__(self):
         self.ws = r"[\n ]*"
-        self.section = r"([^:<>\"\|]+)"
-        self.term = r"([^:<>\"\|]+)"
+        self.section = r"([^:<>\"\|/#][^:<>\"\|/]*)"
+        self.term = self.section
         self.text = r"([^>]+)"
         self.dt = rf"<dt>(<.*>)?{self.section}:{self.term}(<.*>)?<\/dt>"
         self.dt_default = rf"<dt>(<.*>)?{self.term}(<.*>)?<\/dt>"
@@ -212,7 +212,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def _replace_glossary_links(self, output, page, root):
         def _replace(mo):
             section = mo.group(1)
-            term = mo.group(2)
+            term = unescape(mo.group(2))
             text = mo.group(3)
             _id = mo.group(4)
             defs = self._glossary.get(section, term, 'defs')
@@ -246,6 +246,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         log.debug(f"_find_definitions({page})")
 
         def _add_entry(section, term, definition, fmt_pre, fmt_post):
+            term = unescape(term)
             log.debug(f"glossary: found definition: {section}:{term}:{definition} {fmt_pre}:{fmt_post}")
 
             if self.config.tooltip == "none":
@@ -266,7 +267,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             return template.render("definition.html",
                                    self.config,
                                    target=_id,
-                                   term=term,
+                                   term=unescape(term),
                                    definition=definition,
                                    reflink=reflink,
                                    fmt_pre=fmt_pre if fmt_pre else "",
