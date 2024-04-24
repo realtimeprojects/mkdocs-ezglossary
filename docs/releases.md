@@ -1,7 +1,7 @@
 # Release Notes
 
 ## v1.6.8
-| ~2024-04-23~
+| ~2024-04-24~
 
 -   Fixed: [#15](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/15):
     Links to undefined glossary entries are displayed.
