@@ -217,14 +217,14 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             _id = mo.group(4)
             defs = self._glossary.get(section, term, 'defs')
 
+            text = term if text == "__None__" else text
+
             if len(defs) == 0:
                 log.warning(f"page '{page.url}' refers to undefined glossary entry {section}:{term}")
                 term = "" if term == "__None__" else term
                 text = "" if text == "__None__" else text
                 sec = f"{section}:" if section != "_" else ""
                 return f'<a href="{sec}{term}">{text}</a>'
-
-            text = term if text == "__None__" else text
 
             if len(defs) > 1:
                 log.warning(f"multiple definitions found for <{section}:{term}>, linking to first:")
