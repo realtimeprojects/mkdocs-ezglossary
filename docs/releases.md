@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.7.0
+| pending
+
+-   Glossary: Add section and term as attributes of Entry
+-   Links: Add name attribute containing "{section:term}"
+
 ## v1.6.8
 | ~2024-04-24~
 

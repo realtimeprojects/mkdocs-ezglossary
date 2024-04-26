@@ -12,7 +12,7 @@ def get_id(section: str, term: str, linktype: str, n: str):
 class Entry:
     """ An entry in the glossary. """
 
-    def __init__(self, target, page, definition):
+    def __init__(self, target, page, definition, section, term):
         self.target = target
         """ The anchor to directly point to this specific link. """
 
@@ -21,6 +21,12 @@ class Entry:
 
         self.definition = definition
         """ The definition of the term. """
+
+        self.section = section
+        """ The section of the term of this entry """
+
+        self.term = term
+        """ The term of this entry """
 
     def __repr__(self):
         return self.page.url
@@ -38,7 +44,7 @@ class Glossary:
         links = self._links(section, term, linktype)
         _id = get_id(section, term, linktype, len(links))
         anchor = _id if anchor is None else anchor
-        links[_id] = Entry(anchor, page, definition)
+        links[_id] = Entry(anchor, page, definition, section, term)
         return _id
 
     def has(self, section: str) -> bool:
