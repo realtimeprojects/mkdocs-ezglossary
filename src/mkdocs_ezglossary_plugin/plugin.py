@@ -1,7 +1,7 @@
 import logging
 import re
 import os
-from html import parser, unescape
+from html import parser
 
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
@@ -212,7 +212,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def _replace_glossary_links(self, output, page, root):
         def _replace(mo):
             section = mo.group(1)
-            term = unescape(mo.group(2))
+            term = mo.group(2)
             text = mo.group(3)
             _id = mo.group(4)
             defs = self._glossary.get(section, term, 'defs')
@@ -246,7 +246,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         log.debug(f"_find_definitions({page})")
 
         def _add_entry(section, term, definition, fmt_pre, fmt_post):
-            term = unescape(term)
             log.debug(f"glossary: found definition: {section}:{term}:{definition} {fmt_pre}:{fmt_post}")
 
             if self.config.tooltip == "none":
@@ -267,7 +266,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             return template.render("definition.html",
                                    self.config,
                                    target=_id,
-                                   term=unescape(term),
+                                   term=term,
                                    definition=definition,
                                    reflink=reflink,
                                    fmt_pre=fmt_pre if fmt_pre else "",

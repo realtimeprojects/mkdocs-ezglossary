@@ -1,6 +1,5 @@
 import hashlib
 import logging
-import html
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +38,7 @@ class Glossary:
         self.clear()
 
     def add(self, section, term, linktype, page, definition=None, anchor=None):
-        term = html.unescape(term.strip())
+        term = term.strip()
         log.debug(f"glossary.add({section}, {term}, {linktype}, '{definition}', {anchor})")
         links = self._links(section, term, linktype)
         _id = get_id(section, term, linktype, len(links))
@@ -80,7 +79,7 @@ class Glossary:
             Returns:
                 A list of either `definitions` or `references` for the given term.
         """
-        links = self._links(section, html.unescape(term), linktype).values()
+        links = self._links(section, term, linktype).values()
         return list(links)
 
     def definition(self, section: str, term: str) -> str:
@@ -95,7 +94,7 @@ class Glossary:
             Returns:
                 The definition of the term
         """
-        defs = self.get(section, html.unescape(term), 'defs')
+        defs = self.get(section, term, 'defs')
         if not defs:
             return ""
         return defs[0].definition
