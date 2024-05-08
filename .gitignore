@@ -6,3 +6,6 @@ __pycache__
 *.DS_Store
 *.md.html
 .tox
+.idea/
+.venv*/
+mycommand.md.markdown

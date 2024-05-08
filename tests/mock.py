@@ -23,6 +23,10 @@ class Page:
     def url(self):
         return self.file
 
+    @property
+    def canonical_url(self):
+        return f"/{self.file.rsplit('.', maxsplit=1)[0]}/"
+
     @staticmethod
     def fromdict(data: dict):
         return Page(data['title'], data['file'], data['html'])
@@ -52,7 +56,7 @@ def render(pages, config):
         if page.ctype == "html":
             results[page.url] = plugin.on_post_page(results[page.url], page, config)
     for page in pages:
-        fp = open(page.url + "." + page.ctype, "w")
+        fp = open(page.url + "." + page.ctype, "w", encoding="utf-8")
         fp.write(results[page.url])
         fp.close()
         log.debug(f"--- >>> {page.url}")

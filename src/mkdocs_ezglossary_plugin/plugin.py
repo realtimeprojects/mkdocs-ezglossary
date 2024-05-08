@@ -115,7 +115,10 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def on_post_page(self, output, page, config):
         _dir = os.path.dirname(page.url)
         levels = len(_dir.split("/"))
-        root = "../" * levels
+        if page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
+            root = "./" * levels
+        else:
+            root = "../" * levels
         output = self._replace_glossary_links(output, page, root)
         output = self._replace_inline_refs(output, page, root)
         output = self._print_glossary(output, root)
