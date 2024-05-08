@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.6.9
+| ~2024-05-08~
+
+-   Fixed: [#16](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/16):
+    Relative links not working on ReadTheDocs. 
+
 ## v1.6.8
 | ~2024-04-24~
 
