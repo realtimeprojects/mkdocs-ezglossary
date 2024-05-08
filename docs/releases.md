@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.6.10
+| ~2024-05-08~
+
+-   Fix handling of non-existing canonica_url.
+
 ## v1.6.9
 | ~2024-05-08~
 
