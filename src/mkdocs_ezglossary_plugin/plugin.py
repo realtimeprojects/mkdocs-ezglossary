@@ -115,7 +115,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def on_post_page(self, output, page, config):
         _dir = os.path.dirname(page.url)
         levels = len(_dir.split("/"))
-        if page.abs_url == "/":
+        if page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
             root = "./" * levels
         else:
             root = "../" * levels

@@ -24,7 +24,7 @@ class Page:
         return self.file
 
     @property
-    def abs_url(self):
+    def canonical_url(self):
         return f"/{self.file.rsplit('.', maxsplit=1)[0]}/"
 
     @staticmethod
