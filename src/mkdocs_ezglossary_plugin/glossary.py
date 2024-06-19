@@ -22,10 +22,10 @@ class Entry:
         """ The definition of the term. """
 
         self.section = section
-        """ The section of the term of this entry """
+        """ The section of the term of this entry. (Since `v1.7.0a1`) """
 
         self.term = term
-        """ The term of this entry """
+        """ The term of this entry. (Since v1.7.0a1) """
 
     def __repr__(self):
         return self.page.url
