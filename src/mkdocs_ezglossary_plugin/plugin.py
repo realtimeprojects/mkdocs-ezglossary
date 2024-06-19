@@ -216,7 +216,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         defs = self._glossary.get(section, term, 'defs')
         if len(defs) > 0:
             return defs
-        log.debug(f'plurals: {self.config.plurals}')
         if 'plurals' not in self.config:
             return defs
         if self.config.plurals == 'inflect':
