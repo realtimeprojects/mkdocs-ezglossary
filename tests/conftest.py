@@ -71,6 +71,24 @@ def simple():
                     <dt>demo:🚧</dt>
                     <dd>demo 🚧🚧🚧</dd>
                 </dl>
+                <dl>
+                    <dt>plurals:GPU</dt>
+                    <dd>GPU definition</dd>
+                    <dt>plurals:potato</dt>
+                    <dd>potato definition</dd>
+                    <dt>plurals:potatoes</dt>
+                    <dd>potatoes definition</dd>
+                    <dt>plurals:goose</dt>
+                    <dd>goose definition</dd>
+                    <dt>plurals:goose</dt>
+                    <dd>goose definition</dd>
+                    <dt>plurals:city</dt>
+                    <dd>city definition</dd>
+                    <dt>plurals:child</dt>
+                    <dd>children definition</dd>
+                    <dt>plurals:grandchild</dt>
+                    <dd>grandchild definition</dd>
+                </dl>
                 </div>
 
                 <p>See <test:third> for details.</p>
@@ -112,6 +130,12 @@ def summary():
                 <p>See <a href="🚧🚧">refers to 🚧</a> for details.</p>
                 <p>See <test:hyphens-abc xyz> for details.</p>
                 <p><a href="test:hyphens-abc def"></a></p>
+                <p>See <plurals:GPUs> for details</p>
+                <p>See <plurals:geese> for details</p>
+                <p>See <plurals:children> for details</p>
+                <p>See <plurals:cities> for details</p>
+                <p>See <plurals:potatoes> for details</p>
+                <p>See <plurals:grandchildren> for details</p>
             </body>
         """
     )

@@ -2,16 +2,19 @@ import logging
 import re
 import os
 from html import parser
+import inflect
 
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
 from mkdocs.config import config_options as co
 
 from .glossary import Glossary
+from .plurals import plurals
 
 from . import template
 
 log = logging.getLogger("mkdocs.plugins.ezglossary")
+engine = inflect.engine()
 
 
 class __re:
@@ -209,13 +212,40 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         regex = fr"{self._reflink}:{_re.section}:{_re.term}"
         return re.sub(regex, _replace, output)
 
+    def _get_defs(self, section, term):
+        defs = self._glossary.get(section, term, 'defs')
+        if len(defs) > 0:
+            return defs
+        log.warning(f'plurals: {self.config.plurals}')
+        if self.config.plurals == 'inflect':
+            singular = engine.singular_noun(term)
+            if not singular:
+                log.debug(f'no singular for: `{term}`')
+                return defs
+            log.warning(f'singular is: `{singular}`')
+            return self._glossary.get(section, singular, 'defs')
+        if self.config.plurals and self.config.plurals not in plurals:
+            log.error('no plurals definition for `{self.config.plurals`')
+            return defs
+        _plurals = plurals[self.config.plurals]
+
+        for ending, replacements in _plurals.items():
+            log.warning(f'ending: {ending}, replacements: {replacements}')
+            for replacement in replacements:
+                singular = re.sub(ending, replacement, term)
+                log.warning(f"looking up `{singular}`")
+                defs = self._glossary.get(section, singular, 'defs')
+                if len(defs) > 0:
+                    return defs
+        return defs
+
     def _replace_glossary_links(self, output, page, root):
         def _replace(mo):
             section = mo.group(1)
             term = mo.group(2)
             text = mo.group(3)
             _id = mo.group(4)
-            defs = self._glossary.get(section, term, 'defs')
+            defs = self._get_defs(section, term)
 
             text = term if text == "__None__" else text
 
