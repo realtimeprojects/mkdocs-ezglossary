@@ -1,13 +1,24 @@
 # Release Notes
 
 ## v1.7.0
-| v1.7.0a2
+| v1.7.0a3
 
 -   Glossary: Add section and term as attributes of Entry
 -   Links: Add name attribute containing "{section:term}"
 -   Fix html entity handling.
 -   Basic support of [handling plurals](usage/linking.md#handling-plurals). See
     also [#18](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/18)
+
+## v1.6.10
+| ~2024-05-08~
+
+-   Fix handling of non-existing canonica_url.
+
+## v1.6.9
+| ~2024-05-08~
+
+-   Fixed: [#16](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/16):
+    Relative links not working on ReadTheDocs. 
 
 ## v1.6.8
 | ~2024-04-24~
