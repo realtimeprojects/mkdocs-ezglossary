@@ -217,6 +217,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         if len(defs) > 0:
             return defs
         log.warning(f'plurals: {self.config.plurals}')
+        if 'plurals' not in self.config:
+            return
         if self.config.plurals == 'inflect':
             singular = engine.singular_noun(term)
             if not singular:
@@ -224,7 +226,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 return defs
             log.warning(f'singular is: `{singular}`')
             return self._glossary.get(section, singular, 'defs')
-        if self.config.plurals and self.config.plurals not in plurals:
+        if self.config.plurals not in plurals:
             log.error('no plurals definition for `{self.config.plurals`')
             return defs
         _plurals = plurals[self.config.plurals]
