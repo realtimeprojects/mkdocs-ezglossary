@@ -1,13 +1,16 @@
 # Release Notes
 
 ## v1.7.0
-| v1.7.0a3
+| v1.7.0
 
 -   Glossary: Add section and term as attributes of Entry
 -   Links: Add name attribute containing "{section:term}"
 -   Fix html entity handling.
 -   Basic support of [handling plurals](usage/linking.md#handling-plurals). See
     also [#18](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/18)
+-   Fix #21: Support [ignoring case for terms](usage/linking.md#case-sensitivity)
+-   Fix #20: Usage of `tooltip:short`
+-   Fix #19: Usage of `inline_refs:list`
 
 ## v1.6.10
 | ~2024-05-08~
