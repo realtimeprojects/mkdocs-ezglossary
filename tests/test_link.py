@@ -22,6 +22,29 @@ def test_link_no_title(simple, config):
     assert len(html.xpath(str(dl))) == 1
 
 
+def test_link_case_sensitive(simple, config):
+    html = mock.render_single(simple, config)
+
+    assert not _has_reference(html,
+                              section='test',
+                              text='First',
+                              term='first',
+                              title='',
+                              target='simple.md')
+
+
+def test_link_ignore_case(simple, config):
+    config['ignore_case'] = True
+    html = mock.render_single(simple, config)
+
+    assert _has_reference(html,
+                          section='test',
+                          text='First',
+                          term='first',
+                          title='',
+                          target='simple.md')
+
+
 def test_link_short_title(simple, config):
     config['tooltip'] = "short"
     html = mock.render_single(simple, config)

@@ -21,6 +21,26 @@ syntax. This will produce a link to the definition in your documentation:
     -   See the <demo:my_term1> for definition of term 1
     -   See the <demo:my term 2> for definition of term 1
 
+## Case sensitivity
+> starting from version `1.7.0` [beta]
+
+By default, this term definitions and references are case-sensitive, i.e. you need to use
+the exact spelling in your links as used in your term definition.
+
+By setting <configuration:ignore_case> to `true`, the plugin will ignore the case in order
+to find definitions for your links.
+
+!!! Example
+
+    ``` yaml
+    plugins:
+        search
+        ezglossary:
+            ignore_case: true
+    ```
+
+    -   See the <demo:MY_term1> for definition of term 1
+
 ## Individual reference texts
 
 By default the <term:term> is used as text for the link, however,
@@ -199,3 +219,7 @@ configuration:tooltip
 configuration:plurals
 :   Configure if and how the plugin shall lookup the term in singular if a plural
     is provided in the link text. See [handling plurals](#handling-plurals) for more details.
+
+configuration:ignore_case
+:   Set to `true` to ignore the case for terms in the definition lookup.
+

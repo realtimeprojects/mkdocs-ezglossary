@@ -34,8 +34,9 @@ class Entry:
 class Glossary:
     """ The complete glossary for all sections """
 
-    def __init__(self):
+    def __init__(self, ignore_case):
         self.clear()
+        self.ignore_case = ignore_case
 
     def add(self, section, term, linktype, page, definition=None, anchor=None):
         term = term.strip()
@@ -121,8 +122,13 @@ class Glossary:
 
     def _term(self, section, term):
         _section = self._section(section)
-        if term not in _section:
-            self._section(section)[term] = {'defs': {}, 'refs': {}}
+        if term in _section:
+            return self._section(section)[term]
+        if self.ignore_case:
+            for candidate in _section.keys():
+                if candidate.upper() == term.upper():
+                    return self._section(section)[candidate]
+        self._section(section)[term] = {'defs': {}, 'refs': {}}
         return self._section(section)[term]
 
     def _section(self, section):

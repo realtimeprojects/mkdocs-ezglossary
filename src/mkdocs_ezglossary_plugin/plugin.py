@@ -38,6 +38,7 @@ class GlossaryConfig(config.base.Config):
     sections = co.ListOfItems(config.config_options.Type(str), default=[])
     section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
     strict = config.config_options.Type(bool, default=False)
+    ignore_case = config.config_options.Type(bool, default=False)
     markdown_links = config.config_options.Type(bool, default=False)
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
@@ -47,11 +48,11 @@ class GlossaryConfig(config.base.Config):
 
 class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def __init__(self):
-        self._glossary = Glossary()
         self._uuid = "6251a85a-47d0-11ee-be56-0242ac120002"
         self._reflink = "886d7696-137e-4a59-a39d-6f7d311d5bd1"
 
     def on_pre_build(self, config, **kwargs):
+        self._glossary = Glossary(self.config.ignore_case)
         if self.config.strict and "_" not in self.config.sections:
             self.config.sections.append("_")
         if self.config.strict and len(self.config.sections) == 0:

@@ -12,6 +12,7 @@ def config():
         list_references: true
         inline_refs: "none"
         tooltip: "none"
+        ignore_case: false
         sections: []
         section_config: []
         templates:
@@ -93,6 +94,7 @@ def simple():
 
                 <p>See <test:third> for details.</p>
                 <p>See <test:second|mysecond> for details.</p>
+                <p>See <test:First> for details.</p>
             </body>
         """
     )
