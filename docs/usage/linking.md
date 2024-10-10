@@ -162,7 +162,7 @@ tooltips should be displayed with a preview on the definition:
 plugins:
     search
     ezglossary:
-      tooltip: [none, heading, full]
+      tooltip: [none, short, full]
 ```
 
 Options:
@@ -170,7 +170,7 @@ Options:
 none
 :   Tooltips are disabled
 
-heading
+short
 :   The <term:reference> link shows the first line of the definition as a tooltip
     (link title)
 

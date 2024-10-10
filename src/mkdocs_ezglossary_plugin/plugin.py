@@ -33,7 +33,7 @@ _re = __re()
 
 
 class GlossaryConfig(config.base.Config):
-    tooltip = config.config_options.Choice(('none', 'heading', 'full'), default="none")
+    tooltip = config.config_options.Choice(('none', 'short', 'full'), default="none")
     inline_refs = config.config_options.Choice(('none', 'short', 'full'), default="none")
     sections = co.ListOfItems(config.config_options.Type(str), default=[])
     section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
