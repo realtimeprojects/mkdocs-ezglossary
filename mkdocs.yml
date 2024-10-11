@@ -60,6 +60,7 @@ plugins:
       ignore_case: true
       tooltip: full
       use_default: true
+      plurals: en
       sections:
         - setting
         - term

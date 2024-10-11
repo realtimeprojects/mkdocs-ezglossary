@@ -35,6 +35,7 @@ _re = __re()
 class GlossaryConfig(config.base.Config):
     tooltip = config.config_options.Choice(('none', 'short', 'full'), default="none")
     inline_refs = config.config_options.Choice(('none', 'short', 'list'), default="none")
+    plurals = config.config_options.Choice(('none', 'en', 'inflect'), default="none")
     sections = co.ListOfItems(config.config_options.Type(str), default=[])
     section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
     strict = config.config_options.Type(bool, default=False)
@@ -220,7 +221,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         defs = self._glossary.get(section, term, 'defs')
         if len(defs) > 0:
             return defs
-        if 'plurals' not in self.config:
+        if self.config.plurals == 'none':
             return defs
         if self.config.plurals == 'inflect':
             singular = engine.singular_noun(term)
@@ -230,7 +231,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             log.debug(f'singular is: `{singular}`')
             return self._glossary.get(section, singular, 'defs')
         if self.config.plurals not in plurals:
-            log.error('no plurals definition for `{self.config.plurals`')
+            log.error('no plurals definition for `{self.config.plurals}`')
             return defs
         _plurals = plurals[self.config.plurals]
 
