@@ -22,6 +22,29 @@ def test_link_no_title(simple, config):
     assert len(html.xpath(str(dl))) == 1
 
 
+def test_link_case_sensitive(simple, config):
+    html = mock.render_single(simple, config)
+
+    assert not _has_reference(html,
+                              section='test',
+                              text='First',
+                              term='first',
+                              title='',
+                              target='simple.md')
+
+
+def test_link_ignore_case(simple, config):
+    config['ignore_case'] = True
+    html = mock.render_single(simple, config)
+
+    assert _has_reference(html,
+                          section='test',
+                          text='First',
+                          term='first',
+                          title='',
+                          target='simple.md')
+
+
 def test_link_short_title(simple, config):
     config['tooltip'] = "short"
     html = mock.render_single(simple, config)
@@ -170,6 +193,95 @@ def test_unicode(simple, summary, config):
                         href="../simple.md#" + get_id("_", "🚧🚧", "defs", 0),
                         text="refers to 🚧")
     assert len(summary.xpath(str(dl))) == 1
+
+
+def test_plurals_inflect(simple, summary, config):
+    """ Plurals are mapped to singulars
+    """
+    config['tooltip'] = "full"
+    config['plurals'] = 'inflect'
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    assert _has_reference(summary,
+                          section='plurals',
+                          text='children',
+                          term='child',
+                          title='children definition',
+                          target='simple.md')
+    assert _has_reference(summary,
+                          section='plurals',
+                          text='geese',
+                          term='goose',
+                          title='goose definition',
+                          target='simple.md')
+
+
+def test_plurals_en(simple, summary, config):
+    """ Plurals are mapped to singulars
+    """
+    config['tooltip'] = "full"
+    config['plurals'] = 'en'
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    assert _has_reference(summary,
+                          section='plurals',
+                          text='children',
+                          term='child',
+                          title='children definition',
+                          target='simple.md')
+    assert _has_reference(summary,
+                          section='plurals',
+                          text='geese',
+                          term='goose',
+                          title='goose definition',
+                          target='simple.md')
+    assert _has_reference(summary,
+                          section='plurals',
+                          text='grandchildren',
+                          term='grandchild',
+                          title='grandchild definition',
+                          target='simple.md')
+
+
+def test_plural_priority(simple, summary, config):
+    """ If the plural term is defined, this should be used in priority
+    """
+    config['tooltip'] = "full"
+    config['plurals'] = 'en'
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    assert _has_reference(summary,
+                          section='plurals',
+                          text='potatoes',
+                          term='potatoes',
+                          title='potatoes definition',
+                          target='simple.md')
+
+
+def test_plurals_disabled(simple, summary, config):
+    """ Plurals are not mapped to singulars, if not enabled
+    """
+    config['tooltip'] = "full"
+    summary = mock.render([simple, summary], config)['summary.md']
+    log.debug(summary)
+
+    assert not _has_reference(summary,
+                              section='plurals',
+                              text='children',
+                              term='child',
+                              title='children definition',
+                              target='simple.md')
+
+
+def _has_reference(document, section, text, term, title, target):
+    dl = xpath.body.p.a(id=get_id(section, text, "refs", 0),
+                        title=title,
+                        href=f"../{target}#" + get_id(section, term, "defs", 0),
+                        text=text)
+    return len(document.xpath(str(dl))) == 1
 
 
 def test_hyphens(simple, summary, config):

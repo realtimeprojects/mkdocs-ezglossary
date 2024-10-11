@@ -13,7 +13,7 @@ term:section
 term:summary
 :   The summary is a list of all defined terms in a section.
     
-    It contains links to their <term:definition|definitions> and <term:reference|references>.
+    It contains links to their <term:definitions> and <term:references>.
 
 term:definition
 :   The definition of a term in a definition lists.

@@ -57,8 +57,10 @@ plugins:
       list_references: true
       markdown_links: true
       inline_refs: none
+      ignore_case: true
       tooltip: full
       use_default: true
+      plurals: en
       sections:
         - setting
         - term

@@ -1,17 +1,20 @@
 import logging
 import re
 import os
-from html import parser, unescape
+from html import parser
+import inflect
 
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
 from mkdocs.config import config_options as co
 
 from .glossary import Glossary
+from .plurals import plurals
 
 from . import template
 
 log = logging.getLogger("mkdocs.plugins.ezglossary")
+engine = inflect.engine()
 
 
 class __re:
@@ -30,11 +33,13 @@ _re = __re()
 
 
 class GlossaryConfig(config.base.Config):
-    tooltip = config.config_options.Choice(('none', 'heading', 'full'), default="none")
-    inline_refs = config.config_options.Choice(('none', 'short', 'full'), default="none")
+    tooltip = config.config_options.Choice(('none', 'short', 'full'), default="none")
+    inline_refs = config.config_options.Choice(('none', 'short', 'list'), default="none")
+    plurals = config.config_options.Choice(('none', 'en', 'inflect'), default="none")
     sections = co.ListOfItems(config.config_options.Type(str), default=[])
     section_config = co.ListOfItems(config.config_options.Type(dict), default=[])
     strict = config.config_options.Type(bool, default=False)
+    ignore_case = config.config_options.Type(bool, default=False)
     markdown_links = config.config_options.Type(bool, default=False)
     list_references = config.config_options.Type(bool, default=True)
     list_definitions = config.config_options.Type(bool, default=True)
@@ -44,11 +49,11 @@ class GlossaryConfig(config.base.Config):
 
 class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def __init__(self):
-        self._glossary = Glossary()
         self._uuid = "6251a85a-47d0-11ee-be56-0242ac120002"
         self._reflink = "886d7696-137e-4a59-a39d-6f7d311d5bd1"
 
     def on_pre_build(self, config, **kwargs):
+        self._glossary = Glossary(self.config.ignore_case)
         if self.config.strict and "_" not in self.config.sections:
             self.config.sections.append("_")
         if self.config.strict and len(self.config.sections) == 0:
@@ -212,13 +217,41 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         regex = fr"{self._reflink}:{_re.section}:{_re.term}"
         return re.sub(regex, _replace, output)
 
+    def _get_defs(self, section, term):
+        defs = self._glossary.get(section, term, 'defs')
+        if len(defs) > 0:
+            return defs
+        if self.config.plurals == 'none':
+            return defs
+        if self.config.plurals == 'inflect':
+            singular = engine.singular_noun(term)
+            if not singular:
+                log.debug(f'no singular for: `{term}`')
+                return defs
+            log.debug(f'singular is: `{singular}`')
+            return self._glossary.get(section, singular, 'defs')
+        if self.config.plurals not in plurals:
+            log.error('no plurals definition for `{self.config.plurals}`')
+            return defs
+        _plurals = plurals[self.config.plurals]
+
+        for ending, replacements in _plurals.items():
+            log.debug(f'ending: {ending}, replacements: {replacements}')
+            for replacement in replacements:
+                singular = re.sub(ending, replacement, term)
+                log.debug(f"looking up `{singular}`")
+                defs = self._glossary.get(section, singular, 'defs')
+                if len(defs) > 0:
+                    return defs
+        return defs
+
     def _replace_glossary_links(self, output, page, root):
         def _replace(mo):
             section = mo.group(1)
-            term = unescape(mo.group(2))
+            term = mo.group(2)
             text = mo.group(3)
             _id = mo.group(4)
-            defs = self._glossary.get(section, term, 'defs')
+            defs = self._get_defs(section, term)
 
             text = term if text == "__None__" else text
 
@@ -249,7 +282,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         log.debug(f"_find_definitions({page})")
 
         def _add_entry(section, term, definition, fmt_pre, fmt_post):
-            term = unescape(term)
             log.debug(f"glossary: found definition: {section}:{term}:{definition} {fmt_pre}:{fmt_post}")
 
             if self.config.tooltip == "none":
@@ -270,7 +302,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             return template.render("definition.html",
                                    self.config,
                                    target=_id,
-                                   term=unescape(term),
+                                   term=term,
                                    definition=definition,
                                    reflink=reflink,
                                    fmt_pre=fmt_pre if fmt_pre else "",
