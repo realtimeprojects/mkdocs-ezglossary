@@ -1,9 +1,11 @@
-import mock
-
 import yaml
 from yaxp import xpath as xp
 
 from mkdocs_ezglossary_plugin.glossary import get_id
+
+import mock
+from test_helpers import has_link
+
 
 mycommand = mock.Page(
     title="My Command",
@@ -131,10 +133,13 @@ def test_page_ref_default_section_anchor(config):
 
 def test_page_ref_link(config):
     pages = mock.render([mycommand, commands], config)
-
-    dl = xp.body.p.a(_class="mkdocs-ezglossary-link",
-                     id=get_id("cmd", "help2", "refs", 0),
-                     title="page subtitle",
-                     href="../mycommand.md#",
-                     text="help2")
-    assert len(pages['commands.md'].xpath(str(dl))) == 1
+    
+    assert has_link(
+        page=pages['commands.md'],
+        section="cmd",
+        term="help2",
+        title="page subtitle",
+        href="../mycommand.md",
+        text="help2",
+        is_page_ref=True
+    )

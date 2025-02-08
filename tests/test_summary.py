@@ -6,6 +6,8 @@ from mkdocs_ezglossary_plugin.glossary import get_id
 
 import mock
 
+from test_helpers import has_summary_entry
+
 log = logging.getLogger(__name__)
 
 
@@ -16,67 +18,80 @@ def test_summary(simple, summary, config):
     log.debug(summary)
 
     # first in test glossary
-    a = xp.a(href="../simple.md#" + get_id("test", "first", "defs", 0),
-             text="first")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
-    dl = dl.has(xp.dt.has(a))
-    assert len(summary.xpath(str(dl))) == 1
+    assert has_summary_entry(
+        page=summary,
+        section="test",
+        term="first",
+        href="../simple.md",
+        ref_text="Hello"
+    )
 
-    l1 = xp.a(href="../simple.md#" + get_id("test", "first", "refs", 0))
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
-    dl = dl.has(xp.dl.has(a))
-    assert len(summary.xpath(str(dl))) == 0
+    # Check reference to third term
+    assert has_summary_entry(
+        page=summary,
+        section="test",
+        term="third",
+        href="../simple.md",
+        ref_text="Hello"
+    )
+    
+    assert has_summary_entry(
+        page=summary,
+        section="demo",
+        term="first",
+        href="../simple.md",
+        ref_text="Hello"
+    )
+    
+    assert has_summary_entry(
+        page=summary,
+        section="demo",
+        term="third",
+        href="../simple.md",
+        ref_text="Hello"
+    )
 
-    a = xp.a(href="../simple.md#" + get_id("test", "third", "defs", 0),
-             text="third")
-    dd = xp.dd
-    l1 = xp.ul.li.a(href="../simple.md#" + get_id("test", "third", "refs", 0),
-                    text="Hello")
-    l2 = xp.ul.li.a(href="../summary.md#" + get_id("test", "third", "refs", 1),
-                    text="Summary")
-    dd = dd.has(l1)
-    dd = dd.has(l2)
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
-    dl = dl.has(xp.dt.has(a))
-    dl = dl.has(dd)
-    assert len(summary.xpath(str(dl))) == 1
-
-    a = xp.a(href="../simple.md#" + get_id("demo", "first", "defs", 0),
-             text="first")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="demo")
-    dl = dl.has(xp.dt.has(a))
-    assert len(summary.xpath(str(dl))) == 1
-
-    a = xp.a(href="../simple.md#" + get_id("demo", "third", "defs", 0),
-             text="third")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="demo")
-    dl = dl.has(xp.dt.has(a))
-    assert len(summary.xpath(str(dl))) == 1
-
-    a = xp.a(href="../simple.md#" + get_id("demo", "third", "refs", 0),
-             text="third")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="demo")
-    dl = dl.has(xp.dd.has(a))
-    assert len(summary.xpath(str(dl))) == 0
-
+def test_summary_ignore_case(simple, summary, config):
+    """ make sure that the summary for a term contains references to terms written in different case. """
+    config['ignore_case'] = True
+    pages = mock.render([simple, summary], config)
+    summary = pages["summary.md"]
+    
+    assert has_summary_entry(
+        page=summary,
+        section="test",
+        term="first"
+    )
+    
+    assert not has_summary_entry(
+        page=summary,
+        section="test",
+        term="First"
+    )
+    
 
 def test_summary_noref(simple, summary, config):
     config['list_references'] = False
     pages = mock.render([simple, summary], config)
     summary = pages["summary.md"]
 
-    a = xp.a(href="../simple.md#" + get_id("test", "first", "defs", 0),
-             text="first")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
-    dl = dl.has(xp.dt.has(a))
-    assert len(summary.xpath(str(dl))) == 1
+    # Check definition link exists
+    assert has_summary_entry(
+        page=summary,
+        section="test",
+        term="first",
+        href="../simple.md",
+        ref_text="Hello"
+    )
 
-    a = xp.a(href="../simple.md#" + get_id("test", "third", "refs", 0),
-             text="Hello")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="test")
-    dl = dl.has(xp.dt(text="third"))
-    dl = dl.has(xp.dd.has(a))
-    assert len(summary.xpath(str(dl))) == 0
+    # Check reference link does not exist
+    assert not has_summary_entry(
+        page=summary,
+        section="test",
+        term="third",
+        href="../simple.md",
+        ref_text="first"
+    )
 
 
 def test_custom_summary(simple, summary, config):
@@ -93,22 +108,28 @@ def test_custom_summary(simple, summary, config):
 
 
 def test_default_summary(simple, summary, config):
+    """check the usage of the default section ('_')"""
+    
     config['use_default'] = True
     pages = mock.render([simple, summary], config)
     summary = pages["summary.md"]
     log.debug(summary)
 
-    a = xp.a(href="../simple.md#" + get_id("_", "default", "defs", 0),
-             text="default")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
-    dl = dl.has(xp.dt.has(a))
-    assert len(summary.xpath(str(dl))) == 1
+    assert has_summary_entry(
+        page=summary,
+        section="_",
+        term="default",
+        href="../simple.md",
+        ref_text="Hello"
+    )
 
-    a = xp.a(href="../simple.md#" + get_id("_", "🚧🚧", "defs", 0),
-             text="🚧🚧")
-    dl = xp.dl(_class="mkdocs-ezglossary-summary", _id="_")
-    dl = dl.has(xp.dt.has(a))
-    assert len(summary.xpath(str(dl))) == 1
+    assert has_summary_entry(
+        page=summary,
+        section="_",
+        term="🚧🚧",
+        href="../simple.md",
+        ref_text="Hello"
+    )
 
 
 def test_summary_table(simple, tablesummary, config):

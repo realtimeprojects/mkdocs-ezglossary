@@ -31,5 +31,4 @@
 
     Check the [usage](usage/index.md) documentation on how to use
     your the plugin.
-
 </div>

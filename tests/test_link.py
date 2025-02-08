@@ -1,9 +1,11 @@
 import logging
-import mock
 
 from yaxp import xpath
 
 from mkdocs_ezglossary_plugin.glossary import get_id
+
+import mock
+from test_helpers import has_link
 
 log = logging.getLogger(__name__)
 
@@ -14,35 +16,113 @@ def _hash(s):
 
 def test_link_no_title(simple, config):
     html = mock.render_single(simple, config)
-
-    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 0),
-                        title="",
-                        href="../simple.md#" + get_id("test", "third", "defs", 0),
-                        text="third")
-    assert len(html.xpath(str(dl))) == 1
+    
+    assert has_link(
+        page=html,
+        section="test",
+        term="third",
+        title="",
+        href="../simple.md",
+        text="third"
+    )
 
 
 def test_link_case_sensitive(simple, config):
     html = mock.render_single(simple, config)
-
-    assert not _has_reference(html,
-                              section='test',
-                              text='First',
-                              term='first',
-                              title='',
-                              target='simple.md')
+    
+    # Should not find link when case doesn't match and ignore_case is False
+    assert not has_link(
+        page=html,
+        section="test",
+        term="First",  # Capital F
+        title="",
+        href="../simple.md",
+        text="First"
+    )
 
 
 def test_link_ignore_case(simple, config):
     config['ignore_case'] = True
     html = mock.render_single(simple, config)
+    
+    # Should find link when ignore_case is True, regardless of case
+    assert has_link(
+        page=html,
+        section="test",
+        term="first",
+        title="",
+        href="../simple.md",
+        text="First"
+    )
 
-    assert _has_reference(html,
-                          section='test',
-                          text='First',
-                          term='first',
-                          title='',
-                          target='simple.md')
+
+def test_link_with_title(simple, config):
+    config['tooltip'] = 'full'  # Enable tooltips
+    html = mock.render_single(simple, config)
+    
+    assert has_link(
+        page=html,
+        section="test",
+        term="third",
+        title="third term",
+        href="../simple.md",
+        text="third"
+    )
+
+
+def test_link_with_spaces(simple, summary, config):
+    summary = mock.render([simple, summary], config)['summary.md']
+    
+    assert has_link(
+        page=summary,
+        section="test",
+        term="hyphens-abc xyz",
+        title="",
+        href="../simple.md",
+        text="hyphens-abc xyz"
+    )
+
+
+def test_unicode_links(simple, summary, config):
+    summary = mock.render([simple, summary], config)['summary.md']
+    
+    assert has_link(
+        page=summary,
+        section="demo",
+        term="🚧",
+        title="",
+        href="../simple.md",
+        text="🚧"
+    )
+
+
+def test_plural_links(simple, summary, config):
+    config['plurals'] = 'en'
+    summary = mock.render([simple, summary], config)['summary.md']
+
+    # Test various plural forms
+    # Format: (section, plural, singular, index)
+    test_cases = [
+        ("plurals", "GPUs", "GPU", 0),
+        ("plurals", "geese", "goose", 0),
+        ("plurals", "children", "child", 0),
+        ("plurals", "cities", "city", 0),
+        # 2 definitions exist: potato and potatoes, in this case, the plural is used
+        ("plurals", "potatoes", "potatoes", 0),
+        ("plurals", "grandchildren", "grandchild", 1),
+    ]
+
+    for section, plural, singular, index in test_cases:
+        assert has_link(
+            page=summary,
+            section=section,
+            term=plural,
+            title="",
+            href="../simple.md",
+            text=plural,
+            destination=singular,
+            index=index
+        ), f"Failed to find link for plural '{plural}' (singular: '{singular}')"
 
 
 def test_link_short_title(simple, config):
@@ -87,16 +167,26 @@ def test_link_second_ref(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 1),
-                        title="*third term",
-                        href="../simple.md#" + get_id("test", "third", "defs", 0),
-                        text="third")
-    assert len(summary.xpath(str(dl))) == 1
-    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 2),
-                        title="*third term",
-                        href="../simple.md#" + get_id("test", "third", "defs", 0),
-                        text="mythird")
-    assert len(summary.xpath(str(dl))) == 1
+    assert has_link(
+        page=summary,
+        section="test",
+        term="third",
+        title="third term",
+        href="../simple.md",
+        text="third",
+        destination="third",
+        index=1
+    )
+    assert has_link(
+        page=summary,
+        section="test",
+        term="third",
+        title="third term",
+        href="../simple.md",
+        text="mythird",
+        destination="third",
+        index=2
+    )
 
 
 def test_link_default_ref_dis(simple, summary, config):
@@ -107,12 +197,15 @@ def test_link_default_ref_dis(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id=get_id("_", "default", "refs", 0),
-                        title="",
-                        href="../simple.md#" + get_id("_", "default", "defs", 0),
-                        text="default")
-    assert len(summary.xpath(str(dl))) == 0
+    assert not has_link(
+        page=summary,
+        section="_",
+        term="default",
+        title="",
+        href="../simple.md",
+        text="default",
+        destination="default"
+    )
 
 
 def test_link_default_ref_enabled(simple, summary, config):
@@ -124,24 +217,33 @@ def test_link_default_ref_enabled(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id=get_id("_", "default", "refs", 0),
-                        title="",
-                        href="../simple.md#" + get_id("_", "default", "defs", 0),
-                        text="default")
-    assert len(summary.xpath(str(dl))) == 1
-    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id=get_id("_", "default2", "refs", 0),
-                        title="",
-                        href="../simple.md#" + get_id("_", "default2", "defs", 0),
-                        text="mydef2")
-    assert len(summary.xpath(str(dl))) == 1
-    dl = xpath.body.p.a(_class="mkdocs-ezglossary-link",
-                        id=get_id("_", "default3", "refs", 0),
-                        title="",
-                        href="../simple.md#" + get_id("_", "default3", "defs", 0),
-                        text="mydef3")
-    assert len(summary.xpath(str(dl))) == 1
+    assert has_link(
+        page=summary,
+        section="_",
+        term="default",
+        title="",
+        href="../simple.md",
+        text="default",
+        destination="default"
+    )
+    assert has_link(
+        page=summary,
+        section="_",
+        term="default2",
+        title="",
+        href="../simple.md",
+        text="mydef2",
+        destination="default2"
+    )
+    assert has_link(
+        page=summary,
+        section="_",
+        term="default3",
+        title="",
+        href="../simple.md",
+        text="mydef3",
+        destination="default3"
+    )
 
 
 def test_markdown_links_disabled(simple, summary, config):
@@ -162,16 +264,26 @@ def test_markdown_links_enabled(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 1),
-                        title="",
-                        href="../simple.md#" + get_id("test", "third", "defs", 0),
-                        text="third")
-    assert len(summary.xpath(str(dl))) == 1
-    dl = xpath.body.p.a(id=get_id("test", "third", "refs", 2),
-                        title="",
-                        href="../simple.md#" + get_id("test", "third", "defs", 0),
-                        text="mythird")
-    assert len(summary.xpath(str(dl))) == 1
+    assert has_link(
+        page=summary,
+        section="test",
+        term="third",
+        title="",
+        href="../simple.md",
+        text="third",
+        destination="third",
+        index=1
+    )
+    assert has_link(
+        page=summary,
+        section="test",
+        term="third",
+        title="",
+        href="../simple.md",
+        text="mythird",
+        destination="third",
+        index=2
+    )
 
 
 def test_unicode(simple, summary, config):
@@ -183,16 +295,24 @@ def test_unicode(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    dl = xpath.body.p.a(id=get_id("demo", "🚧", "refs", 0),
-                        title="demo 🚧🚧🚧",
-                        href="../simple.md#" + get_id("demo", "🚧", "defs", 0),
-                        text="🚧")
-    assert len(summary.xpath(str(dl))) == 1
-    dl = xpath.body.p.a(id=get_id("_", "🚧🚧", "refs", 0),
-                        title="default 🚧🚧🚧",
-                        href="../simple.md#" + get_id("_", "🚧🚧", "defs", 0),
-                        text="refers to 🚧")
-    assert len(summary.xpath(str(dl))) == 1
+    assert has_link(
+        page=summary,
+        section="demo",
+        term="🚧",
+        title="demo 🚧🚧🚧",
+        href="../simple.md",
+        text="🚧",
+        destination="🚧"
+    )
+    assert has_link(
+        page=summary,
+        section="_",
+        term="🚧🚧",
+        title="default 🚧🚧🚧",
+        href="../simple.md",
+        text="refers to 🚧",
+        destination="🚧🚧"
+    )
 
 
 def test_plurals_inflect(simple, summary, config):
@@ -203,18 +323,24 @@ def test_plurals_inflect(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    assert _has_reference(summary,
-                          section='plurals',
-                          text='children',
-                          term='child',
-                          title='children definition',
-                          target='simple.md')
-    assert _has_reference(summary,
-                          section='plurals',
-                          text='geese',
-                          term='goose',
-                          title='goose definition',
-                          target='simple.md')
+    assert has_link(
+        page=summary,
+        section='plurals',
+        term='children',
+        title='children definition',
+        href='../simple.md',
+        text='children',
+        destination='child'
+    )
+    assert has_link(
+        page=summary,
+        section='plurals',
+        term='geese',
+        title='goose definition',
+        href='../simple.md',
+        text='geese',
+        destination='goose'
+    )
 
 
 def test_plurals_en(simple, summary, config):
@@ -225,24 +351,34 @@ def test_plurals_en(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    assert _has_reference(summary,
-                          section='plurals',
-                          text='children',
-                          term='child',
-                          title='children definition',
-                          target='simple.md')
-    assert _has_reference(summary,
-                          section='plurals',
-                          text='geese',
-                          term='goose',
-                          title='goose definition',
-                          target='simple.md')
-    assert _has_reference(summary,
-                          section='plurals',
-                          text='grandchildren',
-                          term='grandchild',
-                          title='grandchild definition',
-                          target='simple.md')
+    assert has_link(
+        page=summary,
+        section='plurals',
+        term='children',
+        title='children definition',
+        href='../simple.md',
+        text='children',
+        destination='child'
+    )
+    assert has_link(
+        page=summary,
+        section='plurals',
+        term='geese',
+        title='goose definition',
+        href='../simple.md',
+        text='geese',
+        destination='goose'
+    )
+    assert has_link(
+        page=summary,
+        section='plurals',
+        term='grandchildren',
+        title='grandchild definition',
+        href='../simple.md',
+        text='grandchildren',
+        destination='grandchild',
+        index=1
+    )
 
 
 def test_plural_priority(simple, summary, config):
@@ -253,12 +389,15 @@ def test_plural_priority(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    assert _has_reference(summary,
-                          section='plurals',
-                          text='potatoes',
-                          term='potatoes',
-                          title='potatoes definition',
-                          target='simple.md')
+    assert has_link(
+        page=summary,
+        section='plurals',
+        term='potatoes',
+        title='potatoes definition',
+        href='../simple.md',
+        text='potatoes',
+        destination='potatoes'
+    )
 
 
 def test_plurals_disabled(simple, summary, config):
@@ -268,21 +407,15 @@ def test_plurals_disabled(simple, summary, config):
     summary = mock.render([simple, summary], config)['summary.md']
     log.debug(summary)
 
-    assert not _has_reference(summary,
-                              section='plurals',
-                              text='children',
-                              term='child',
-                              title='children definition',
-                              target='simple.md')
-
-
-def _has_reference(document, section, text, term, title, target):
-    dl = xpath.body.p.a(id=get_id(section, text, "refs", 0),
-                        title=title,
-                        href=f"../{target}#" + get_id(section, term, "defs", 0),
-                        text=text)
-    return len(document.xpath(str(dl))) == 1
-
+    assert not has_link(
+        page=summary,
+        section='plurals',
+        term='children',
+        title='children definition',
+        href='simple.md',
+        text='children',
+        destination='child'
+    )
 
 def test_hyphens(simple, summary, config):
     """ Hyphens in terms are supported

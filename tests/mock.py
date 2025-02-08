@@ -59,9 +59,9 @@ def render(pages, config):
         fp = open(page.url + "." + page.ctype, "w", encoding="utf-8")
         fp.write(results[page.url])
         fp.close()
-        log.debug(f"--- >>> {page.url}")
-        log.debug(results[page.url])
-        log.debug(f"--- <<< {page.url}")
+        # log.debug(f"--- >>> {page.url}")
+        # log.debug(results[page.url])
+        # log.debug(f"--- <<< {page.url}")
         if page.ctype == "html":
             results[page.url] = etree.fromstring(results[page.url], parser=parser)
     return results

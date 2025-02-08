@@ -1,5 +1,10 @@
 # Release Notes
 
+## v2.0.0a1
+| ~2025-02-09~
+
+-   Fix #24: Show all references in glossary (summary) when `ignore_case=true`.
+
 ## v1.7.1
 | ~2024-10-11~
 
