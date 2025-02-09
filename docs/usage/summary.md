@@ -1,11 +1,11 @@
-# Printing a summary
+# Glossary Summary
 
-## Basic
+## Basic Usage
 
-Place a <term:summary> of all definitions for a <term:section>
-anywhere in your documentation:
+To create a summary of all definitions and references for a glossary section,
+add a summary tag anywhere in your documentation:
 
-``` markdown
+```markdown
 # Terms and Definitions
 
 <glossary::demo>
@@ -13,27 +13,25 @@ anywhere in your documentation:
 
 !!! Example
 
-    Lets generate the summary for the section `term`:
+    Let's generate a summary for the section `demo`:
 
-    ``` markdown
-    # Demo terms
+    ```markdown
+    # Demo Terms
 
     <glossary::demo>
     ```
 
-    This will produce the following summary. Note that the summary contains
-    links to all definitions (`def`) and references (`ref`) to all terms
-    in your documentation:
+    This will produce the following summary, containing links to all definitions
+    and references of terms in your documentation:
 
     !!! Quote "Output"
 
         <glossary::demo>
 
-## Overriding the output behaviour
+## Customizing Output
 
-Override the default values for <configuration:list_definitions> and
-<configuration:list_references> by placing a modifier behind the glossary
-reference:
+You can override the default behavior for `list_definitions` and
+`list_references` by adding modifiers to the glossary reference:
 
 ```markdown
 <glossary::demo|no_refs>
@@ -41,65 +39,66 @@ reference:
 
 !!! Note
 
-    When overriding the output behaviour in summaries printed in a table,
-    you need to quote the `|`:
+    When using modifiers in tables, you need to escape the `|` character:
 
-    ``` markdown
-    | row1                     | row2 |
-    |--------------------------|------|
-    | <glossary:demo\|no_refs> | ...  |
+    ```markdown
+    | Column 1                  | Column 2 |
+    |---------------------------|----------|
+    | <glossary:demo\|no_refs> | ...      |
     ```
 
-### `no_refs`
->   Dont add reference links to the summary.
+### Available Modifiers
 
-```
+#### `no_refs`
+>   Exclude reference links from the summary.
+    
+```markdown
 <glossary::demo|no_refs>
 ```
 
-!!! Quote "output"
+!!! Quote "Output"
 
     <glossary::demo|no_refs>
 
-### `no_defs`
->   Don't add definitions to the summary:
+#### `no_defs`
+>   Exclude definitions from the summary.
 
-```
+```markdown
 <glossary::demo|no_defs>
 ```
 
-!!! Quote "output"
+!!! Quote "Output"
 
     <glossary::demo|no_defs>
 
-### `do_defs` and `do_refs`
+#### `do_defs` and `do_refs`
+>   Explicitly include definitions and/or references.
 
-```
+```markdown
 <glossary::demo|do_defs+do_refs>
 ```
 
-!!! Quote "output"
+!!! Quote "Output"
 
     <glossary::demo|do_defs+do_refs>
 
 ## Configuration
 
 configuration:list_definitions
-:   If set to `false`, definitions are not listed in the [summary](summary.md). Default
-is `true`.
+:   Controls whether definitions appear in the summary. Default is `true`.
 
-=== "Global"
+=== "Global Configuration"
 
-    ``` markdown
+    ```yaml
     plugins:
         - search
         - ezglossary:
             - list_definitions: false
     ```
 
-=== "Per section"
+=== "Section-specific Configuration"
 
-    ``` markdown
+    ```yaml
     plugins:
         - search
         - ezglossary:
@@ -111,24 +110,21 @@ is `true`.
 
             - list_definitions: false
     ```
-    
 
 configuration:list_references
-:   If set to `false`, references are not listed in the [summary](summary.md). Default
-is `true`.
+:   Controls whether references appear in the summary. Default is `true`.
 
-=== "Global"
+=== "Global Configuration"
 
-    ``` markdown
+    ```yaml
     plugins:
-        - search
         - ezglossary:
             - list_references: false
     ```
 
-=== "Per section"
+=== "Section-specific Configuration"
 
-    ``` markdown
+    ```yaml
     plugins:
         - search
         - ezglossary:
@@ -143,29 +139,31 @@ is `true`.
 
 ## Themes
 
-Passing a `theme` option to the `<glossary::section>` statement will
-load a customized jinja template for that theme named `summary-<theme>.html`.
+You can customize the summary appearance by passing a `theme` option:
 
-``` markdown
+```markdown
 <glossary::demo|theme=detailed>
 ```
+
+The theme option loads a custom Jinja template named `summary-<theme>.html`.
 
 !!! Example
 
     This theme shows the term definitions in the glossary:
 
-    !!! Quote
+    !!! Quote "Output"
 
         <glossary::demo|theme=detailed>
 
-Available themes are:
+### Available Themes
 
-detailed:
-:    Shows the definition of the term in the summary.
+detailed
+:   Displays the term definition in the summary.
 
-table:
-:    Uses tables to display the summary
+table
+:   Presents the summary in a tabular format.
 
-## Further reading
+## Further Reading
 
--   Read the [sections](sections.md) documentation to see how to configure sections.
+- See [sections](sections.md) documentation for section configuration details.
+- Check [customization](customization.md) for creating custom summary templates.

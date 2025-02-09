@@ -2,17 +2,18 @@
 
 <div class="grid cards" markdown>
 
--   ## Basic steps
+-   ## Basic Steps
 
-    1. [Define glossary entries](definition.md)
-    2. [Refer to glossary entries](definition.md)
-    3. [Print the summary](definition.md)
+    1. [Define glossary terms](definition.md)
+    2. [Create references to terms](linking.md)
+    3. [Generate a summary](summary.md)
 
--   ## Advanced
+-   ## Advanced Features
 
     -   [Page references](pagerefs.md)
-    -   [Configuring sections](sections.md)
-    -   [Activating the default section](default.md)
-    -   [Customization](customization.md)
+    -   [Glossary sections](sections.md)
+    -   [Default section](default.md)
+    -   [Custom templates](customization.md)
+    -   [API reference](api.md)
 
 </div>
