@@ -319,21 +319,18 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     def on_config(self, config: co.Config) -> dict:
         """Process the configuration."""
-        self.config = config['ezglossary']
+        # Initialize glossary with current config
         self._glossary = Glossary(
-            ignore_case=self.config['ignore_case'],
-            plurals=self.config['plurals']
+            ignore_case=self.config.ignore_case,
+            plurals=self.config.plurals
         )
 
         # Make templates path relative to the config file directory
-        if self.config['templates']:
+        if self.config.templates:
             config_dir = os.path.dirname(config['config_file_path'])
-            self.config['templates'] = os.path.normpath(
-                os.path.join(config_dir, self.config['templates'])
+            self.config.templates = os.path.normpath(
+                os.path.join(config_dir, self.config.templates)
             )
-
-        # Initialize template engine with custom templates if specified
-        template.init(self.config['templates'])
 
         return config
 
