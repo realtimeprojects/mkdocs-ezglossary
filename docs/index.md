@@ -11,6 +11,8 @@
     -   [Page references](usage/pagerefs.md)
     -   Unicode support
     -   PDF support
+    -   [Customizable output](usage/customization.md)
+    -   Singular / Plural support
 
 - ## Usage
     -   Read the [getting started](getting_started.md) instructions
