@@ -2,19 +2,16 @@ import logging
 import re
 import os
 from html import parser
-import inflect
 
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs import config
 from mkdocs.config import config_options as co
 
-from .glossary import Glossary
-from .plurals import plurals
+from .glossary import Glossary, get_id
 
 from . import template
 
 log = logging.getLogger("mkdocs.plugins.ezglossary")
-engine = inflect.engine()
 
 
 class __re:
@@ -53,7 +50,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self._reflink = "886d7696-137e-4a59-a39d-6f7d311d5bd1"
 
     def on_pre_build(self, config, **kwargs):
-        self._glossary = Glossary(self.config.ignore_case)
+        self._glossary = Glossary(self.config.ignore_case, self.config.plurals)
         if self.config.strict and "_" not in self.config.sections:
             self.config.sections.append("_")
         if self.config.strict and len(self.config.sections) == 0:
@@ -177,8 +174,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             term = term if term else "__None__"
             text = text if text else "__None__"
             log.debug(f"glossary: found link: {section}/{term}/{text}")
-            _id = self._glossary.add(section, term, 'refs', page)
-            return f"{self._uuid}:{section}:{term}:<{text}>:{_id}"
+            id =self._glossary.add(section, term, 'refs', page)
+            return f"{self._uuid}:{id}:<{text}>"
 
         def _replace(mo):
             return _add_link(mo.group(1), mo.group(2), mo.group(4))
@@ -217,65 +214,36 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         regex = fr"{self._reflink}:{_re.section}:{_re.term}"
         return re.sub(regex, _replace, output)
 
-    def _get_defs(self, section, term):
-        defs = self._glossary.get(section, term, 'defs')
-        if len(defs) > 0:
-            return defs
-        if self.config.plurals == 'none':
-            return defs
-        if self.config.plurals == 'inflect':
-            singular = engine.singular_noun(term)
-            if not singular:
-                log.debug(f'no singular for: `{term}`')
-                return defs
-            log.debug(f'singular is: `{singular}`')
-            return self._glossary.get(section, singular, 'defs')
-        if self.config.plurals not in plurals:
-            log.error('no plurals definition for `{self.config.plurals}`')
-            return defs
-        _plurals = plurals[self.config.plurals]
-
-        for ending, replacements in _plurals.items():
-            log.debug(f'ending: {ending}, replacements: {replacements}')
-            for replacement in replacements:
-                singular = re.sub(ending, replacement, term)
-                log.debug(f"looking up `{singular}`")
-                defs = self._glossary.get(section, singular, 'defs')
-                if len(defs) > 0:
-                    return defs
-        return defs
-
     def _replace_glossary_links(self, output, page, root):
+        """ Search for links to glossary entries detected and marked
+            in the first stage and replace them with an actual html
+            link pointing to that glossary definition.
+        """
         def _replace(mo):
-            section = mo.group(1)
-            term = mo.group(2)
-            text = mo.group(3)
-            _id = mo.group(4)
-            defs = self._get_defs(section, term)
-
-            text = term if text == "__None__" else text
-
-            if len(defs) == 0:
-                log.warning(f"page '{page.url}' refers to undefined glossary entry {section}:{term}")
-                term = "" if term == "__None__" else term
+            id = mo.group(1)
+            text = mo.group(2)
+            
+            td = self._glossary.ref_by_id(id)
+            text = td.term if text == "__None__" else text
+            entry = self._glossary.get_best_definition(td.section, td.term)
+            
+            if entry is None:
+                log.warning(f"page '{page.url}' refers to undefined glossary entry {td.section}:{td.term}")
+                term = "" if td.term == "__None__" else td.term
                 text = "" if text == "__None__" else text
-                sec = f"{section}:" if section != "_" else ""
+                sec = f"{td.section}:" if td.section != "_" else ""
                 return f'<a href="{sec}{term}">{text}</a>'
-
-            if len(defs) > 1:
-                log.warning(f"multiple definitions found for <{section}:{term}>, linking to first:")
-                for _def in defs:
-                    log.warning(f"\t{_def}")
-            entry = defs[0]
+                
             entry.definition = _html2text(entry.definition)
+            
             return template.render("link.html",
-                                   root=root,
-                                   config=self.config,
-                                   entry=entry,
-                                   text=text,
-                                   target=_id)
+                                 root=root,
+                                 config=self.config,
+                                 entry=entry,
+                                 text=text,
+                                 target=id)
 
-        regex = fr"{self._uuid}:{_re.section}:{_re.term}:<{_re.text}>:(\w+)"
+        regex = fr"{self._uuid}:([a-f0-9]{{32}}):<{_re.text}>"
         return re.sub(regex, _replace, output)
 
     def _find_definitions(self, content, page):
@@ -348,6 +316,26 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             ret = cfg[entry]
         log.debug(f"_get_config({section}, {entry}): {ret}")
         return ret
+
+    def on_config(self, config: co.Config) -> dict:
+        """Process the configuration."""
+        self.config = config['ezglossary']
+        self._glossary = Glossary(
+            ignore_case=self.config['ignore_case'],
+            plurals=self.config['plurals']
+        )
+
+        # Make templates path relative to the config file directory
+        if self.config['templates']:
+            config_dir = os.path.dirname(config['config_file_path'])
+            self.config['templates'] = os.path.normpath(
+                os.path.join(config_dir, self.config['templates'])
+            )
+
+        # Initialize template engine with custom templates if specified
+        template.init(self.config['templates'])
+
+        return config
 
 
 def _html2text(content):
