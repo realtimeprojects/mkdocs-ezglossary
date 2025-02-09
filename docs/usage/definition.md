@@ -1,26 +1,30 @@
-# Defining glossary entries
+# Defining Glossary Terms
 
-## Basic
+## Basic Usage
 
-Provided you use the [material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
-adding a glossary entry just works by adding a definition list with section specifiers anywhere
-in your documentation.
+ezglossary uses [Material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
+to define glossary terms. Simply add a definition list with section specifiers anywhere
+in your documentation:
 
 !!! Note
     Alternatively, you can directly use [html description lists](https://www.w3schools.com/HTML/html_lists.asp)
     in your page as well.
 
-``` markdown
+```markdown
 term:glossary
 :   A list of specialized words with their definitions
 ```
 
-`term` herby referes to the <term:section> `terms` in which this glossary
-entry will be added.
+The format is `section:term`, where `section` specifies the glossary section
+this term belongs to.
+
+!!! Note
+    You can also use [HTML description lists](https://www.w3.org/TR/html401/struct/lists.html#h-10.3)
+    directly in your page.
 
 !!! Example
 
-    Define the term `glossary` in the section `term`:
+    Define terms in the section `demo`:
 
     ``` markdown
     *demo:my_term1*
@@ -36,28 +40,34 @@ entry will be added.
     *demo:my_term1*
     :   Definition of my_term 1
 
-    demo:my term 2
-    :   Definition of my term 2
+## Text Formatting
 
-    *`demo:my term 3`*
-    :   Definition of my term 3
-
-## List references
-
-By adding the configuration entry <configuration.inline_refs> to the section configuration,
-you can enable displaying reference links directly to the definition of a glossary term.
-
-This can either be done in the global definition:
+You can use Markdown formatting in your definitions:
 
 ```markdown
-plugins:
-    ezglossary:
-        inline_refs: none
+demo:formatted_term
+:   A term with **bold**, *italic*, and `code` formatting.
+    
+    You can even use multiple paragraphs and other Markdown elements:
+    - Lists
+    - Tables
+    - Code blocks
 ```
 
-or in the section configuration:
+## Reference Links
 
-```markdown
+By setting `inline_refs` in your configuration, you can enable reference links
+directly in term definitions:
+
+```yaml
+plugins:
+    ezglossary:
+        inline_refs: short  # Options: none, short, list
+```
+
+Or configure it per section:
+
+```yaml
 plugins:
     ezglossary:
         section_config:
@@ -65,54 +75,57 @@ plugins:
               inline_refs: short
 ```
 
-## Limitations
+## Special Characters
 
-The following characters are not allowed to be used in <term:section|sections>
-and <term:term|terms>, however, you can replace them with
-[html entities](https://www.freeformatter.com/html-entities.html) if you want
-to use them anyway:
+The following characters require special handling in section names and terms.
+Replace them with their HTML entities:
 
-| Character | Replacement |
-|--------------------------------|-------------|
-| `#` (as first character)       | `&#35;`     |
-| `&` (as first character)       | `&amp;`     |
-| `/`                            | `&#47;`     | 
-| `|`                            | `&#166;`    | 
-| `"`                            | `&quot;`    | 
-| `<`                            | `&#lt;`     | 
-| `>`                            | `&#gt;`     | 
-| `:`                            | `&#58;`     | 
-| `@`                            | `&#64;`     | 
+| Character | HTML Entity | Usage |
+|-----------|------------|-------|
+| `#` (start) | `&#35;` | Section/term starting with # |
+| `&` (start) | `&amp;` | Section/term starting with & |
+| `/` | `&#47;` | Path separator |
+| `\|` | `&#166;` | Vertical bar |
+| `"` | `&quot;` | Double quote |
+| `<` | `&#lt;` | Less than |
+| `>` | `&#gt;` | Greater than |
+| `:` | `&#58;` | Colon |
+| `@` | `&#64;` | At sign |
 
 !!! Example
 
-    ``` markdown
-    demo:fancy&#35;definition
-    :   a term using the # character
+    ```markdown
+    demo:special&#35;term
+    :   A term using the # character
 
-    - See <demo:fancy&#35;definition>
+    Reference: <demo:special&#35;term>
     ```
-
-    !!! Output
-
-        demo:fency&#35;definition
-        :   a term using the # character
-
-        - See <demo:fency&#35;definition>
 
 ## Configuration
 
+configuration:ignore_case
+:   When enabled, terms are matched case-insensitively. Default: `false`
+
+    ```yaml
+    plugins:
+        ezglossary:
+            ignore_case: true
+    ```
+
 configuration:inline_refs
-:   defines how to display references in the <term:definition|definitions>.
+:   Controls how references appear in term definitions. Options:
+    - `none` (default): No inline references
+    - `short`: Numbered references like `[1]`
+    - `list`: Full reference list with page names
 
-    Options:
+    ```yaml
+    plugins:
+        ezglossary:
+            inline_refs: short
+    ```
 
-    none [default]
-    :   No inline references are linked in the term definition
+## Further Reading
 
-    short:
-    :   Short references in the format `[1]` are linked in the term definition
-
-    list:
-    :   A full list of references including the page name are added to the
-        term definition.
+- [Linking to Terms](linking.md): Learn how to reference defined terms
+- [Sections](sections.md): Organize terms in different sections
+- [Summary](summary.md): Generate glossary summaries
