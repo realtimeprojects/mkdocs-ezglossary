@@ -47,8 +47,8 @@ plugins:
 Add glossary terms anywhere in your documentation:
 
 ```markdown
-section:term
-:   A list of specialized words with their definitions
+fruit:apple
+:   A very delicious and healty fruit growing on trees.
 ```
 
 ### 3. Link to Terms
@@ -56,7 +56,7 @@ section:term
 Reference terms in your documentation:
 
 ```markdown
-See the <glossary:term> for more details.
+An <fruit:apple> a day keeps the doctor away.
 ```
 
 ### 4. Create a Summary
@@ -66,7 +66,7 @@ Generate a summary of all terms:
 ```markdown
 # Glossary
 
-<glossary::glossary>
+<glossary::fruit>
 ```
 
 ## Configuration
