@@ -1,70 +1,100 @@
-# mkdocs ezglossary plugin
-> Glossary support for mkdocs.
+# mkdocs-ezglossary-plugin
+
+> A powerful glossary plugin for MkDocs
 
 ## Features
 
--   Defining multiple glossaries
--   Linking to glossary entries in text
--   Printing a summary of your glossary with definitions and
-    references anywhere in your documentation.
--   Customizable output
--   Unicode support
--   PDF support
+- Multiple glossary sections
+- Case-sensitive and case-insensitive term matching
+- Rich text formatting in definitions
+- Reference tracking and linking
+- Customizable summaries
+- Unicode support
+- PDF export support
+- Custom templates via Jinja2
+- Plural forms support (English)
 
 ## Documentation
 
--   Read the [full documentation](https://realtimeprojects.github.io/mkdocs-ezglossary)
+📚 Read the [full documentation](https://realtimeprojects.github.io/mkdocs-ezglossary)
 
 ## Prerequisites
 
-This plugin requires the
-[material definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/)
-to be active or any other plugin which generates
-[html description lists](https://www.w3schools.com/HTML/html_lists.asp).
+This plugin requires one of:
+- [Material for MkDocs definition lists](https://squidfunk.github.io/mkdocs-material/reference/lists/) (recommended)
+- Any plugin that generates [HTML description lists](https://www.w3schools.com/HTML/html_lists.asp)
 
 ## Installation
 
-    pip install mkdocs-ezglossary-plugin
+```bash
+pip install mkdocs-ezglossary-plugin
+```
 
-## Quickstart
+## Quick Start
 
-### Activation
+### 1. Enable the Plugin
 
-Add the following lines to your mkdocs.yml plugins section:
+Add ezglossary to your mkdocs.yml:
 
-``` yaml
+```yaml
 plugins:
   - search
   - ezglossary
 ```
 
-### Defining glossary entries
+### 2. Define Terms
 
-Provided you use the material definition list, adding a glossary entry
-just works by adding a definition list with section specifiers anywhere
-in your documentation:
+Add glossary terms anywhere in your documentation:
 
-``` markdown
+```markdown
 section:term
 :   A list of specialized words with their definitions
 ```
 
-### Linking to a glossary entry
+### 3. Link to Terms
 
-You can now link to this glossary definition using the following
-syntax. This will produce a link to the definition in your documentation:
+Reference terms in your documentation:
 
-``` markdown
--   See the <section:term> for details
+```markdown
+See the <glossary:term> for more details.
 ```
 
-### Printing a summary
+### 4. Create a Summary
 
-Now you can place a summary of all definitions anywhere in your
-documentation:
+Generate a summary of all terms:
 
-``` markdown
-# Terms and Definitions
+```markdown
+# Glossary
 
-<glossary::section>
+<glossary::glossary>
 ```
+
+## Configuration
+
+Basic configuration options:
+
+```yaml
+plugins:
+  - ezglossary:
+      # Case-insensitive term matching
+      ignore_case: true
+      
+      # Show references in definitions
+      inline_refs: short  # none, short, list
+      
+      # Enable plural forms (English)
+      plurals: en  # none, en
+      
+      # Custom templates directory
+      templates: docs/templates
+```
+
+See the [configuration documentation](https://realtimeprojects.github.io/mkdocs-ezglossary/configuration) for all options.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+`mkdocs-ezglossary-plugin` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
