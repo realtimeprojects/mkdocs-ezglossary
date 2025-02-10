@@ -1,7 +1,7 @@
 # Release Notes
 
-## v2.0.0a2
-| ~2025-02-09~
+## v2.0.0
+| ~2025-02-10~
 
 -   Fix #24: Show all references in glossary (summary) when `ignore_case=true`.
 -   Fix #25: Fix #25: make template file path relative to mkdocs.yml

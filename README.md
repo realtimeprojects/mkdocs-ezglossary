@@ -48,7 +48,7 @@ Add glossary terms anywhere in your documentation:
 
 ```markdown
 fruit:apple
-:   A very delicious and healty fruit growing on trees.
+:   A very delicious and healthy fruit growing on trees.
 ```
 
 ### 3. Link to Terms
