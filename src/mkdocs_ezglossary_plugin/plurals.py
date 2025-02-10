@@ -26,5 +26,65 @@ plurals = {
         'matrices$': ['matrix'],
         'vertices$': ['vertex'],
         'appendices$': ['appendix'],
+    },
+    
+    'es': {
+        # Regular plurals
+        'es$': [''],          # árboles -> árbol, coches -> coche
+        's$': [''],           # casas -> casa
+        
+        # Special cases with accent marks
+        'enes$': ['en'],      # exámenes -> examen
+        'ones$': ['ón'],      # situaciones -> situación
+        'eses$': ['és'],      # ingleses -> inglés
+        
+        # Irregular plurals
+        'ces$': ['z'],        # peces -> pez
+        
+        # Special plurals ending in -es
+        'ís$': ['í'],         # rubís -> rubí
+        'ús$': ['ú'],         # bambús -> bambú
+    },
+    
+    'de': {
+        # Regular plurals
+        'en$': [''],          # Katzen -> Katze
+        'n$': [''],           # Frauen -> Frau
+        'e$': [''],           # Hunde -> Hund
+        'er$': [''],          # Kinder -> Kind
+        
+        # Umlaut plurals (need to be handled in code)
+        'äuser$': ['aus'],    # Häuser -> Haus
+        'äume$': ['aum'],     # Bäume -> Baum
+        'änder$': ['and'],    # Länder -> Land
+        'äfte$': ['aft'],     # Kräfte -> Kraft
+        'ücher$': ['uch'],    # Bücher -> Buch
+        'öfe$': ['of'],       # Höfe -> Hof
+        
+        # Special cases
+        'ien$': ['ium'],      # Laboratorien -> Laboratorium
+        'a$': ['um'],         # Musea -> Museum
+        'i$': ['us'],         # Alumni -> Alumnus
+    },
+    
+    'fr': {
+        # Regular plurals
+        's$': [''],           # maisons -> maison
+        'x$': [''],           # chevaux -> cheval
+        'aux$': ['al'],       # journaux -> journal
+        'eaux$': ['eau'],     # tableaux -> tableau
+        
+        # Special endings
+        'eux$': ['eu'],       # jeux -> jeu
+        'oux$': ['ou'],       # bijoux -> bijou
+        
+        # Irregular plurals that end in -s
+        'ils$': ['il'],       # fils -> fil
+        'ails$': ['ail'],     # travails -> travail
+        
+        # Academic terms (from Latin)
+        'a$': ['um'],         # média -> médium
+        'i$': ['us'],         # alumni -> alumnus
+        'ae$': ['a'],         # algae -> alga
     }
 }

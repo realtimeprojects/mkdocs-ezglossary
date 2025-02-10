@@ -1,5 +1,10 @@
 # Release Notes
 
+## v2.1.0a1
+| ~2025-02-10~
+
+-   Add translation rules for spanish, french, german
+
 ## v2.0.0
 | ~2025-02-10~
 
