@@ -65,7 +65,7 @@ See our <term:section|glossary sections> documentation
     ```markdown
     | Description | Reference |
     |------------|-----------|
-    | First term | <demo:first_term\|see details> |
+    | First term | <demo:my_term1\|see details> |
     ```
 
 ## Handling Plurals
