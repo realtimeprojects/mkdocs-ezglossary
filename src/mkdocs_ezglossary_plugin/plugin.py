@@ -233,7 +233,9 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 text = "" if text == "__None__" else text
                 sec = f"{td.section}:" if td.section != "_" else ""
                 return f'<a href="{sec}{term}">{text}</a>'
-                
+            
+            # Preserve visible text from nested glossary links/anchors before html2text
+            entry.definition = _preserve_visible_text_for_tooltip(entry.definition)
             entry.definition = _html2text(entry.definition)
             
             return template.render("link.html",
@@ -333,6 +335,24 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             )
 
         return config
+
+
+def _preserve_visible_text_for_tooltip(s: str) -> str:
+    """
+    Normalize nested glossary/HTML constructs to *visible text* only, so that
+    _html2text() receives the intended words for tooltip rendering.
+      - <name:TERM>               -> TERM
+      - &lt;name:TERM&gt;         -> TERM
+      - <name:>                   -> name
+      - <a ...>TEXT</a>          -> TEXT
+    """
+    # Keep anchor text, drop the tag
+    s = re.sub(r'<a\b[^>]*>(.*?)</a>', r'\1', s, flags=re.IGNORECASE | re.DOTALL)
+    # Glossary markers to plain text (escaped/raw/name-only)
+    s = re.sub(r'&lt;([A-Za-z0-9_-]+):([^><|]+)&gt;', r'\2', s)
+    s = re.sub(r'<([A-Za-z0-9_-]+):([^><|]+)>', r'\2', s)
+    s = re.sub(r'<([A-Za-z0-9_-]+):>', r'\1', s)
+    return s
 
 
 def _html2text(content):
