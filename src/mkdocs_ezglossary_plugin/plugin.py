@@ -341,10 +341,18 @@ def _preserve_visible_text_for_tooltip(s: str) -> str:
     """
     Normalize nested glossary/HTML constructs to *visible text* only, so that
     _html2text() receives the intended words for tooltip rendering.
+
+    Args:
+        s (str): The input string containing glossary/HTML constructs.
+
+    Returns:
+    # Keep anchor text, drop the tag.
+    # Note: This regex does not handle nested anchor tags, but nested <a> elements are invalid in HTML and not expected in glossary definitions.
+    s = re.sub(r'<a\b[^>]*>(.*?)</a>', r'\1', s, flags=re.IGNORECASE | re.DOTALL)
       - <name:TERM>               -> TERM
       - &lt;name:TERM&gt;         -> TERM
       - <name:>                   -> name
-      - <a ...>TEXT</a>          -> TEXT
+      - <a ...>TEXT</a>           -> TEXT
     """
     # Keep anchor text, drop the tag
     s = re.sub(r'<a\b[^>]*>(.*?)</a>', r'\1', s, flags=re.IGNORECASE | re.DOTALL)
