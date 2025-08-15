@@ -220,31 +220,51 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             link pointing to that glossary definition.
         """
         def _replace(mo):
-            id = mo.group(1)
-            text = mo.group(2)
-            
-            td = self._glossary.ref_by_id(id)
-            text = td.term if text == "__None__" else text
-            entry = self._glossary.get_best_definition(td.section, td.term)
-            
-            if entry is None:
-                log.warning(f"page '{page.url}' refers to undefined glossary entry {td.section}:{td.term}")
-                term = "" if td.term == "__None__" else td.term
-                text = "" if text == "__None__" else text
-                sec = f"{td.section}:" if td.section != "_" else ""
-                return f'<a href="{sec}{term}">{text}</a>'
+            try:
+                id = mo.group(1)
+                # The text is HTML entity encoded, so we need to decode it
+                text = mo.group(2)
                 
-            entry.definition = _html2text(entry.definition)
+                # Decode HTML entities in the text
+                import html
+                text = html.unescape(text)
+                
+                td = self._glossary.ref_by_id(id)
+                text = td.term if text == "__None__" else text
+                entry = self._glossary.get_best_definition(td.section, td.term)
+                
+                if entry is None:
+                    log.warning(f"page '{page.url}' refers to undefined glossary entry {td.section}:{td.term}")
+                    term = "" if td.term == "__None__" else td.term
+                    text = "" if text == "__None__" else text
+                    sec = f"{td.section}:" if td.section != "_" else ""
+                    return f'<a href="#{sec}{term}" class="mkdocs-ezglossary-undefined">{text or term or "undefined"}</a>'
+                    
+                entry.definition = _html2text(entry.definition)
+                
+                return template.render("link.html",
+                                     root=root,
+                                     config=self.config,
+                                     entry=entry,
+                                     text=text,
+                                     target=id)
             
-            return template.render("link.html",
-                                 root=root,
-                                 config=self.config,
-                                 entry=entry,
-                                 text=text,
-                                 target=id)
+            except Exception as e:
+                log.error(f"Error processing glossary link replacement: {e}")
+                # Return the original match if replacement fails
+                return mo.group(0)
 
-        regex = fr"{self._uuid}:([a-f0-9]{{32}}):<{_re.text}>"
-        return re.sub(regex, _replace, output)
+        # Updated regex to handle HTML entities (&lt; and &gt; instead of < and >)
+        regex = fr"{self._uuid}:([a-f0-9]{{32}}):&lt;([^&]*)&gt;"
+        
+        result = re.sub(regex, _replace, output)
+        
+        # Check for any remaining unreplaced UUIDs
+        remaining_uuids = result.count(self._uuid)
+        if remaining_uuids > 0:
+            log.warning(f"Found {remaining_uuids} unreplaced UUID references in output")
+            
+        return result
 
     def _find_definitions(self, content, page):
         log.debug(f"_find_definitions({page})")
