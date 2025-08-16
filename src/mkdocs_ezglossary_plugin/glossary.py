@@ -15,13 +15,13 @@ def get_id(section: str, term: str, linktype: str, index: int = 0) -> str:
     """Generate a unique ID for a glossary entry.
     
     Args:
-        section: The glossary section
-        term: The term
-        linktype: Type of link ('refs' or 'defs')
-        index: Index of the entry (only used for 'refs')
+        section: The glossary section.
+        term: The term.
+        linktype: Type of link ('refs' or 'defs').
+        index: Index of the entry (only used for 'refs').
     
     Returns:
-        str: A unique hash ID, or None if no matching definition exists
+        str: A unique hash ID, or None if no matching definition exists.
     """
     # For case-insensitive matching, convert to lowercase before hashing
     section = section.lower()
@@ -44,27 +44,27 @@ def get_id(section: str, term: str, linktype: str, index: int = 0) -> str:
 
 
 class Entry:
-    """ An entry in the glossary. """
-
+    """An entry in the glossary."""
+    
     def __init__(self, target, page, definition, section, term, ref_id=None):
         self.target = target
-        """ The anchor to directly point to this specific link. """
-
+        """The anchor to directly point to this specific link."""
+        
         self.page = page
-        """ The url of the page to which this entry points to. """
-
+        """The URL of the page to which this entry points."""
+        
         self.definition = definition
-        """ The definition of the term. """
-
+        """The definition of the term."""
+        
         self.section = section
-        """ The section of the term of this entry. (Since `v1.7.0a1`) """
-
+        """The section of the term of this entry. (Since v1.7.0a1)"""
+        
         self.term = term
-        """ The term of this entry. (Since v1.7.0a1) """
+        """The term of this entry. (Since v1.7.0a1)"""
         
         self.ref_id = ref_id
-        """ The ID of the reference link to this entry """
-
+        """The ID of the reference link to this entry."""
+    
     def __repr__(self):
         """Return a string representation of the entry showing all fields."""
         return (f"Entry(section='{self.section}', term='{self.term}', "
@@ -73,50 +73,48 @@ class Entry:
 
 
 class Glossary:
-    """ The complete glossary for all sections """
-
+    """The complete glossary for all sections."""
+    
     def __init__(self, ignore_case, plurals):
         self.clear()
         self.ignore_case = ignore_case
         self.plurals = plurals
-
+    
     def clear(self):
+        """Clear the glossary."""
         # Store sections as: 
         # { section: { 'defs': {term: {id: Entry}}, 'refs': {term: {id: Entry}} } }
         self._glossary = {}
-
-    def add(self, 
-            section : str, 
-            term : str, 
-            linktype : str, 
-            page : str, 
-            definition : str = None, 
-            anchor : str = None):
+    
+    def add(self, section: str, term: str, linktype: str, page: str, definition: str = None, anchor: str = None):
         """Add a new entry to the glossary.
         
         Args:
-            section: Section name to add the entry to
-            term: The term (can be plural or singular)
-            linktype: Type of entry ('refs' or 'defs')
-            page: Page object where the entry is located
-            definition: Optional definition text
-            anchor: Optional anchor ID
+            section: Section name to add the entry to.
+            term: The term (can be plural or singular).
+            linktype: Type of entry ('refs' or 'defs').
+            page: Page object where the entry is located.
+            definition: Optional definition text.
+            anchor: Optional anchor ID.
+        
+        Returns:
+            str: The ID of the added entry.
         """
         term = term.strip()
         log.debug(f"glossary.add({section}, {term}, {linktype}, '{definition}', {anchor})")
-
+        
         # Initialize section if needed
         if section not in self._glossary:
             log.debug(f"    adding section: '{section}'")
             self._glossary[section] = {'refs': {}, 'defs': {}}
-
+        
         # Get the appropriate dictionary for this linktype
         links_dict = self._glossary[section][linktype]
         
         # Initialize term entry if needed
         if term not in links_dict:
             links_dict[term] = {}
-
+        
         # Generate IDs
         _id = get_id(section, term, linktype, len(links_dict[term]))
         log.debug(f"    _id: {_id} FOR {section}:{term}:{linktype}:{len(links_dict[term])}")
@@ -125,26 +123,26 @@ class Glossary:
         entry = Entry(anchor, page, definition, section, term, _id)
         links_dict[term][_id] = entry
         log.debug(f"added entry: {entry}")
-
+        
         return _id
-
+    
     def get(self, section: str, term: str, linktype: str) -> list[Entry]:
         """Get all entries for a term, including singular/plural variants.
         
         Args:
-            section: Section to search in
-            term: Term to find (can be plural or singular)
-            linktype: Type of entries to find ('refs' or 'defs')
-            
+            section: Section to search in.
+            term: Term to find (can be plural or singular).
+            linktype: Type of entries to find ('refs' or 'defs').
+        
         Returns:
-            List of matching Entry objects
+            list[Entry]: List of matching Entry objects.
         """
         log.debug(f"glossary.get({section}, {term}, {linktype})")
         if section not in self._glossary:
             log.debug(f"    section not in glossary: {section}")
             log.debug(f"    glossary keys: {self._glossary.keys()}")
             return []
-
+        
         results = []
         links_dict = self._glossary[section][linktype]
         found_terms = set()  # Track which terms we've already processed
@@ -154,7 +152,7 @@ class Glossary:
             if search_term in links_dict and search_term not in found_terms:
                 found_terms.add(search_term)
                 results.extend(links_dict[search_term].values())
-
+        
         # Handle case sensitivity
         if self.ignore_case:
             term_upper = term.upper()
@@ -164,7 +162,7 @@ class Glossary:
         else:
             # Add direct matches only
             add_entries(term)
-
+        
         # Handle plurals
         if self.plurals != 'none':
             variants = self._get_term_variants(term)
@@ -177,17 +175,17 @@ class Glossary:
                                 add_entries(stored_term)
                     else:
                         add_entries(variant)
-
+        
         return results
-
+    
     def _get_term_variants(self, term: str) -> set[str]:
         """Get all singular/plural variants of a term.
         
         Args:
-            term: Term to find variants for
-            
+            term: Term to find variants for.
+        
         Returns:
-            Set of variant terms (including original)
+            set[str]: Set of variant terms (including original).
         """
         variants = {term}
         
@@ -230,22 +228,29 @@ class Glossary:
                     else:  # For empty replacement, just add 's'
                         plural = term_to_check + ending.rstrip('$')
                         variants.add(plural)
-
+        
         return variants
-
+    
     def has(self, section: str) -> bool:
-        """ Check if the glossary has a section named **section**.
-
-            Args:
-                section:
-                    The name of the section to check
-
-            Returns:
-                    True, if a section with the given name exists.
+        """Check if the glossary has a section named **section**.
+        
+        Args:
+            section: The name of the section to check.
+        
+        Returns:
+            bool: True if a section with the given name exists.
         """
         return section in self._glossary
-
+    
     def terms(self, section: str) -> list[str]:
+        """Get all terms in a section.
+        
+        Args:
+            section: The name of the section.
+        
+        Returns:
+            list[str]: List of terms in the section.
+        """
         if section not in self._glossary:
             return []
         # Combine unique terms from both refs and defs
@@ -261,41 +266,57 @@ class Glossary:
         update_terms(self._glossary[section]['refs'].keys())
         
         return sorted(terms)
-
+    
     def definition(self, section: str, term: str) -> str:
-        """ Get the definition for a term.
-
-            Args:
-                section:
-                    The name of the section
-                term:
-                    The term to get the definition for
-
-            Returns:
-                The definition of the term
+        """Get the definition for a term.
+        
+        Args:
+            section: The name of the section.
+            term: The term to get the definition for.
+        
+        Returns:
+            str: The definition of the term.
         """
         defs = self.get(section, term, 'defs')
         if not defs:
             return ""
         return defs[0].definition
-
+    
     def get_refs(self, section, term):
+        """Get all reference entries for a term.
+        
+        Args:
+            section: The name of the section.
+            term: The term to get references for.
+        
+        Returns:
+            list[Entry]: List of reference entries.
+        """
         return self.get(section, term, 'refs')
-
+    
     def get_defs(self, section, term):
+        """Get all definition entries for a term.
+        
+        Args:
+            section: The name of the section.
+            term: The term to get definitions for.
+        
+        Returns:
+            list[Entry]: List of definition entries.
+        """
         return self.get(section, term, 'defs')
-
+    
     def ref_by_id(self, id: str) -> Entry:
         """Get a reference entry by its ID.
         
         Args:
-            id: The ID of the reference to find
-            
+            id: The ID of the reference to find.
+        
         Returns:
-            Entry: The matching reference entry
-            
+            Entry: The matching reference entry.
+        
         Raises:
-            KeyError: If no reference with the given ID exists
+            KeyError: If no reference with the given ID exists.
         """
         # Search through all sections and terms
         for section in self._glossary.values():
@@ -303,18 +324,18 @@ class Glossary:
                 for entry_id, entry in term_entries.items():
                     if entry_id == id:
                         return entry
-                        
+        
         raise KeyError(f"No reference found with ID: {id}")
-
+    
     def get_best_definition(self, section: str, term: str) -> Entry:
         """Get the best matching definition for a term.
         
         Args:
-            section: The glossary section
-            term: The base term (usually singular)
-            
+            section: The glossary section.
+            term: The base term (usually singular).
+        
         Returns:
-            Entry: The best matching definition entry, or None if no match found
+            Entry: The best matching definition entry, or None if no match found.
         """
         defs = self.get(section, term, 'defs')
         log.debug(f"get_best_definition({section}:{term}): defs: {defs}")

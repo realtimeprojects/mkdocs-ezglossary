@@ -4,6 +4,8 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main", "branches/*"]
+  pull_request:
+    branches: ["main", "branches/*"]
 
 jobs:
   ci:
