@@ -1,5 +1,11 @@
 # Release Notes
 
+## v2.1.0a2
+| ~2025-08-16~
+
+-   Fix #26, support nested glossary links
+-   Improve documentation
+
 ## v2.1.0a1
 | ~2025-02-10~
 
