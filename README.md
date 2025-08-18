@@ -12,7 +12,7 @@
 - Unicode support
 - PDF export support
 - Custom templates via Jinja2
-- Plural forms support (English)
+- Plural forms support (English, Spanish, French, German)
 
 ## Documentation
 
@@ -83,7 +83,7 @@ plugins:
       inline_refs: short  # none, short, list
       
       # Enable plural forms (English)
-      plurals: en  # none, en
+      plurals: en  # en, es, it, fr, de
       
       # Custom templates directory
       templates: docs/templates

@@ -239,8 +239,10 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                     text = "" if text == "__None__" else text
                     sec = f"{td.section}:" if td.section != "_" else ""
                     return f'<a href="#{sec}{term}" class="mkdocs-ezglossary-undefined">{text or term or "undefined"}</a>'
-                    
-                entry.definition = _html2text(entry.definition)
+                
+                # Preserve visible text from nested glossary links/anchors before html2text
+            entry.definition = _preserve_visible_text_for_tooltip(entry.definition)
+            entry.definition = _html2text(entry.definition)
                 
                 return template.render("link.html",
                                      root=root,
@@ -258,11 +260,6 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         regex = fr"{self._uuid}:([a-f0-9]{{32}}):&lt;([^&]*)&gt;"
         
         result = re.sub(regex, _replace, output)
-        
-        # Check for any remaining unreplaced UUIDs
-        remaining_uuids = result.count(self._uuid)
-        if remaining_uuids > 0:
-            log.warning(f"Found {remaining_uuids} unreplaced UUID references in output")
             
         return result
 
@@ -353,6 +350,32 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             )
 
         return config
+
+
+def _preserve_visible_text_for_tooltip(s: str) -> str:
+    """
+    Normalize nested glossary/HTML constructs to *visible text* only, so that
+    _html2text() receives the intended words for tooltip rendering.
+
+    Args:
+        s (str): The input string containing glossary/HTML constructs.
+
+    Returns:
+    # Keep anchor text, drop the tag.
+    # Note: This regex does not handle nested anchor tags, but nested <a> elements are invalid in HTML and not expected in glossary definitions.
+    s = re.sub(r'<a\b[^>]*>(.*?)</a>', r'\1', s, flags=re.IGNORECASE | re.DOTALL)
+      - <name:TERM>               -> TERM
+      - &lt;name:TERM&gt;         -> TERM
+      - <name:>                   -> name
+      - <a ...>TEXT</a>           -> TEXT
+    """
+    # Keep anchor text, drop the tag
+    s = re.sub(r'<a\b[^>]*>(.*?)</a>', r'\1', s, flags=re.IGNORECASE | re.DOTALL)
+    # Glossary markers to plain text (escaped/raw/name-only)
+    s = re.sub(r'&lt;([A-Za-z0-9_-]+):([^><|]+)&gt;', r'\2', s)
+    s = re.sub(r'<([A-Za-z0-9_-]+):([^><|]+)>', r'\2', s)
+    s = re.sub(r'<([A-Za-z0-9_-]+):>', r'\1', s)
+    return s
 
 
 def _html2text(content):

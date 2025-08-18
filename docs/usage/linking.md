@@ -1,225 +1,187 @@
-# Linking to a glossary entry
+# Linking to Glossary Terms
 
-## Basic
+## Basic Usage
 
-Link to this glossary definition using the following
-syntax. This will produce a link to the definition in your documentation:
+To link to a glossary term, use the following syntax:
 
-``` markdown
--   See the <section:term> for details
+```markdown
+See the <section:term> for more details
 ```
 
-!!! Example
-
-    Link to the previously defined `glossary` term in the `term` section:
-
-    ``` markdown
-    -   See the <demo:my_term1> for definition of term 1
-    -   See the <demo:my term 2> for definition of term 2
-    ```
-
-    -   See the <demo:my_term1> for definition of term 1
-    -   See the <demo:my term 2> for definition of term 1
-
-## Case sensitivity
-> starting from version `1.7.0` [beta]
-
-By default, this term definitions and references are case-sensitive, i.e. you need to use
-the exact spelling in your links as used in your term definition.
-
-By setting <configuration:ignore_case> to `true`, the plugin will ignore the case in order
-to find definitions for your links.
-
-!!! Example
-
-    ``` yaml
-    plugins:
-        search
-        ezglossary:
-            ignore_case: true
-    ```
-
-    -   See the <demo:MY_term1> for definition of term 1
-
-## Individual reference texts
-
-By default the <term:term> is used as text for the link, however,
-you can override the term using the `|` modifier:
-
-!!! Example
-
-    ``` markdown
-    -   You can define multiple <term:section|glossary sections>
-    ```
-
-    -   You can define multiple <term:section|glossary sections>
-
-!!! Note
-
-    When using a link with individual reference texts in a table,
-    you need to quote the `|`.
-
-    ``` markdown
-    | row1                              | row2 |
-    |-----------------------------------|------|
-    | <term:section\|glossary sections> | ...  |
-    ```
-
-## Handling plurals
-> starting from version `1.7.0a2` (not stable released yet)
-
-A most common problem when linking to glossary terms is that you want to use
-the plural form of the word in the link text while linking to the term in singular.
-
-!!! Example
-
-    Definition:
-
-    ``` markdown
-    GPU
-    :   A GPU is a ....
-    ```
-
-    Linking:
-
-    ``` markdown
-    Many <term:GPUs> support ...
-    ```
-
-!!! Note
-
-    At this point of time, plural lookup is only available for the english language.
-
-    However, future versions may support additional langugaes (with your help). Furthermore
-    a feature is planned to allow you to define your own rules for the lookup.
-
-### Lookup using the inflect library
-
-The [inflect library](https://github.com/jaraco/inflect) supports converting plurals to singulars,
-it has some advantages and drawbacks. If you want to use this library to convert plurals to singulars,
-you can add the following entry to the configuration:
-
-``` yaml
-plugins:
-    search
-    ezglossary:
-      plurals: inflect
-```
-
-### Looking up using the plugin's logic
-
-This plugin has an own implementation logic to lookup singulars, which might not be perfect as well,
-but might catch some edge cases which the inflect library does not catch.
-
-Try the own implementation by adding this configuration entry:
-
-``` yaml
-plugins:
-    search
-    ezglossary:
-      plurals: en
-```
-
-## Using markdown links
-> starting from version `1.6.0`
-
-When setting the <configuration:markdown_links> to `true`, 
-ezglossary will also search for markdown links. If it identifies that
-a link points to a glossary entry, it will link it as well:
-
-!!! Note
-
-    When using unicode characters in term definitions, linking them
-    using the `<section:term>` syntax might not work. In this case
-    you have to use markdown links in order to link to those terms.
-
-!!! Note
-
-    In case your definition contains emojis, linking them using
-    the `<section:term>` syntax will not work as well. In this case
-    you have to use markdown links.
-
-    !!! Example
-
-        ``` markdown
-        my happy term :smile:
-        :   I am so happy
-
-        -   See [](my happy term)
-        ```
-
-``` yaml
-plugins:
-    search
-    ezglossary:
-      markdown_links: true
-```
-
-!!! Example
-
-    ``` markdown
-    -   See [](configuration:tooltip) for details
-    -   See [tooltips](configuration:tooltip) for details
-    ```
-
-    !!! Output
-
-        -   See [](configuration:tooltip) for details
-        -   See [tooltips](configuration:tooltip) for details
-
-
-configuration:markdown_links
-:   Defines wether ezglossary should also link markdown links to
-    glossary entries.
-
-
-## Tooltips
-
-The <configuration:tooltip> configuration allows you to control wether
-tooltips should be displayed with a preview on the definition:
-
-``` yaml
-plugins:
-    search
-    ezglossary:
-      tooltip: [none, short, full]
-```
-
-Options:
-
-none
-:   Tooltips are disabled
-
-short
-:   The <term:reference> link shows the first line of the definition as a tooltip
-    (link title)
-
-full
-:   The reference link shows the full definition as a tooltip.
+This creates a link to the term's definition in your documentation.
 
 !!! Example
 
     ```markdown
-    plugins:
-        search
-        ezglossary:
-          tooltip: full
+    See the <demo:my_term1> for definition of term 1
+    See the <demo:my term 2> for definition of term 2
     ```
 
-    !!! Quote "Active tooltips"
+    Output:
+    - See the <demo:my_term1> for definition of term 1
+    - See the <demo:my term 2> for definition of term 2
 
-        ![](../static/tooltip-full.png)
+## Case Sensitivity
+> Available since version 1.7.0
 
+By default, term definitions and references are case-sensitive. You must use
+the exact spelling in your links as used in the term definition.
+
+To enable case-insensitive matching, set `ignore_case` to `true`:
+
+```yaml
+plugins:
+    ezglossary:
+        ignore_case: true
+```
+
+!!! Example
+    With `ignore_case: true`, all these links point to the same term:
+    ```markdown
+    - <demo:my_term>
+    - <demo:My_Term>
+    - <demo:MY_TERM>
+    ```
+
+## Custom Link Text
+
+By default, the term itself is used as the link text. You can override this
+using the `|` modifier:
+
+```markdown
+See our <term:section|glossary sections> documentation
+```
+
+!!! Example
+    ```markdown
+    Learn about <demo:my_term1|our first concept>
+    ```
+
+    Output:
+    - Learn about <demo:my_term1|our first concept>
+
+!!! Note
+    When using custom link text in tables, escape the `|` character:
+    ```markdown
+    | Description | Reference |
+    |------------|-----------|
+    | First term | <demo:my_term1\|see details> |
+    ```
+
+## Handling Plurals
+> Available since version 1.7.0
+
+The plugin can automatically match plural forms to their singular definitions.
+This is useful when you want to use the plural form in your text while linking
+to the singular definition.
+
+!!! Example
+    Definition:
+    ```markdown
+    GPU
+    :   A Graphics Processing Unit is...
+    ```
+
+    Usage:
+    ```markdown
+    Many <term:GPUs> support parallel processing
+    ```
+
+### Supported Languages
+
+Plural handling is available for:
+- English (en)
+- Spanish (es)
+- French (fr)
+- German (de)
+
+Enable plural handling in your configuration:
+
+```yaml
+plugins:
+    ezglossary:
+        plurals: en  # Use 'en', 'es', 'fr', or 'de'
+```
+
+### Plural Lookup Methods
+
+#### Using the inflect Library
+
+The [inflect library](https://github.com/jaraco/inflect) provides robust plural-to-singular
+conversion for English terms:
+
+```yaml
+plugins:
+    ezglossary:
+        plurals: inflect
+```
+
+#### Using Built-in Rules
+
+The plugin includes basic plural rules for supported languages:
+
+```yaml
+plugins:
+    ezglossary:
+        plurals: en  # or 'es', 'fr', 'de'
+```
+
+## Using Markdown Links
+> Available since version 1.6.0
+
+When <configuration:markdown_links> is enabled, the plugin also processes standard Markdown links:
+
+```yaml
+plugins:
+    ezglossary:
+        markdown_links: true
+```
+
+This is especially useful for:
+- Terms containing Unicode characters
+- Terms with emojis
+- Integration with other Markdown tools
+
+!!! Example
+    ```markdown
+    - See [](configuration:tooltip) for details
+    - See [tooltips](configuration:tooltip) for details
+    ```
+
+    Output:
+    - See [](configuration:tooltip) for details
+    - See [tooltips](configuration:tooltip) for details
+
+## Tooltips
+
+Control whether hovering over links shows definition previews using the <configuration:tooltip> option:
+
+```yaml
+plugins:
+    ezglossary:
+        tooltip: short  # Options: none, short, full
+```
+
+Options:
+- `none`: No tooltips (default)
+- `short`: Show first line of definition
+- `full`: Show complete definition
+
+!!! Example
+    With `tooltip: full`:
+    
+    ![Tooltip Example](../static/tooltip-full.png)
 
 ## Configuration
 
 configuration:tooltip
-:   Configure [tooltips](#tooltips) for reference links. Default is `none`.
+:   Configure [tooltips](#tooltips) for reference links. Default: `none`
 
 configuration:plurals
-:   Configure if and how the plugin shall lookup the term in singular if a plural
-    is provided in the link text. See [handling plurals](#handling-plurals) for more details.
+:   Configure plural handling. Options: `none` (default), `en`, `es`, `fr`, `de`, `inflect`
 
 configuration:ignore_case
-:   Set to `true` to ignore the case for terms in the definition lookup.
+:   Enable case-insensitive term matching. Default: `false`
 
+configuration:markdown_links
+:   Enable processing of standard Markdown links. Default: `false`
