@@ -232,10 +232,12 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             text = td.term if text == "__None__" else text
             entry = self._glossary.get_best_definition(td.section, td.term)
             
-            # Handle case where entry is None
             if entry is None:
-                # Return the original text if no definition found
-                return text
+                log.warning(f"page '{page.url}' refers to undefined glossary entry {td.section}:{td.term}")
+                term = "" if td.term == "__None__" else td.term
+                text = "" if text == "__None__" else text
+                sec = f"{td.section}:" if td.section != "_" else ""
+                return f'<a href="{sec}{term}">{text}</a>'
 
             # Preserve visible text from nested glossary links/anchors before html2text
             entry.definition = _preserve_visible_text_for_tooltip(entry.definition)
