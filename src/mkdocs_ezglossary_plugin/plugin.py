@@ -220,45 +220,45 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             link pointing to that glossary definition.
         """
         def _replace(mo):
-            try:
-                id = mo.group(1)
-                # The text is HTML entity encoded, so we need to decode it
-                text = mo.group(2)
-                
-                # Decode HTML entities in the text
-                import html
-                text = html.unescape(text)
-                
-                td = self._glossary.ref_by_id(id)
-                text = td.term if text == "__None__" else text
-                entry = self._glossary.get_best_definition(td.section, td.term)
-                
-                if entry is None:
-                    log.warning(f"page '{page.url}' refers to undefined glossary entry {td.section}:{td.term}")
-                    term = "" if td.term == "__None__" else td.term
-                    text = "" if text == "__None__" else text
-                    sec = f"{td.section}:" if td.section != "_" else ""
-                    return f'<a href="#{sec}{term}" class="mkdocs-ezglossary-undefined">{text or term or "undefined"}</a>'
-                
-                # Preserve visible text from nested glossary links/anchors before html2text
+            id = mo.group(1)
+            # The text is HTML entity encoded, so we need to decode it
+            text = mo.group(2)
+
+            # Decode HTML entities in the text
+            import html
+            text = html.unescape(text)
+
+            td = self._glossary.ref_by_id(id)
+            text = td.term if text == "__None__" else text
+            entry = self._glossary.get_best_definition(td.section, td.term)
+            
+            # Handle case where entry is None
+            if entry is None:
+                # Return the original text if no definition found
+                return text
+
+            # Preserve visible text from nested glossary links/anchors before html2text
             entry.definition = _preserve_visible_text_for_tooltip(entry.definition)
             entry.definition = _html2text(entry.definition)
-                
-                return template.render("link.html",
-                                     root=root,
-                                     config=self.config,
-                                     entry=entry,
-                                     text=text,
-                                     target=id)
-            
-            except Exception as e:
-                log.error(f"Error processing glossary link replacement: {e}")
-                # Return the original match if replacement fails
-                return mo.group(0)
 
-        # Updated regex to handle HTML entities (&lt; and &gt; instead of < and >)
-        regex = fr"{self._uuid}:([a-f0-9]{{32}}):&lt;([^&]*)&gt;"
-        
+            return template.render("link.html",
+                                 root=root,
+                                 config=self.config,
+                                 entry=entry,
+                                 text=text,
+                                 target=id)
+                
+        # Try both regex patterns to handle both HTML entity encoded and raw formats
+        # Check for HTML entity encoded format first
+        regex_entities = fr"{self._uuid}:([a-f0-9]{{32}}):&lt;([^&]*)&gt;"
+        regex_original = fr"{self._uuid}:([a-f0-9]{{32}}):<([^>]*)>"
+            
+        # Test which pattern has matches
+        if re.search(regex_entities, output):
+            regex = regex_entities
+        else:
+            regex = regex_original
+            
         result = re.sub(regex, _replace, output)
             
         return result
