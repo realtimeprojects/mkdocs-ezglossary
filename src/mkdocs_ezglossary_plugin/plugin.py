@@ -221,8 +221,13 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         """
         def _replace(mo):
             id = mo.group(1)
+            # The text is HTML entity encoded, so we need to decode it
             text = mo.group(2)
-            
+
+            # Decode HTML entities in the text
+            import html
+            text = html.unescape(text)
+
             td = self._glossary.ref_by_id(id)
             text = td.term if text == "__None__" else text
             entry = self._glossary.get_best_definition(td.section, td.term)
@@ -233,20 +238,32 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 text = "" if text == "__None__" else text
                 sec = f"{td.section}:" if td.section != "_" else ""
                 return f'<a href="{sec}{term}">{text}</a>'
-            
+
             # Preserve visible text from nested glossary links/anchors before html2text
             entry.definition = _preserve_visible_text_for_tooltip(entry.definition)
             entry.definition = _html2text(entry.definition)
-            
+
             return template.render("link.html",
                                  root=root,
                                  config=self.config,
                                  entry=entry,
                                  text=text,
                                  target=id)
-
-        regex = fr"{self._uuid}:([a-f0-9]{{32}}):<{_re.text}>"
-        return re.sub(regex, _replace, output)
+                
+        # Try both regex patterns to handle both HTML entity encoded and raw formats
+        # Check for HTML entity encoded format first
+        regex_entities = fr"{self._uuid}:([a-f0-9]{{32}}):&lt;([^&]*)&gt;"
+        regex_original = fr"{self._uuid}:([a-f0-9]{{32}}):<([^>]*)>"
+            
+        # Test which pattern has matches
+        if re.search(regex_entities, output):
+            regex = regex_entities
+        else:
+            regex = regex_original
+            
+        result = re.sub(regex, _replace, output)
+            
+        return result
 
     def _find_definitions(self, content, page):
         log.debug(f"_find_definitions({page})")
