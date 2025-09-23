@@ -1,5 +1,10 @@
 # Release Notes
 
+## v2.1.0a3
+| ~2025-10-23~
+
+-   Fix #29 HTML encoding issue,
+
 ## v2.1.0a2
 | ~2025-08-16~
 
