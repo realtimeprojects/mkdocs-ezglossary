@@ -1,13 +1,15 @@
 # Release Notes
 
 ## v2.1.0
+| 2025-09-25
+
 -   Fix #29 HTML encoding issue,
 -   Fix #26, support nested glossary links
 -   Improve documentation
 -   Add translation rules for spanish, french, german
 
 ## v2.0.0
-| ~2025-02-10~
+| 2025-02-10
 
 -   Fix #24: Show all references in glossary (summary) when `ignore_case=true`.
 -   Fix #25: Fix #25: make template file path relative to mkdocs.yml
@@ -19,12 +21,12 @@
     in order to work.
 
 ## v1.7.1
-| ~2024-10-11~
+| 2024-10-11
 
 -   Fix #22: Plural configuration did not work.
 
 ## v1.7.0
-| ~2024-10-10~
+| 2024-10-10
 
 -   Glossary: Add section and term as attributes of Entry
 -   Links: Add name attribute containing "{section:term}"
@@ -36,12 +38,12 @@
 -   Fix #19: Usage of `inline_refs:list`
 
 ## v1.6.10
-| ~2024-05-08~
+| 2024-05-08
 
 -   Fix handling of non-existing canonica_url.
 
 ## v1.6.9
-| ~2024-05-08~
+| 2024-05-08
 
 -   Fixed: [#16](https://github.com/realtimeprojects/mkdocs-ezglossary/issues/16):
     Relative links not working on ReadTheDocs. 
