@@ -8,3 +8,6 @@ mkdocs-click
 mkdocs-ezglossary-plugin
 mkdocstrings[python]
 pymdown-extensions
+
+tox
+
