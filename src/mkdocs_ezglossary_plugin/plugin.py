@@ -123,20 +123,21 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             root = "../" * levels
             
         # Apply UUID replacement now, before print-site collects the content
+        # NOTE: inline_refs must be processed later in on_post_page on the HTML output
         content = self._replace_glossary_links(content, page, root)
-        content = self._replace_inline_refs(content, page, root)
         
         return content
 
     def on_post_page(self, output, page, config):
         # UUID replacement was already done in on_page_content for print-site compatibility
-        # Only need to handle glossary printing here
+        # But we still need to process inline_refs on the HTML output
         _dir = os.path.dirname(page.url)
         levels = len(_dir.split("/"))
         if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
             root = "./" * levels
         else:
             root = "../" * levels
+        output = self._replace_inline_refs(output, page, root)
         output = self._print_glossary(output, root)
         return output
 
@@ -380,19 +381,29 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 with open(search_index_path, 'r', encoding='utf-8') as f:
                     search_data = json.load(f)
                 
-                uuid_pattern = fr"{re.escape(self._uuid)}:[a-f0-9]{{32}}:<[^>]*>"
+                # Clean both main glossary UUIDs and inline_refs UUIDs
+                main_uuid_pattern = fr"{re.escape(self._uuid)}:[a-f0-9]{{32}}:<[^>]*>"
+                reflink_uuid_pattern = fr"{re.escape(self._reflink)}:[^:\s]*:[^:\s]*"
                 modified = False
                 
                 for doc in search_data.get('docs', []):
                     if doc.get('title'):
                         original_title = doc['title']
-                        doc['title'] = re.sub(uuid_pattern, '', doc['title']).strip()
+                        # Clean main UUIDs
+                        doc['title'] = re.sub(main_uuid_pattern, '', doc['title'])
+                        # Clean reflink UUIDs  
+                        doc['title'] = re.sub(reflink_uuid_pattern, '', doc['title'])
+                        doc['title'] = doc['title'].strip()
                         if doc['title'] != original_title:
                             modified = True
                     
                     if doc.get('text'):
                         original_text = doc['text']
-                        doc['text'] = re.sub(uuid_pattern, '', doc['text']).strip()
+                        # Clean main UUIDs
+                        doc['text'] = re.sub(main_uuid_pattern, '', doc['text'])
+                        # Clean reflink UUIDs
+                        doc['text'] = re.sub(reflink_uuid_pattern, '', doc['text'])
+                        doc['text'] = doc['text'].strip()
                         if doc['text'] != original_text:
                             modified = True
                 
