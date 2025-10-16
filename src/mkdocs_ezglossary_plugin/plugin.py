@@ -112,17 +112,31 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
     def on_page_content(self, content, page, config, files):
         content = self._find_definitions(content, page)
         content = self._register_glossary_links(content, page)
+        
+        # NEW: Apply UUID replacement directly in on_page_content for print-site compatibility
+        # This ensures print-site plugin sees the processed content instead of UUIDs
+        _dir = os.path.dirname(page.url) 
+        levels = len(_dir.split("/"))
+        if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
+            root = "./" * levels
+        else:
+            root = "../" * levels
+            
+        # Apply UUID replacement now, before print-site collects the content
+        content = self._replace_glossary_links(content, page, root)
+        content = self._replace_inline_refs(content, page, root)
+        
         return content
 
     def on_post_page(self, output, page, config):
+        # UUID replacement was already done in on_page_content for print-site compatibility
+        # Only need to handle glossary printing here
         _dir = os.path.dirname(page.url)
         levels = len(_dir.split("/"))
         if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
             root = "./" * levels
         else:
             root = "../" * levels
-        output = self._replace_glossary_links(output, page, root)
-        output = self._replace_inline_refs(output, page, root)
         output = self._print_glossary(output, root)
         return output
 
@@ -162,57 +176,9 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                                    section=section,
                                    terms=terms,
                                    root=root)
-            return html
 
         regex = rf"<glossary::{_re.section}\\?\|?{_re.options}?>"
         return re.sub(regex, _replace, html)
-
-    def _register_glossary_links(self, output, page):
-
-        def _add_link(section, term, text):
-            section = "_" if (section == "default" or section is None) else section
-            term = term if term else "__None__"
-            text = text if text else "__None__"
-            log.debug(f"glossary: found link: {section}/{term}/{text}")
-            id =self._glossary.add(section, term, 'refs', page)
-            return f"{self._uuid}:{id}:<{text}>"
-
-        def _replace(mo):
-            return _add_link(mo.group(1), mo.group(2), mo.group(4))
-
-        def _replace_default(mo):
-            return _add_link(None, mo.group(1), mo.group(3))
-
-        def _replace_href(mo):
-            return _add_link(mo.group(2), mo.group(3), mo.group(4))
-
-        regex = rf"<{_re.section}\:{_re.term}(\\?\|({_re.text}))?>"
-        output = re.sub(regex, _replace, output)
-        regex = rf"<{_re.term}:(\\?\|({_re.text}))?>"
-        output = re.sub(regex, _replace_default, output)
-
-        if self.config.markdown_links:
-            regex = rf'<a href="({_re.section}\:)?{_re.term}">({_re.text})?</a>'
-            output = re.sub(regex, _replace_href, output)
-
-        return output
-
-    def _replace_inline_refs(self, output, page, root):
-        def _replace(mo):
-            section = mo.group(1)
-            term = mo.group(2)
-            log.debug(f"inline_refs: looking up: '{section}/{term}'")
-
-            mode = self._get_config(section, 'inline_refs')
-
-            entries = self._glossary.get(section, term, 'refs')
-            return template.render(f"refs-{mode}.html",
-                                   self.config,
-                                   entries=entries,
-                                   root=root)
-
-        regex = fr"{self._reflink}:{_re.section}:{_re.term}"
-        return re.sub(regex, _replace, output)
 
     def _replace_glossary_links(self, output, page, root):
         """ Search for links to glossary entries detected and marked
@@ -264,6 +230,53 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         result = re.sub(regex, _replace, output)
             
         return result
+
+    def _replace_inline_refs(self, output, page, root):
+        def _replace(mo):
+            section = mo.group(1)
+            term = mo.group(2)
+            log.debug(f"inline_refs: looking up: '{section}/{term}'")
+
+            mode = self._get_config(section, 'inline_refs')
+
+            entries = self._glossary.get(section, term, 'refs')
+            return template.render(f"refs-{mode}.html",
+                                   self.config,
+                                   entries=entries,
+                                   root=root)
+
+        regex = fr"{self._reflink}:{_re.section}:{_re.term}"
+        return re.sub(regex, _replace, output)
+
+    def _register_glossary_links(self, output, page):
+
+        def _add_link(section, term, text):
+            section = "_" if (section == "default" or section is None) else section
+            term = term if term else "__None__"
+            text = text if text else "__None__"
+            log.debug(f"glossary: found link: {section}/{term}/{text}")
+            id =self._glossary.add(section, term, 'refs', page)
+            return f"{self._uuid}:{id}:<{text}>"
+
+        def _replace(mo):
+            return _add_link(mo.group(1), mo.group(2), mo.group(4))
+
+        def _replace_default(mo):
+            return _add_link(None, mo.group(1), mo.group(3))
+
+        def _replace_href(mo):
+            return _add_link(mo.group(2), mo.group(3), mo.group(4))
+
+        regex = rf"<{_re.section}\:{_re.term}(\\?\|({_re.text}))?>"
+        output = re.sub(regex, _replace, output)
+        regex = rf"<{_re.term}:(\\?\|({_re.text}))?>"
+        output = re.sub(regex, _replace_default, output)
+
+        if self.config.markdown_links:
+            regex = rf'<a href="({_re.section}\:)?{_re.term}">({_re.text})?</a>'
+            output = re.sub(regex, _replace_href, output)
+
+        return output
 
     def _find_definitions(self, content, page):
         log.debug(f"_find_definitions({page})")
@@ -352,6 +365,43 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             )
 
         return config
+
+    def on_post_build(self, config, **kwargs):
+        """Clean UUID placeholders from search index after build completion"""
+        import json
+        import os
+        
+        site_dir = config['site_dir']
+        
+        # Clean search index
+        search_index_path = os.path.join(site_dir, 'search', 'search_index.json')
+        if os.path.exists(search_index_path):
+            try:
+                with open(search_index_path, 'r', encoding='utf-8') as f:
+                    search_data = json.load(f)
+                
+                uuid_pattern = fr"{re.escape(self._uuid)}:[a-f0-9]{{32}}:<[^>]*>"
+                modified = False
+                
+                for doc in search_data.get('docs', []):
+                    if doc.get('title'):
+                        original_title = doc['title']
+                        doc['title'] = re.sub(uuid_pattern, '', doc['title']).strip()
+                        if doc['title'] != original_title:
+                            modified = True
+                    
+                    if doc.get('text'):
+                        original_text = doc['text']
+                        doc['text'] = re.sub(uuid_pattern, '', doc['text']).strip()
+                        if doc['text'] != original_text:
+                            modified = True
+                
+                if modified:
+                    with open(search_index_path, 'w', encoding='utf-8') as f:
+                        json.dump(search_data, f, ensure_ascii=False, separators=(',', ':'))
+                        
+            except Exception as e:
+                log.warning(f"Failed to clean search index: {e}")
 
 
 def _preserve_visible_text_for_tooltip(s: str) -> str:
