@@ -125,14 +125,17 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         # Apply UUID replacement now, before print-site collects the content
         # For PDF/print compatibility, we need to process both main glossary links and inline_refs here
         content = self._replace_glossary_links(content, page, root)
-        content = self._replace_inline_refs_in_content(content, page, root)
+        
+        # Only process inline_refs in content if this is for print/PDF generation
+        # We can detect this by checking if ENABLED_PRINT_SITE is set
+        if os.getenv('ENABLED_PRINT_SITE') == 'True':
+            content = self._replace_inline_refs_in_content(content, page, root)
         
         return content
 
     def on_post_page(self, output, page, config):
         # UUID replacement was already done in on_page_content for print-site compatibility
-        # But we still need to process inline_refs on the HTML output for regular web pages
-        # (inline_refs in content was already processed for PDF compatibility)
+        # Process inline_refs on the HTML output for regular web pages
         _dir = os.path.dirname(page.url)
         levels = len(_dir.split("/"))
         if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
@@ -140,9 +143,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         else:
             root = "../" * levels
         
-        # Only process inline_refs in HTML if they weren't already processed in content
-        # Check if we still have reflink UUIDs that need HTML processing
-        if re.search(fr"{self._reflink}:{_re.section}:{_re.term}", output):
+        # Process inline_refs in HTML output (unless already processed in content for PDF)
+        if os.getenv('ENABLED_PRINT_SITE') != 'True':
             output = self._replace_inline_refs(output, page, root)
         
         output = self._print_glossary(output, root)
