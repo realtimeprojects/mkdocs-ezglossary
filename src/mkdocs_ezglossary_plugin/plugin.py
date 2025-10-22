@@ -123,21 +123,28 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             root = "../" * levels
             
         # Apply UUID replacement now, before print-site collects the content
-        # NOTE: inline_refs must be processed later in on_post_page on the HTML output
+        # For PDF/print compatibility, we need to process both main glossary links and inline_refs here
         content = self._replace_glossary_links(content, page, root)
+        content = self._replace_inline_refs_in_content(content, page, root)
         
         return content
 
     def on_post_page(self, output, page, config):
         # UUID replacement was already done in on_page_content for print-site compatibility
-        # But we still need to process inline_refs on the HTML output
+        # But we still need to process inline_refs on the HTML output for regular web pages
+        # (inline_refs in content was already processed for PDF compatibility)
         _dir = os.path.dirname(page.url)
         levels = len(_dir.split("/"))
         if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
             root = "./" * levels
         else:
             root = "../" * levels
-        output = self._replace_inline_refs(output, page, root)
+        
+        # Only process inline_refs in HTML if they weren't already processed in content
+        # Check if we still have reflink UUIDs that need HTML processing
+        if re.search(fr"{self._reflink}:{_re.section}:{_re.term}", output):
+            output = self._replace_inline_refs(output, page, root)
+        
         output = self._print_glossary(output, root)
         return output
 
@@ -231,6 +238,37 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         result = re.sub(regex, _replace, output)
             
         return result
+
+    def _replace_inline_refs_in_content(self, content, page, root):
+        """
+        Replace inline_refs UUIDs in markdown content for PDF/print compatibility.
+        This is similar to _replace_inline_refs but works on content instead of HTML output.
+        """
+        def _replace(mo):
+            section = mo.group(1)
+            term = mo.group(2)
+            log.debug(f"inline_refs: looking up: '{section}/{term}' in content")
+
+            mode = self._get_config(section, 'inline_refs')
+
+            entries = self._glossary.get(section, term, 'refs')
+            # For content processing, we need to return markdown/text instead of HTML
+            if mode == 'list':
+                if entries:
+                    # Create a simple text list for markdown content
+                    ref_list = []
+                    for entry in entries:
+                        if hasattr(entry, 'page') and hasattr(entry.page, 'title'):
+                            ref_list.append(f"[{entry.page.title}]({root}{entry.page.url})")
+                    return f"Referenced in: {', '.join(ref_list)}"
+                else:
+                    return ""
+            else:
+                # For other modes, just remove the UUID placeholder
+                return ""
+
+        regex = fr"{self._reflink}:{_re.section}:{_re.term}"
+        return re.sub(regex, _replace, content)
 
     def _replace_inline_refs(self, output, page, root):
         def _replace(mo):
