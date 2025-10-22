@@ -1,5 +1,0 @@
-<a class="mkdocs-ezglossary-link"
-    id="{{ target }}"
-    title="{{ entry.definition }}"
-    name="{{entry.section}}:{{entry.term}}"
-    href="{{ root }}{{ entry.page.url }}#{{ entry.target }}">{{ text|safe }}</a>
