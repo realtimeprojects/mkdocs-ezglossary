@@ -49,6 +49,24 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         self._uuid = "6251a85a-47d0-11ee-be56-0242ac120002"
         self._reflink = "886d7696-137e-4a59-a39d-6f7d311d5bd1"
 
+    def _is_print_site_enabled(self, config):
+        """Check if print-site plugin is enabled in the MkDocs configuration."""
+        plugins = config.get('plugins', [])
+        for plugin_config in plugins:
+            if isinstance(plugin_config, dict):
+                # Handle dict format like {'print-site': {...}}
+                if 'print-site' in plugin_config:
+                    return True
+            elif hasattr(plugin_config, 'name'):
+                # Handle plugin object format
+                if 'print' in plugin_config.name.lower():
+                    return True
+            elif isinstance(plugin_config, str):
+                # Handle string format like 'print-site'
+                if 'print-site' in plugin_config:
+                    return True
+        return False
+
     def on_pre_build(self, config, **kwargs):
         self._glossary = Glossary(self.config.ignore_case, self.config.plurals)
         if self.config.strict and "_" not in self.config.sections:
@@ -127,8 +145,8 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         content = self._replace_glossary_links(content, page, root)
         
         # Only process inline_refs in content if this is for print/PDF generation
-        # We can detect this by checking if ENABLED_PRINT_SITE is set
-        if os.getenv('ENABLED_PRINT_SITE') == 'True':
+        # We can detect this by checking if print-site plugin is enabled in config
+        if self._is_print_site_enabled(config):
             content = self._replace_inline_refs_in_content(content, page, root)
         
         return content
@@ -144,7 +162,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             root = "../" * levels
         
         # Process inline_refs in HTML output (unless already processed in content for PDF)
-        if os.getenv('ENABLED_PRINT_SITE') != 'True':
+        if not self._is_print_site_enabled(config):
             output = self._replace_inline_refs(output, page, root)
         
         output = self._print_glossary(output, root)
@@ -179,16 +197,28 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             for option in options.replace("\\|", "|").split("|"):
                 if "theme" in option:
                     theme = "-" + option.split("=")[1]
-            return template.render(f"summary{theme}.html",
-                                   self.config,
-                                   glossary=self._glossary,
-                                   types=types,
-                                   section=section,
-                                   terms=terms,
-                                   root=root)
+            rendered_content = template.render(f"summary{theme}.html",
+                                               self.config,
+                                               glossary=self._glossary,
+                                               types=types,
+                                               section=section,
+                                               terms=terms,
+                                               root=root)
+            
+            # Wrap glossary summaries in search-excluded container to prevent indexing
+            # This replaces the entire <glossary::section> tag
+            return f'<div data-no-search="true" class="glossary-summary-nosearch">{rendered_content}</div>'
 
+        # Handle both self-closing and opening/closing tag patterns
         regex = rf"<glossary::{_re.section}\\?\|?{_re.options}?>"
-        return re.sub(regex, _replace, html)
+        
+        html = re.sub(regex, _replace, html)
+        
+        # Also remove any leftover closing tags
+        closing_regex = rf"</glossary::[^>]*>"
+        html = re.sub(closing_regex, '', html)
+        
+        return html
 
     def _replace_glossary_links(self, output, page, root):
         """ Search for links to glossary entries detected and marked
@@ -408,7 +438,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         return config
 
     def on_post_build(self, config, **kwargs):
-        """Clean UUID placeholders from search index after build completion"""
+        """Clean UUID placeholders and glossary summary content from search index after build completion"""
         import json
         import os
         
@@ -424,6 +454,18 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 # Clean both main glossary UUIDs and inline_refs UUIDs
                 main_uuid_pattern = fr"{re.escape(self._uuid)}:[a-f0-9]{{32}}:<[^>]*>"
                 reflink_uuid_pattern = fr"{re.escape(self._reflink)}:[^:\s]*:[^:\s]*"
+                
+                # Additional patterns to clean glossary summary content
+                glossary_patterns = [
+                    r'Portal glossary\s*',
+                    r'action Any activity[^.]*\.',  # Remove glossary definitions starting with common terms
+                    r'admin Has global access[^.]*\.',
+                    r'candidate manager[^.]*\.',
+                    r'clone source[^.]*\.',
+                    r'configuration module[^.]*\.',
+                    # Add more patterns as needed based on common glossary terms
+                ]
+                
                 modified = False
                 
                 for doc in search_data.get('docs', []):
@@ -433,6 +475,9 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                         doc['title'] = re.sub(main_uuid_pattern, '', doc['title'])
                         # Clean reflink UUIDs  
                         doc['title'] = re.sub(reflink_uuid_pattern, '', doc['title'])
+                        # Clean glossary content
+                        for pattern in glossary_patterns:
+                            doc['title'] = re.sub(pattern, '', doc['title'], flags=re.IGNORECASE)
                         doc['title'] = doc['title'].strip()
                         if doc['title'] != original_title:
                             modified = True
@@ -443,6 +488,23 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                         doc['text'] = re.sub(main_uuid_pattern, '', doc['text'])
                         # Clean reflink UUIDs
                         doc['text'] = re.sub(reflink_uuid_pattern, '', doc['text'])
+                        
+                        # Check for and remove large blocks of glossary content
+                        # Look for the pattern of many definitions concatenated together
+                        if 'Portal glossary' in doc['text'] and len(doc['text']) > 1000:
+                            # This is likely a page with glossary summary - remove the glossary content
+                            # Keep only the first part before the glossary starts
+                            glossary_start = doc['text'].find('Portal glossary')
+                            if glossary_start > 0:
+                                doc['text'] = doc['text'][:glossary_start].strip()
+                            else:
+                                # If the entire text is glossary content, clear it
+                                doc['text'] = ''
+                        else:
+                            # Clean individual glossary patterns
+                            for pattern in glossary_patterns:
+                                doc['text'] = re.sub(pattern, '', doc['text'], flags=re.IGNORECASE)
+                        
                         doc['text'] = doc['text'].strip()
                         if doc['text'] != original_text:
                             modified = True
