@@ -42,6 +42,7 @@ class GlossaryConfig(config.base.Config):
     list_definitions = config.config_options.Type(bool, default=True)
     use_default = config.config_options.Type(bool, default=False)
     templates = config.config_options.Type(str, default="")
+    exclude_from_search = config.config_options.Type(bool, default=False)
 
 
 class GlossaryPlugin(BasePlugin[GlossaryConfig]):
@@ -51,20 +52,20 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     def _is_print_site_enabled(self, config):
         """Check if print-site plugin is enabled in the MkDocs configuration."""
+        valid_plugin_names = {'print-site', 'mkdocs-print-site-plugin'}
         plugins = config.get('plugins', [])
+        
         for plugin_config in plugins:
+            plugin_name = None
             if isinstance(plugin_config, dict):
-                # Handle dict format like {'print-site': {...}}
-                if 'print-site' in plugin_config:
-                    return True
+                plugin_name = next(iter(plugin_config.keys()), None)
             elif hasattr(plugin_config, 'name'):
-                # Handle plugin object format
-                if 'print' in plugin_config.name.lower():
-                    return True
+                plugin_name = plugin_config.name
             elif isinstance(plugin_config, str):
-                # Handle string format like 'print-site'
-                if 'print-site' in plugin_config:
-                    return True
+                plugin_name = plugin_config
+                
+            if plugin_name in valid_plugin_names:
+                return True
         return False
 
     def on_pre_build(self, config, **kwargs):
@@ -131,44 +132,24 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         content = self._find_definitions(content, page)
         content = self._register_glossary_links(content, page)
         
-        # NEW: Apply UUID replacement directly in on_page_content for print-site compatibility
-        # This ensures print-site plugin sees the processed content instead of UUIDs
+        # Apply UUID replacement for print-site compatibility
         _dir = os.path.dirname(page.url) 
         levels = len(_dir.split("/"))
-        if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
-            root = "./" * levels
-        else:
-            root = "../" * levels
-            
-        # Apply UUID replacement now, before print-site collects the content
-        # For PDF/print compatibility, we need to process both main glossary links and inline_refs here
+        root = "./" * levels if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1 else "../" * levels
         content = self._replace_glossary_links(content, page, root)
-        
-        # Only process inline_refs in content if this is for print/PDF generation
-        # We can detect this by checking if print-site plugin is enabled in config
-        if self._is_print_site_enabled(config):
-            content = self._replace_inline_refs_in_content(content, page, root)
         
         return content
 
     def on_post_page(self, output, page, config):
-        # UUID replacement was already done in on_page_content for print-site compatibility
-        # Process inline_refs on the HTML output for regular web pages
         _dir = os.path.dirname(page.url)
         levels = len(_dir.split("/"))
-        if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1:
-            root = "./" * levels
-        else:
-            root = "../" * levels
+        root = "./" * levels if page.canonical_url and page.canonical_url.replace(config.site_url or "", "").lstrip("/").count("/") < 1 else "../" * levels
         
-        # Process inline_refs in HTML output (unless already processed in content for PDF)
-        if not self._is_print_site_enabled(config):
-            output = self._replace_inline_refs(output, page, root)
-        
-        output = self._print_glossary(output, root)
+        output = self._replace_inline_refs(output, page, root)
+        output = self._print_glossary(output, root, None)
         return output
 
-    def _print_glossary(self, html, root):
+    def _print_glossary(self, html, root, config=None):
         def _replace(mo):
             types = []
             section = mo.group(1)
@@ -205,34 +186,22 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                                                terms=terms,
                                                root=root)
             
-            # Wrap glossary summaries in search-excluded container to prevent indexing
-            # This replaces the entire <glossary::section> tag
-            return f'<div data-no-search="true" class="glossary-summary-nosearch">{rendered_content}</div>'
+            return rendered_content
 
         # Handle both self-closing and opening/closing tag patterns
-        regex = rf"<glossary::{_re.section}\\?\|?{_re.options}?>"
-        
-        html = re.sub(regex, _replace, html)
-        
-        # Also remove any leftover closing tags
-        closing_regex = rf"</glossary::[^>]*>"
-        html = re.sub(closing_regex, '', html)
-        
+        html = re.sub(rf"<glossary::{_re.section}\\?\|?{_re.options}?>", _replace, html)
+        html = re.sub(rf"</glossary::[^>]*>", '', html)  # Remove closing tags
         return html
 
-    def _replace_glossary_links(self, output, page, root):
+    def _replace_glossary_links(self, output, page, root, config=None):
         """ Search for links to glossary entries detected and marked
             in the first stage and replace them with an actual html
             link pointing to that glossary definition.
         """
         def _replace(mo):
-            id = mo.group(1)
-            # The text is HTML entity encoded, so we need to decode it
-            text = mo.group(2)
-
-            # Decode HTML entities in the text
             import html
-            text = html.unescape(text)
+            id = mo.group(1)
+            text = html.unescape(mo.group(2))  # Decode HTML entities
 
             td = self._glossary.ref_by_id(id)
             text = td.term if text == "__None__" else text
@@ -245,16 +214,27 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
                 sec = f"{td.section}:" if td.section != "_" else ""
                 return f'<a href="{sec}{term}">{text}</a>'
 
-            # Preserve visible text from nested glossary links/anchors before html2text
-            entry.definition = _preserve_visible_text_for_tooltip(entry.definition)
-            entry.definition = _html2text(entry.definition)
+            # Apply tooltip configuration logic during link rendering
+            if self.config.tooltip == "none":
+                # Page references always show title even when tooltip is "none"
+                tooltip_text = entry.definition if hasattr(entry, 'page') and (entry.definition == entry.page.title or 'subtitle' in str(entry.definition)) else ""
+            elif self.config.tooltip == "short":
+                # Sentence-based splitting with fallback to line-based
+                if '. ' in entry.definition:
+                    sentences = entry.definition.split('. ')
+                    tooltip_text = sentences[0] + ('.' if len(sentences) > 1 and not sentences[0].endswith('.') else '')
+                else:
+                    tooltip_text = entry.definition.split("\n")[0]
+            else:  # self.config.tooltip == "full"
+                tooltip_text = entry.definition
+            
+            # Clean tooltip text
+            tooltip_text = _html2text(_preserve_visible_text_for_tooltip(tooltip_text))
 
-            return template.render("link.html",
-                                 root=root,
-                                 config=self.config,
-                                 entry=entry,
-                                 text=text,
-                                 target=id)
+            # Use anchor-only links for print/PDF output
+            href = f"#{entry.target}" if config and self._is_print_site_enabled(config) else f"{root}{entry.page.url}#{entry.target}"
+
+            return f'<a class="mkdocs-ezglossary-link" id="{id}" title="{tooltip_text}" name="{entry.section}:{entry.term}" href="{href}">{text}</a>'
                 
         # Try both regex patterns to handle both HTML entity encoded and raw formats
         # Check for HTML entity encoded format first
@@ -355,18 +335,13 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         def _add_entry(section, term, definition, fmt_pre, fmt_post):
             log.debug(f"glossary: found definition: {section}:{term}:{definition} {fmt_pre}:{fmt_post}")
 
-            if self.config.tooltip == "none":
-                _tooltip = ""
-            if self.config.tooltip == "short":
-                _tooltip = definition.split("\n")[0]
-            if self.config.tooltip == "full":
-                _tooltip = definition
-
             if section not in self.config.sections and self.config.strict:
                 log.warning(f"ignoring undefined section '{section}' in glossary")
                 return None
 
-            _id = self._glossary.add(section, term, 'defs', page, _tooltip)
+            # Store the full definition in the glossary
+            # Tooltip logic is applied during link rendering in _replace_glossary_links
+            _id = self._glossary.add(section, term, 'defs', page, definition)
 
             inline_refs = self._get_config(section, 'inline_refs')
             reflink = f"\n{self._reflink}:{section}:{term}" if inline_refs != "none" else ""
@@ -437,84 +412,207 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
         return config
 
-    def on_post_build(self, config, **kwargs):
-        """Clean UUID placeholders and glossary summary content from search index after build completion"""
-        import json
-        import os
+    def _get_glossary_pages(self):
+        """Extract glossary page URLs from all glossary entries."""
+        glossary_pages = set()
         
-        site_dir = config['site_dir']
+        def _normalize_page_url(page_url):
+            """Convert page URL to .html format."""
+            if page_url.endswith('/'):
+                return page_url[:-1] + '.html'
+            elif page_url.endswith('.md'):
+                return page_url[:-3] + '.html'
+            elif not page_url.endswith('.html'):
+                return page_url + '.html'
+            return page_url
         
-        # Clean search index
-        search_index_path = os.path.join(site_dir, 'search', 'search_index.json')
-        if os.path.exists(search_index_path):
+        # Try direct access to _sections if available
+        if hasattr(self._glossary, '_sections'):
+            for section_data in self._glossary._sections.values():
+                for term_data in section_data.values():
+                    for entry in term_data.get('defs', []):
+                        if hasattr(entry, 'page') and hasattr(entry.page, 'url'):
+                            glossary_pages.add(_normalize_page_url(entry.page.url))
+        else:
+            # Fallback: use public API
             try:
-                with open(search_index_path, 'r', encoding='utf-8') as f:
-                    search_data = json.load(f)
-                
-                # Clean both main glossary UUIDs and inline_refs UUIDs
-                main_uuid_pattern = fr"{re.escape(self._uuid)}:[a-f0-9]{{32}}:<[^>]*>"
-                reflink_uuid_pattern = fr"{re.escape(self._reflink)}:[^:\s]*:[^:\s]*"
-                
-                # Additional patterns to clean glossary summary content
-                glossary_patterns = [
-                    r'Portal glossary\s*',
-                    r'action Any activity[^.]*\.',  # Remove glossary definitions starting with common terms
-                    r'admin Has global access[^.]*\.',
-                    r'candidate manager[^.]*\.',
-                    r'clone source[^.]*\.',
-                    r'configuration module[^.]*\.',
-                    # Add more patterns as needed based on common glossary terms
-                ]
-                
-                modified = False
-                
-                for doc in search_data.get('docs', []):
-                    if doc.get('title'):
-                        original_title = doc['title']
-                        # Clean main UUIDs
-                        doc['title'] = re.sub(main_uuid_pattern, '', doc['title'])
-                        # Clean reflink UUIDs  
-                        doc['title'] = re.sub(reflink_uuid_pattern, '', doc['title'])
-                        # Clean glossary content
-                        for pattern in glossary_patterns:
-                            doc['title'] = re.sub(pattern, '', doc['title'], flags=re.IGNORECASE)
-                        doc['title'] = doc['title'].strip()
-                        if doc['title'] != original_title:
-                            modified = True
-                    
-                    if doc.get('text'):
-                        original_text = doc['text']
-                        # Clean main UUIDs
-                        doc['text'] = re.sub(main_uuid_pattern, '', doc['text'])
-                        # Clean reflink UUIDs
-                        doc['text'] = re.sub(reflink_uuid_pattern, '', doc['text'])
-                        
-                        # Check for and remove large blocks of glossary content
-                        # Look for the pattern of many definitions concatenated together
-                        if 'Portal glossary' in doc['text'] and len(doc['text']) > 1000:
-                            # This is likely a page with glossary summary - remove the glossary content
-                            # Keep only the first part before the glossary starts
-                            glossary_start = doc['text'].find('Portal glossary')
-                            if glossary_start > 0:
-                                doc['text'] = doc['text'][:glossary_start].strip()
-                            else:
-                                # If the entire text is glossary content, clear it
-                                doc['text'] = ''
-                        else:
-                            # Clean individual glossary patterns
-                            for pattern in glossary_patterns:
-                                doc['text'] = re.sub(pattern, '', doc['text'], flags=re.IGNORECASE)
-                        
-                        doc['text'] = doc['text'].strip()
-                        if doc['text'] != original_text:
-                            modified = True
-                
-                if modified:
-                    with open(search_index_path, 'w', encoding='utf-8') as f:
-                        json.dump(search_data, f, ensure_ascii=False, separators=(',', ':'))
-                        
+                sections = getattr(self.config, 'sections', []) or ['_']
+                for section in sections:
+                    if self._glossary.has(section=section):
+                        for term in self._glossary.terms(section):
+                            for entry in self._glossary.get(section, term, 'defs'):
+                                if hasattr(entry, 'page') and hasattr(entry.page, 'url'):
+                                    glossary_pages.add(_normalize_page_url(entry.page.url))
             except Exception as e:
-                log.warning(f"Failed to clean search index: {e}")
+                log.warning(f"Could not determine glossary pages dynamically: {e}")
+        
+        return glossary_pages
+
+    def _get_glossary_pages_with_sections(self):
+        """Extract glossary page URLs mapped to their sections."""
+        page_to_sections = {}
+        
+        def _normalize_page_url(page_url):
+            """Convert page URL to .html format."""
+            if page_url.endswith('/'):
+                return page_url[:-1] + '.html'
+            elif page_url.endswith('.md'):
+                return page_url[:-3] + '.html'
+            elif not page_url.endswith('.html'):
+                return page_url + '.html'
+            return page_url
+        
+        # Try direct access to _sections if available
+        if hasattr(self._glossary, '_sections'):
+            for section_name, section_data in self._glossary._sections.items():
+                for term_data in section_data.values():
+                    for entry in term_data.get('defs', []):
+                        if hasattr(entry, 'page') and hasattr(entry.page, 'url'):
+                            page_url = _normalize_page_url(entry.page.url)
+                            if page_url not in page_to_sections:
+                                page_to_sections[page_url] = set()
+                            page_to_sections[page_url].add(section_name)
+        else:
+            # Fallback: use public API
+            try:
+                sections = getattr(self.config, 'sections', []) or ['_']
+                for section in sections:
+                    if self._glossary.has(section=section):
+                        for term in self._glossary.terms(section):
+                            for entry in self._glossary.get(section, term, 'defs'):
+                                if hasattr(entry, 'page') and hasattr(entry.page, 'url'):
+                                    page_url = _normalize_page_url(entry.page.url)
+                                    if page_url not in page_to_sections:
+                                        page_to_sections[page_url] = set()
+                                    page_to_sections[page_url].add(section)
+            except Exception as e:
+                log.warning(f"Could not determine glossary pages dynamically: {e}")
+        
+        return page_to_sections
+
+    def _process_print_page(self, site_dir, config):
+        """Process print_page.html for print-site compatibility."""
+        print_page_path = os.path.join(site_dir, 'print_page.html')
+        if not os.path.exists(print_page_path):
+            return
+            
+        try:
+            with open(print_page_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            class DummyPage:
+                url = "print_page.html"
+            
+            content = self._replace_glossary_links(content, DummyPage(), "./", config)
+            content = self._replace_inline_refs(content, DummyPage(), "./")
+            processed_content = self._print_glossary(content, "./", config)
+            
+            # Convert glossary page links to anchor-only links
+            for page_url in self._get_glossary_pages():
+                page_filename = page_url.split('/')[-1]
+                pattern = fr'href="[^"]*{re.escape(page_filename)}#([^"]*)"'
+                processed_content = re.sub(pattern, r'href="#\1"', processed_content)
+            
+            # Handle any remaining 32-character hex anchors
+            processed_content = re.sub(r'href="[^"]*#([a-f0-9]{32})"', r'href="#\1"', processed_content)
+            
+            if processed_content != content:
+                with open(print_page_path, 'w', encoding='utf-8') as f:
+                    f.write(processed_content)
+                log.info("Processed glossary tags and converted links in print_page.html")
+                
+        except Exception as e:
+            log.warning(f"Failed to process print_page.html: {e}")
+
+    def _clean_search_index(self, site_dir):
+        """Clean UUIDs from search index and optionally exclude glossary content."""
+        import json
+        
+        search_index_path = os.path.join(site_dir, 'search', 'search_index.json')
+        if not os.path.exists(search_index_path):
+            return
+            
+        try:
+            with open(search_index_path, 'r', encoding='utf-8') as f:
+                search_data = json.load(f)
+            
+            # Get mapping of pages to their sections for section-specific exclude_from_search
+            page_to_sections = self._get_glossary_pages_with_sections()
+            
+            # Check if any section has exclude_from_search enabled
+            any_exclude_from_search = False
+            if self.config.exclude_from_search:
+                any_exclude_from_search = True
+            else:
+                # Check section-specific configs
+                sections = getattr(self.config, 'sections', []) or ['_']
+                for section in sections:
+                    if self._get_config(section, 'exclude_from_search'):
+                        any_exclude_from_search = True
+                        break
+            
+            if any_exclude_from_search and page_to_sections:
+                log.info(f"Checking glossary content exclusion from search for pages: {set(page_to_sections.keys())}")
+            
+            main_uuid_pattern = re.compile(fr"{re.escape(self._uuid)}:[a-f0-9]{{32}}:<[^>]*>")
+            reflink_uuid_pattern = re.compile(fr"{re.escape(self._reflink)}:[^:\s]*:[^:\s]*")
+            
+            modified = False
+            for doc in search_data.get('docs', []):
+                should_exclude = False
+                if page_to_sections and doc.get('location'):
+                    doc_location = doc['location']
+                    base_location = doc_location.split('#')[0]
+                    
+                    if base_location.endswith('/'):
+                        base_location = base_location[:-1] + '.html'
+                    elif not base_location.endswith('.html'):
+                        base_location = base_location + '.html'
+                    
+                    # Check if this page is a glossary page and should be excluded
+                    if base_location in page_to_sections:
+                        page_sections = page_to_sections[base_location]
+                        
+                        # Check global exclude_from_search first
+                        if self.config.exclude_from_search:
+                            should_exclude = True
+                        else:
+                            # Check section-specific exclude_from_search
+                            for section in page_sections:
+                                if self._get_config(section, 'exclude_from_search'):
+                                    should_exclude = True
+                                    break
+                
+                if doc.get('title'):
+                    original = doc['title']
+                    doc['title'] = reflink_uuid_pattern.sub('', main_uuid_pattern.sub('', original)).strip()
+                    if doc['title'] != original:
+                        modified = True
+                
+                if doc.get('text'):
+                    original = doc['text']
+                    
+                    if should_exclude:
+                        doc['text'] = ""
+                        modified = True
+                    else:
+                        doc['text'] = reflink_uuid_pattern.sub('', main_uuid_pattern.sub('', original)).strip()
+                        if doc['text'] != original:
+                            modified = True
+            
+            if modified:
+                with open(search_index_path, 'w', encoding='utf-8') as f:
+                    json.dump(search_data, f, ensure_ascii=False, separators=(',', ':'))
+                log.info("Cleaned UUIDs and processed glossary content in search index")
+                    
+        except Exception as e:
+            log.warning(f"Failed to clean UUIDs from search index: {e}")
+
+    def on_post_build(self, config, **kwargs):
+        """Clean UUID placeholders from print pages and search index after build completion"""
+        site_dir = config['site_dir']
+        self._process_print_page(site_dir, config)
+        self._clean_search_index(site_dir)
 
 
 def _preserve_visible_text_for_tooltip(s: str) -> str:
@@ -553,6 +651,5 @@ def _html2text(content):
             self.text += data
 
     f = HTMLFilter()
-    log.debug(f"adding {content}")
     f.feed(content)
     return f.text.strip()
