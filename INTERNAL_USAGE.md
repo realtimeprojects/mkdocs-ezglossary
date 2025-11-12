@@ -20,7 +20,7 @@ Add this to your `pyproject.toml` dependencies:
 
 ```toml
 dependencies = [
-    "mkdocs-ezglossary-plugin @ git+ssh://git@github.com/Simspace/mkdocs-ezglossary-sim.git@v2.1.0",
+    "mkdocs-ezglossary-plugin @ git+ssh://git@github.com/Simspace/mkdocs-ezglossary-sim.git@v2.1.1",
     # ... other dependencies
 ]
 ```
@@ -30,7 +30,7 @@ Or for development dependencies:
 ```toml
 [project.optional-dependencies]
 dev = [
-    "mkdocs-ezglossary-plugin @ git+ssh://git@github.com/Simspace/mkdocs-ezglossary-sim.git@v2.1.0",
+    "mkdocs-ezglossary-plugin @ git+ssh://git@github.com/Simspace/mkdocs-ezglossary-sim.git@v2.1.1",
     # ... other dev dependencies  
 ]
 ```
@@ -43,7 +43,7 @@ uv sync
 ### Using pip
 
 ```bash
-pip install git+ssh://git@github.com/Simspace/mkdocs-ezglossary-sim.git@v2.1.0
+pip install git+ssh://git@github.com/Simspace/mkdocs-ezglossary-sim.git@v2.1.1
 ```
 
 ### GitHub Actions Setup
@@ -101,7 +101,7 @@ plugins:
 
 This project uses semantic versioning with git tags. Available versions:
 
-- `v2.1.0` - Current version with section-specific exclude_from_search functionality
+- `v2.1.1` - Current version with section-specific exclude_from_search functionality
 - Use `@main` for the latest development version (not recommended for production)
 
 ## Development
