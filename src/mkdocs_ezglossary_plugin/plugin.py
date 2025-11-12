@@ -490,6 +490,71 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
         
         return page_to_sections
 
+    def _filter_excluded_sections_from_text(self, text, excluded_sections):
+        """Filter out glossary terms from excluded sections while preserving other content.
+        
+        This method works generically with any glossary content by:
+        1. Identifying terms that belong to excluded sections using the glossary data structure
+        2. Finding those terms and their definitions in the search text
+        3. Removing the matching patterns while preserving other content
+        """
+        if not excluded_sections:
+            return text
+        
+        filtered_text = text
+        excluded_patterns = []
+        
+        # Build list of terms from excluded sections using glossary data
+        try:
+            # Method 1: Direct access to internal structure (more efficient)
+            if hasattr(self._glossary, '_sections'):
+                for section_name in excluded_sections:
+                    if section_name in self._glossary._sections:
+                        section_data = self._glossary._sections[section_name]
+                        for term_name, term_data in section_data.items():
+                            for entry in term_data.get('defs', []):
+                                if hasattr(entry, 'term'):
+                                    term = entry.term.strip()
+                                    # Build pattern: "term definition_text"
+                                    # The search index format is: "term Has definition here.  next_term"
+                                    escaped_term = re.escape(term)
+                                    # Match term followed by content until period + spaces (more robust)
+                                    pattern = rf'\b{escaped_term}\b[^.]*?\.\s*'
+                                    excluded_patterns.append(pattern)
+            else:
+                # Method 2: Fallback using public API
+                for section in excluded_sections:
+                    if self._glossary.has(section=section):
+                        for term in self._glossary.terms(section):
+                            entries = self._glossary.get(section, term, 'defs')
+                            for entry in entries:
+                                if hasattr(entry, 'term'):
+                                    term = entry.term.strip()
+                                    escaped_term = re.escape(term)
+                                    pattern = rf'\b{escaped_term}\b[^.]*?\.\s*'
+                                    excluded_patterns.append(pattern)
+                                    
+        except Exception as e:
+            log.warning(f"Could not build exclusion patterns for sections {excluded_sections}: {e}")
+            return text
+        
+        # Apply exclusion patterns
+        for pattern in excluded_patterns:
+            try:
+                old_length = len(filtered_text)
+                filtered_text = re.sub(pattern, '', filtered_text, flags=re.IGNORECASE)
+                if len(filtered_text) < old_length:
+                    removed = old_length - len(filtered_text)
+                    log.debug(f"Excluded {removed} characters using pattern: {pattern[:50]}...")
+            except re.error as e:
+                log.warning(f"Invalid regex pattern {pattern}: {e}")
+                continue
+        
+        # Clean up extra whitespace
+        filtered_text = re.sub(r'\s+', ' ', filtered_text).strip()
+        
+        return filtered_text
+
     def _process_print_page(self, site_dir, config):
         """Process print_page.html for print-site compatibility."""
         print_page_path = os.path.join(site_dir, 'print_page.html')
@@ -525,7 +590,7 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             log.warning(f"Failed to process print_page.html: {e}")
 
     def _clean_search_index(self, site_dir):
-        """Clean UUIDs from search index and optionally exclude glossary content."""
+        """Clean UUID placeholders from search index."""
         import json
         
         search_index_path = os.path.join(site_dir, 'search', 'search_index.json')
@@ -559,46 +624,56 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             
             modified = False
             for doc in search_data.get('docs', []):
-                should_exclude = False
-                if page_to_sections and doc.get('location'):
-                    doc_location = doc['location']
-                    base_location = doc_location.split('#')[0]
-                    
-                    if base_location.endswith('/'):
-                        base_location = base_location[:-1] + '.html'
-                    elif not base_location.endswith('.html'):
-                        base_location = base_location + '.html'
-                    
-                    # Check if this page is a glossary page and should be excluded
-                    if base_location in page_to_sections:
-                        page_sections = page_to_sections[base_location]
-                        
-                        # Check global exclude_from_search first
-                        if self.config.exclude_from_search:
-                            should_exclude = True
-                        else:
-                            # Check section-specific exclude_from_search
-                            for section in page_sections:
-                                if self._get_config(section, 'exclude_from_search'):
-                                    should_exclude = True
-                                    break
-                
+                # Clean UUIDs from title
                 if doc.get('title'):
                     original = doc['title']
                     doc['title'] = reflink_uuid_pattern.sub('', main_uuid_pattern.sub('', original)).strip()
                     if doc['title'] != original:
                         modified = True
                 
+                # Handle text content with section-specific exclusions
                 if doc.get('text'):
                     original = doc['text']
                     
-                    if should_exclude:
-                        doc['text'] = ""
+                    # Check if this is a glossary page that needs section filtering
+                    if page_to_sections and doc.get('location'):
+                        doc_location = doc['location']
+                        base_location = doc_location.split('#')[0]
+                        
+                        if base_location.endswith('/'):
+                            base_location = base_location[:-1] + '.html'
+                        elif not base_location.endswith('.html'):
+                            base_location = base_location + '.html'
+                        
+                        if base_location in page_to_sections:
+                            page_sections = page_to_sections[base_location]
+                            
+                            # Check global exclude_from_search first
+                            if self.config.exclude_from_search:
+                                # Global exclusion - remove all content
+                                doc['text'] = ""
+                                modified = True
+                                continue
+                            else:
+                                # Check for section-specific exclusions
+                                excluded_sections = []
+                                for section in page_sections:
+                                    if self._get_config(section, 'exclude_from_search'):
+                                        excluded_sections.append(section)
+                                
+                                if excluded_sections:
+                                    # Filter out content from excluded sections
+                                    filtered_text = self._filter_excluded_sections_from_text(original, excluded_sections)
+                                    doc['text'] = reflink_uuid_pattern.sub('', main_uuid_pattern.sub('', filtered_text)).strip()
+                                    if excluded_sections:
+                                        log.info(f"Filtered sections {excluded_sections} from search content for {doc.get('location', 'unknown')}")
+                                    modified = True
+                                    continue
+                    
+                    # Default: just clean UUIDs
+                    doc['text'] = reflink_uuid_pattern.sub('', main_uuid_pattern.sub('', original)).strip()
+                    if doc['text'] != original:
                         modified = True
-                    else:
-                        doc['text'] = reflink_uuid_pattern.sub('', main_uuid_pattern.sub('', original)).strip()
-                        if doc['text'] != original:
-                            modified = True
             
             if modified:
                 with open(search_index_path, 'w', encoding='utf-8') as f:

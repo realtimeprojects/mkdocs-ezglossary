@@ -10,7 +10,7 @@
         references anywhere in your documentation.
     -   [Page references](usage/pagerefs.md)
     -   Unicode support
-    -   PDF support
+    -   PDF support with both 
     -   [Customizable output](usage/customization.md)
     -   Singular / Plural support
 

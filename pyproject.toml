@@ -1,7 +1,144 @@
 [build-system]
-requires = [
-  "setuptools >= 61.0.0",
-  "wheel",
-]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "mkdocs-ezglossary-plugin"
+version = "2.1.0"
+description = "Glossary plugin for mkdocs with section-specific search exclusion"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Stephanie Fuller", email = "stephanie.fuller@simspace.com"},
+]
+maintainers = [
+    {name = "Stephanie Fuller", email = "stephanie.fuller@simspace.com"},
+]
+keywords = ["mkdocs", "glossary", "plugin", "references", "links", "search", "documentation"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Text Processing :: Markup :: HTML",
+]
+
+dependencies = [
+    "mkdocs>=1.1.0",
+    "jinja2",
+    "inflect",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-sugar",
+    "tox",
+    "flake8",
+    "black",
+    "isort",
+]
+test = [
+    "pytest>=6.0",
+    "pytest-sugar",
+    "mock",
+]
+
+[project.urls]
+Homepage = "https://github.com/Simspace/mkdocs-ezglossary-sim"
+"Bug Tracker" = "https://github.com/Simspace/mkdocs-ezglossary-sim/issues"
+"Source Code" = "https://github.com/Simspace/mkdocs-ezglossary-sim"
+Documentation = "https://github.com/Simspace/mkdocs-ezglossary-sim/blob/main/README.md"
+
+[project.entry-points."mkdocs.plugins"]
+ezglossary = "mkdocs_ezglossary_plugin.plugin:GlossaryPlugin"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mkdocs_ezglossary_plugin = ["templates/*.html"]
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["mkdocs_ezglossary_plugin"]
+
+# pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "inflect: marks tests requiring the inflect library for plural handling",
+]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/mkdocs_ezglossary_plugin"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.8.0",
+    "flake8>=5.0.4",
+    "isort>=5.13.2",
+    "lxml>=6.0.2",
+    "mock>=5.2.0",
+    "pytest>=8.3.5",
+    "pytest-sugar>=1.1.1",
+    "tox>=4.25.0",
+    "yaxp>=1.0.1",
+]

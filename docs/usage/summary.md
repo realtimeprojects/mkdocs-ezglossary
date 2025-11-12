@@ -2,8 +2,7 @@
 
 ## Basic Usage
 
-To create a summary of all definitions and references for a glossary section,
-add a summary tag anywhere in your documentation:
+To create a summary of all definitions and references for a glossary section, add a summary tag anywhere in your documentation:
 
 ```markdown
 # Terms and Definitions
@@ -21,8 +20,7 @@ add a summary tag anywhere in your documentation:
     <glossary::demo>
     ```
 
-    This will produce the following summary, containing links to all definitions
-    and references of terms in your documentation:
+    This will produce the following summary, containing links to all definitions and references of terms in your documentation:
 
     !!! Quote "Output"
 
@@ -30,8 +28,7 @@ add a summary tag anywhere in your documentation:
 
 ## Customizing Output
 
-You can override the default behavior for `list_definitions` and
-`list_references` by adding modifiers to the glossary reference:
+You can override the default behavior for `list_definitions` and `list_references` by adding modifiers to the glossary reference:
 
 ```markdown
 <glossary::demo|no_refs>
@@ -93,7 +90,7 @@ configuration:list_definitions
     plugins:
         - search
         - ezglossary:
-            - list_definitions: false
+            list_definitions: false
     ```
 
 === "Section-specific Configuration"
@@ -103,12 +100,11 @@ configuration:list_definitions
         - search
         - ezglossary:
             sections:
-                demo
+                - demo
             section_config:
                 - name: demo
-                  list_references = true
-
-            - list_definitions: false
+                  list_references: true
+            list_definitions: false
     ```
 
 configuration:list_references
@@ -119,7 +115,7 @@ configuration:list_references
     ```yaml
     plugins:
         - ezglossary:
-            - list_references: false
+            list_references: false
     ```
 
 === "Section-specific Configuration"
@@ -129,12 +125,39 @@ configuration:list_references
         - search
         - ezglossary:
             sections:
-                demo
+                - demo
             section_config:
                 - name: demo
-                  list_references = true
+                  list_references: true
+            list_references: false
+    ```
 
-            - list_references: false
+configuration:exclude_from_search
+:   Removes glossary summaries from search. If you create a custom summary.html, for example, to show full definitions in glossary summaries rather than just a link to the term, use `exclude_from_search` to prevent your entire glossary summary text from appearing in search results.
+    - `false` (default): glossary summaries appear in search results
+    - `true`: glossary summaries are excluded from search results
+
+=== "Global Configuration"
+
+    ```yaml
+    plugins:
+        - search
+        - ezglossary:
+            exclude_from_search: false
+    ```
+
+=== "Section-specific Configuration"
+
+    ```yaml
+    plugins:
+        - search
+        - ezglossary:
+            sections:
+                - internal
+            section_config:
+              - name: internal
+                exclude_from_search: true  # Only internal section excluded
+            exclude_from_search: false
     ```
 
 ## Themes

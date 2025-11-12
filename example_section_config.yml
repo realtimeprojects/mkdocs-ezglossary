@@ -1,0 +1,37 @@
+# Example mkdocs.yml configuration showing section-specific exclude_from_search
+
+site_name: My Documentation
+
+plugins:
+  - search
+  - ezglossary:
+      sections:
+        - main
+        - internal
+        - deprecated
+      
+      # Global setting - exclude nothing by default
+      exclude_from_search: false
+      
+      # Section-specific configurations
+      section_config:
+        # Internal glossary terms should be excluded from search
+        - name: internal
+          exclude_from_search: true
+          
+        # Deprecated terms should also be excluded from search
+        - name: deprecated
+          exclude_from_search: true
+          list_definitions: false
+          
+        # Main section uses global settings (exclude_from_search: false)
+
+nav:
+  - Home: index.md
+  - Glossary: glossary.md
+
+# Example usage in your markdown files:
+# 
+# <main:API>          - Will be included in search
+# <internal:secrets>  - Will be excluded from search  
+# <deprecated:oldAPI> - Will be excluded from search
