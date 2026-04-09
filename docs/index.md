@@ -1,5 +1,5 @@
 # mkdocs-ezglossary-plugin
-> glossary support for mkdocs
+> glossary support for properdocs/mkdocs
 
 <div class="grid cards" markdown>
 

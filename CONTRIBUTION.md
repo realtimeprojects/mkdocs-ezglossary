@@ -4,7 +4,8 @@
 
 ## Documentation
 
-ezglossary's documenation can be generated using `mkdocs`:
+ezglossary's documenation can be generated using either
+`properdocs` or `mkdocs`:
 
     virtualenv .env
     . .env/bin/activate
@@ -12,9 +13,14 @@ ezglossary's documenation can be generated using `mkdocs`:
     pip3 install -r etc/requirements.txt
     pip3 install .
 
-    mkdocs build
+    properdocs build
 
     open site/index.html
+
+!!! Note
+
+    The `etc/requirements.txt` has been updated to
+    use ProperDocs.
 
 ## Testing
 

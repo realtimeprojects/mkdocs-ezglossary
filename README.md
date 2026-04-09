@@ -1,6 +1,6 @@
 # mkdocs-ezglossary-plugin
 
-> A powerful glossary plugin for MkDocs
+> A powerful glossary plugin for ProperDocs/mkdocs
 
 ## Features
 
@@ -13,6 +13,7 @@
 - PDF export support
 - Custom templates via Jinja2
 - Plural forms support (English, Spanish, French, German)
+- Compatible with current ProperDocs and Mkdocs 1.6.1.
 
 ## Documentation
 
@@ -34,7 +35,7 @@ pip install mkdocs-ezglossary-plugin
 
 ### 1. Enable the Plugin
 
-Add ezglossary to your mkdocs.yml:
+Add ezglossary to your properdocs.yml or mkdocs.yml:
 
 ```yaml
 plugins:

@@ -11,14 +11,14 @@
 
 -   ## 2. Installation
 
-    Install the ezglossary plugin whereever you installed mkdocs using
-    the python package manager:
+    Install the ezglossary plugin whereever you installed properdocs/mkdocs
+    using the python package manager:
 
         pip3 install mkdocs-ezglossary-plugin
 
 -   ## 3. Activation
 
-    Add the following lines to your `mkdocs.yml` plugins-section to activate
+    Add the following lines to your `properdocs/mkdocs.yml` plugins-section to activate
     the plugin:
 
     ``` yaml
