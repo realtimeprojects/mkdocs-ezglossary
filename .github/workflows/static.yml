@@ -37,7 +37,7 @@ jobs:
         run: |
           pip3 install -r etc/requirements.txt
           pip3 install .
-          mkdocs build
+          properdocs build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -1,0 +1,83 @@
+site_name: ezglossary
+theme:
+  name: material
+  features:
+    navigation.path
+    navigation.indexes
+    navigation.tabs
+
+extra_css:
+  - css/extra.css
+
+nav:
+  - home: index.md
+  - getting started: getting_started.md
+  - usage:
+    - usage/index.md
+    - usage/definition.md
+    - usage/pagerefs.md
+    - usage/linking.md
+    - usage/summary.md
+    - usage/sections.md
+    - usage/default.md
+    - usage/customization.md
+    - usage/api.md
+  - configuration: configuration.md
+  - definitions: definitions.md
+  - release notes: releases.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      separator: "-"
+  - attr_list
+  - def_list
+  - tables
+  - pymdownx.tilde
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true   
+  - admonition
+  - pymdownx.details
+  - footnotes
+  - md_in_html
+  - mkdocs-click
+
+plugins:
+  - search
+  - callouts
+  - ezglossary:
+      strict: true
+      list_definitions: true
+      list_references: true
+      markdown_links: true
+      inline_refs: none
+      ignore_case: true
+      tooltip: short
+      use_default: true
+      plurals: en
+      sections:
+        - setting
+        - term
+        - demo
+        - configuration
+      section_config:
+        - name: demo
+          inline_refs: short
+        - name: term
+          inline_refs: short
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            heading_level: 4
+            show_source: false
+            show_root_heading: true
+            show_symbol_type_toc: true
+            show_category_heading: true
+            summary: true

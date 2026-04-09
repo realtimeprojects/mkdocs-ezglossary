@@ -1,4 +1,4 @@
-mkdocs
+properdocs
 mkdocs-material
 pymdown-extensions
 markdown-callouts
