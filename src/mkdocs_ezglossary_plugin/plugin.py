@@ -17,7 +17,9 @@ log = logging.getLogger("mkdocs.plugins.ezglossary")
 class __re:
     def __init__(self):
         self.ws = r"[\n ]*"
-        self.section = r"([^:<>\"\|/\@&#][^:<>\"\|/\@]*)"
+        # Leading `\` excluded: otherwise a lone escape backslash from a
+        # table-escaped `\|` can match as a degenerate one-char term.
+        self.section = r"([^:<>\"\|/\@&#\\][^:<>\"\|/\@]*)"
         self.term = self.section
         self.text = r"([^>]+)"
         self.dt = rf"<dt>(<.*>)?{self.section}:{self.term}(<.*>)?<\/dt>"
@@ -169,8 +171,16 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
 
     def _register_glossary_links(self, output, page):
 
+        def _normalize_term(term, text):
+            # In table markdown, custom link text uses \|. After matching, the
+            # escape slash may remain at the end of the term capture.
+            if text and term and term.endswith("\\"):
+                return term[:-1]
+            return term
+
         def _add_link(section, term, text):
             section = "_" if (section == "default" or section is None) else section
+            term = _normalize_term(term, text)
             term = term if term else "__None__"
             text = text if text else "__None__"
             log.debug(f"glossary: found link: {section}/{term}/{text}")
@@ -178,17 +188,17 @@ class GlossaryPlugin(BasePlugin[GlossaryConfig]):
             return f"{self._uuid}:{id}:<{text}>"
 
         def _replace(mo):
-            return _add_link(mo.group(1), mo.group(2), mo.group(4))
+            return _add_link(mo.group("section"), mo.group("term"), mo.group("text"))
 
         def _replace_default(mo):
-            return _add_link(None, mo.group(1), mo.group(3))
+            return _add_link(None, mo.group("term"), mo.group("text"))
 
         def _replace_href(mo):
             return _add_link(mo.group(2), mo.group(3), mo.group(4))
 
-        regex = rf"<{_re.section}\:{_re.term}(\\?\|({_re.text}))?>"
+        regex = rf"<(?P<section>{_re.section})\:(?P<term>{_re.term})(?:\\?\|(?P<text>[^>]+))?>"
         output = re.sub(regex, _replace, output)
-        regex = rf"<{_re.term}:(\\?\|({_re.text}))?>"
+        regex = rf"<(?P<term>{_re.term}):(?:\\?\|(?P<text>[^>]+))?>"
         output = re.sub(regex, _replace_default, output)
 
         if self.config.markdown_links:

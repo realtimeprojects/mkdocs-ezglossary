@@ -1,5 +1,6 @@
 import logging
 
+import markdown
 from yaxp import xpath
 
 from mkdocs_ezglossary_plugin.glossary import get_id
@@ -432,3 +433,128 @@ def test_hyphens(simple, summary, config):
                         href="../simple.md#" + get_id("test", "hyphens-abc xyz", "defs", 0),
                         text="hyphens-abc xyz")
     assert len(summary.xpath(str(dl))) == 1
+
+
+def test_table_custom_text_escaped_pipe_regression_151(config):
+    """Regression test for escaped-pipe custom text in table links.
+
+    In table cells, custom text must escape `|` as `\|`. The link should still
+    resolve to term `demo:first` with text `see details`.
+    """
+    page = mock.Page.fromdict({
+        "file": "table-escaped.md",
+        "title": "Escaped Pipe",
+        "html": """
+            <body>
+                <dl>
+                    <dt>demo:first</dt>
+                    <dd>first term</dd>
+                </dl>
+                <table>
+                    <tr>
+                        <th>Description</th>
+                        <th>Reference</th>
+                    </tr>
+                    <tr>
+                        <td>First term</td>
+                        <td><demo:first\\|see details></td>
+                    </tr>
+                </table>
+            </body>
+        """
+    })
+
+    html = mock.render_single(page, config)
+
+    assert has_link(
+        page=html,
+        section="demo",
+        term="first",
+        title="",
+        href="../table-escaped.md",
+        text="see details"
+    )
+
+
+def test_table_custom_text_escaped_pipe_real_markdown_render(config):
+    """End-to-end regression test using the real python-markdown `tables` extension.
+
+    Confirms that markdown's own table renderer actually emits a literal `\\|`
+    in the cell content (rather than unescaping or stashing it differently),
+    so the hand-authored HTML used elsewhere in these tests reflects reality.
+    """
+    table_md = (
+        "| Description | Reference |\n"
+        "| --- | --- |\n"
+        "| First term | <demo:first\\|see details> |\n"
+    )
+    table_html = markdown.markdown(table_md, extensions=["tables"])
+
+    page = mock.Page(
+        file="table-real.md",
+        title="Escaped Pipe Real Render",
+        ctype="html",
+        content=f"""
+            <body>
+                <dl>
+                    <dt>demo:first</dt>
+                    <dd>first term</dd>
+                </dl>
+                {table_html}
+            </body>
+        """
+    )
+
+    html = mock.render_single(page, config)
+
+    assert has_link(
+        page=html,
+        section="demo",
+        term="first",
+        title="",
+        href="../table-real.md",
+        text="see details"
+    )
+
+
+def test_table_default_section_escaped_pipe_regression_151(config):
+    """Regression test for escaped-pipe custom text using the default-section syntax.
+
+    The default-section pattern (`<term:\\|text>`, no explicit section) shares
+    the same link-resolution logic as the section:term pattern, so it must
+    also resolve correctly when the custom text is table-escaped.
+    """
+    config['use_default'] = True
+    page = mock.Page.fromdict({
+        "file": "table-default-escaped.md",
+        "title": "Escaped Pipe Default Section",
+        "html": """
+            <body>
+                <dl>
+                    <dt>default2</dt>
+                    <dd>default2 term</dd>
+                </dl>
+                <table>
+                    <tr>
+                        <th>A</th>
+                        <th>B</th>
+                    </tr>
+                    <tr>
+                        <td>x</td>
+                        <td><default2:\\|see details></td>
+                    </tr>
+                </table>
+            </body>
+        """
+    })
+
+    html = mock.render_single(page, config)
+
+    assert has_link(
+        page=html,
+        section="_",
+        term="default2",
+        title="",
+        href="../table-default-escaped.md",
+        text="see details"
+    )
